@@ -47,7 +47,6 @@ STOP_WORD = config.get('Brain', 'STOP_WORD')
 # punctuation = ['\n', '.', '?', '!', ',', '\r']
 # Chain_length is the length of the message that sadface compares
 chain_length = int(config.get('Brain', 'chain_length'))
-chattiness = float(config.get('Brain', 'chattiness'))
 max_words = int(config.get('Brain', 'max_words'))
 ignore_file = config.get('Brain', 'ignore_file')
 ignore_nicks = []
