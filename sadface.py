@@ -70,7 +70,7 @@ def add_to_brain(msg, chain_length, write_to_file=False):
 # Find the brain state, keep it saved on disk instead of in RAM.
 
 def generate_sentence(msg, chain_length, max_words=1000): #max_words is defined elsewhere
-    if msg[-1][-1] in string.punctuation:
+    if len(msg) > 0 and msg[-1][-1] in string.punctuation:
 #        msg[-1] = msg[-1][:-1]
 #        msg.replace([-1], '')
 # converts string to list, drops the end character, converts back to string
@@ -117,23 +117,31 @@ class sadfaceBot(irc.IRCClient):
         return self.factory.nickname
     nickname = property(_get_nickname)
 
+    def joinChannel(self, channel):
+        self.join(channel)
+
     def signedOn(self):
         for chan in self.factory.channels:
-            self.join(chan)
-            print "signed on as %s." % (self.nickname,)
+            self.joinChannel(chan)
+
+        for chan in self.factory.listenOnlyChannels:
+            self.joinChannel(chan)
 
     def joined(self, channel):
-        print "Joined %s." % (channel,)
-        self.msg(channel, "OP ME GO BUCKS!")
+        print "Joined %s as %s." % (channel,self.nickname)
+
+    def listenOnlyChannel(self, channel):
+        return channel.lower() in self.factory.listenOnlyChannels
 
     def receiver(self, user_nick, channel):
         return user_nick if channel.lower() == self.factory.nickname.lower() else channel
 
-    def handle_command(self, user_nick, channel, msg):
+    def handle_command(self, user_nick, channel, msg, check_only = False):
         # Check if this is a simple static command
         for command,response in self.factory.static_commands:
             if msg.lower().startswith(command):
-                self.msg(self.receiver(user_nick, channel), user_nick + ': ' + response)
+                if not check_only:
+                    self.msg(self.receiver(user_nick, channel), user_nick + ': ' + response)
                 return True
         return False
 
@@ -156,15 +164,11 @@ class sadfaceBot(irc.IRCClient):
             print "\t" + "Ignored message from <" + user_nick + "> at: " + strftime("%a, %d %b %Y %H:%M:%S %Z", localtime()) # Time method from http://stackoverflow.com/a/415527
             return
 
-        if reply == '0':
+        if reply == '0' or self.listenOnlyChannel(channel):
             print msg
-            prefix = ''
-
-            add_to_brain(msg, self.factory.chain_length, write_to_file=True)
-            if prefix or (channel == self.nickname or random.random() <= self.factory.channels[channel]):
-#                sentence = generate_sentence(msg, self.factory.chain_length,
-#                    self.factory.max_words)
-                pass
+            if not self.handle_command(user_nick, channel, msg, True):
+                add_to_brain(msg, self.factory.chain_length, write_to_file=True)
+            return
 
         if self.handle_command(user_nick, channel, msg):
             return
@@ -223,8 +227,9 @@ class sadfaceBot(irc.IRCClient):
 class sadfaceBotFactory(protocol.ClientFactory):
     protocol = sadfaceBot
 
-    def __init__(self, channels, nickname, chain_length, max_words, static_commands):
+    def __init__(self, channels, listenOnlyChannels, nickname, chain_length, max_words, static_commands):
         self.channels = channels
+        self.listenOnlyChannels = listenOnlyChannels
         self.nickname = nickname
         self.chain_length = chain_length
         self.max_words = max_words
@@ -266,5 +271,10 @@ if __name__ == "__main__":
     for chan,chattiness in config.items("Channels"):
         channels['#' + chan.lower()] = float(chattiness)
 
-    reactor.connectTCP(host, port, sadfaceBotFactory(channels, nickname, chain_length, max_words, static_commands))
+    listenOnlyChannels = []
+    if config.has_option('Bot', 'listenOnlyChannels'):
+        for chan in config.get('Bot', 'listenOnlyChannels').split(','):
+            listenOnlyChannels.append('#' + chan.strip().lower())
+
+    reactor.connectTCP(host, port, sadfaceBotFactory(channels, listenOnlyChannels, nickname, chain_length, max_words, static_commands))
     reactor.run()
