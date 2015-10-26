@@ -36,10 +36,6 @@ username = config.get('Bot', 'username')
 userinfo = config.get('Bot', 'userinfo')
 versionName = "sadface bot rev. 10"
 
-channels = {}
-for chan,chattiness in config.items("Channels"):
-    channels['#' + chan.lower()] = float(chattiness)
-
 reply = config.get('Brain', 'reply')
 markov = defaultdict(list)
 brain_file = config.get('Brain', 'brain_file')
@@ -48,19 +44,21 @@ STOP_WORD = config.get('Brain', 'STOP_WORD')
 # Chain_length is the length of the message that sadface compares
 chain_length = int(config.get('Brain', 'chain_length'))
 max_words = int(config.get('Brain', 'max_words'))
-ignore_file = config.get('Brain', 'ignore_file')
+
 ignore_nicks = []
-for line in open(ignore_file, 'r'):
-    ignore_nicks.append(line.strip())
+if config.has_option('Brain', 'ignore_file'):
+    with open(config.get('Brain', 'ignore_file'), 'r') as f:
+        for line in f:
+            ignore_nicks.append(line.strip())
+
 #
 # Begin actual code
 #
 
 def add_to_brain(msg, chain_length, write_to_file=False):
     if write_to_file:
-        f = open(brain_file, 'a')
-        f.write(msg + '\n')
-        f.close()
+        with open(brain_file, 'a') as f:
+            f.write(msg + '\n')
     buf = [STOP_WORD] * chain_length
     for word in msg.split():
         markov[tuple(buf)].append(word)
@@ -128,8 +126,16 @@ class sadfaceBot(irc.IRCClient):
         print "Joined %s." % (channel,)
         self.msg(channel, "OP ME GO BUCKS!")
 
-    def receiver(self, user, channel):
-        return user.split('!', 1)[0] if channel.lower() == self.factory.nickname.lower() else channel
+    def receiver(self, user_nick, channel):
+        return user_nick if channel.lower() == self.factory.nickname.lower() else channel
+
+    def handle_command(self, user_nick, channel, msg):
+        # Check if this is a simple static command
+        for command,response in self.factory.static_commands:
+            if msg.lower().startswith(command):
+                self.msg(self.receiver(user_nick, channel), user_nick + ': ' + response)
+                return True
+        return False
 
     def privmsg(self, user, channel, msg):
 # TODO
@@ -144,18 +150,33 @@ class sadfaceBot(irc.IRCClient):
         if not user:
             print "NON-USER:" + msg
             return
+
         # Ignores the message if the person is in the ignore list
-        elif ignore(user_nick):
-            print "\t" + "Ignored message from <" + user_nick + "> at: " + strftime("%a, %d %b %Y %H:%M:%S %Z", localtime())
-            # Time method from http://stackoverflow.com/a/415527
+        if ignore(user_nick):
+            print "\t" + "Ignored message from <" + user_nick + "> at: " + strftime("%a, %d %b %Y %H:%M:%S %Z", localtime()) # Time method from http://stackoverflow.com/a/415527
+            return
+
+        if reply == '0':
+            print msg
+            prefix = ''
+
+            add_to_brain(msg, self.factory.chain_length, write_to_file=True)
+            if prefix or (channel == self.nickname or random.random() <= self.factory.channels[channel]):
+#                sentence = generate_sentence(msg, self.factory.chain_length,
+#                    self.factory.max_words)
+                pass
+
+        if self.handle_command(user_nick, channel, msg):
+            return
+
         # Replies to messages containing the bot's name
-        elif reply == '1':
+        if reply == '1':
             if self.nickname in msg:
                 time.sleep(0.2) #to prevent flooding
                 msg = re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg)
                 prefix = "%s: " % (user_nick, )
             elif msg.lower().translate(string.maketrans("",""), string.punctuation).startswith(("hello", "hi", "sup", "howdy", "hola", "salutation", "yo", "greeting", "what up")):
-		time.sleep(0.2) #to prevent flooding
+                time.sleep(0.2) #to prevent flooding
                 msg = re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg) + " to you"
                 prefix = "%s: " % (user_nick, )
             else:
@@ -164,13 +185,14 @@ class sadfaceBot(irc.IRCClient):
             add_to_brain(msg, self.factory.chain_length, write_to_file=True)
             print "\t" + msg #prints to stdout what sadface added to brain
             if prefix or (channel == self.nickname or random.random() <= self.factory.channels[channel]):
-                sentence = generate_sentence(msg, self.factory.chain_length,
-                    self.factory.max_words)
+                sentence = generate_sentence(msg, self.factory.chain_length, self.factory.max_words)
                 if sentence:
-                    self.msg(self.receiver(user, channel), prefix + sentence)
+                    self.msg(self.receiver(user_nick, channel), prefix + sentence)
                     print ">" + "\t" + sentence #prints to stdout what sadface said
+            return
+
         # Replies to messages starting with the bot's name.
-        elif reply == '2':
+        if reply == '2':
             if msg.startswith(self.nickname): #matches nickname, mecause of Noxz
                 time.sleep(0.2) #to prevent flooding
                 msg = re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg)
@@ -182,22 +204,12 @@ class sadfaceBot(irc.IRCClient):
             add_to_brain(msg, self.factory.chain_length, write_to_file=True)
             print "\t" + msg #prints to stdout what sadface added to brain
             if prefix or (channel == self.nickname or random.random() <= self.factory.channels[channel]):
-                sentence = generate_sentence(msg, self.factory.chain_length,
-                    self.factory.max_words)
+                sentence = generate_sentence(msg, self.factory.chain_length, self.factory.max_words)
                 if sentence:
-                    self.msg(self.receiver(user, channel), prefix + sentence)
+                    self.msg(self.receiver(user_nick, channel), prefix + sentence)
                     print ">" + "\t" + sentence #prints to stdout what sadface said
+            return
 
-
-        else:     #for when you don't want it talking back
-            print msg
-            prefix = ''
-
-            add_to_brain(msg, self.factory.chain_length, write_to_file=True)
-            if prefix or (channel == self.nickname or random.random() <= self.factory.channels[channel]):
-#                sentence = generate_sentence(msg, self.factory.chain_length,
-#                    self.factory.max_words)
-                pass
 #
 # Idea for later implementation
 # To limit who gets to talk to the bot, the talker's nickname is self.nickname
@@ -211,11 +223,12 @@ class sadfaceBot(irc.IRCClient):
 class sadfaceBotFactory(protocol.ClientFactory):
     protocol = sadfaceBot
 
-    def __init__(self, channels, nickname, chain_length, max_words):
+    def __init__(self, channels, nickname, chain_length, max_words, static_commands):
         self.channels = channels
         self.nickname = nickname
         self.chain_length = chain_length
         self.max_words = max_words
+        self.static_commands = static_commands
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s), reconnecting." % (reason,)
@@ -235,12 +248,23 @@ if __name__ == "__main__":
         print "Example:"
         print "python sadface_configgable.py default.ini"
     if os.path.exists(brain_file):
-        f = open(brain_file, 'r')
-        for line in f:
-            add_to_brain(line, chain_length)
-        print 'Brain reloaded'
-        f.close()
+        with open(brain_file, 'r') as f:
+            for line in f:
+                add_to_brain(line, chain_length)
+            print 'Brain reloaded'
     else:
         print "Hoi! I need me some brains! Whaddya think I am, the Tin Man?"
-    reactor.connectTCP(host, port, sadfaceBotFactory(channels, nickname, chain_length, max_words))
+
+    static_commands = []
+    if config.has_option('Brain', 'static_commands_file'):
+        with open(config.get('Brain', 'static_commands_file'), 'r') as f:
+            for line in f:
+                split = line.split(':', 1);
+                static_commands.append((split[0].strip().lower(), split[1].strip()))
+
+    channels = {}
+    for chan,chattiness in config.items("Channels"):
+        channels['#' + chan.lower()] = float(chattiness)
+
+    reactor.connectTCP(host, port, sadfaceBotFactory(channels, nickname, chain_length, max_words, static_commands))
     reactor.run()
