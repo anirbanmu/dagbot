@@ -66,7 +66,7 @@ class FormulaOneCountdown():
             return None
         return deltas[0]
 
-    def command_response(self, command_modifier):
+    def response(self, command_modifier):
         self.update_calendar()
         event = self.closest_event(self.modifier_filters[command_modifier])
         if not event:

@@ -106,6 +106,12 @@ def ignore(user):
         return True
     return False
 
+def pick_modifier(modifiers, str):
+    for modifier in modifiers:
+        if str.startswith(modifier):
+            return modifier
+    return ''
+
 class sadfaceBot(irc.IRCClient):
     realname = realname
     username = username
@@ -125,20 +131,29 @@ class sadfaceBot(irc.IRCClient):
         for chan in self.factory.channels:
             self.joinChannel(chan)
 
-        for chan in self.factory.listenOnlyChannels:
+        for chan in self.factory.listen_only_channels:
             self.joinChannel(chan)
 
     def joined(self, channel):
         print "Joined %s as %s." % (channel,self.nickname)
 
-    def listenOnlyChannel(self, channel):
-        return channel.lower() in self.factory.listenOnlyChannels
+    def listen_only(self, channel):
+        return channel.lower() in self.factory.listen_only_channels
 
     def receiver(self, user_nick, channel):
         return user_nick if channel.lower() == self.factory.nickname.lower() else channel
 
     def send(self, user_nick, channel, msg):
         self.msg(self.receiver(user_nick, channel), msg)
+
+    def handle_dynamic(self, user_nick, channel, msg, command_object, check_only):
+        prefix = user_nick + ': '
+        for keyword in command_object.keywords:
+            if msg.startswith(keyword):
+                if not check_only:
+                    self.send(user_nick, channel, prefix + command_object.response(pick_modifier(command_object.modifiers, msg[len(keyword):])))
+                return True
+        return False
 
     def handle_command(self, user_nick, channel, msg, check_only = False):
         prefix = user_nick + ': '
@@ -150,16 +165,9 @@ class sadfaceBot(irc.IRCClient):
                 return True
 
         for command_object in self.factory.dynamic_commands:
-            for keyword in command_object.keywords:
-                if msg.startswith(keyword):
-                    found_modifier = ''
-                    keyword_index = msg.find(keyword)
-                    for modifier in command_object.modifiers:
-                        if msg[keyword_index:].startswith(keyword + modifier):
-                            found_modifier = modifier
-                    if not check_only:
-                        self.send(user_nick, channel, prefix + command_object.command_response(found_modifier))
-                    return True
+            if self.handle_dynamic(user_nick, channel, msg, command_object, check_only):
+                return True
+
         return False
 
     def privmsg(self, user, channel, msg):
@@ -181,9 +189,9 @@ class sadfaceBot(irc.IRCClient):
             print "\t" + "Ignored message from <" + user_nick + "> at: " + strftime("%a, %d %b %Y %H:%M:%S %Z", localtime()) # Time method from http://stackoverflow.com/a/415527
             return
 
-        if reply == '0' or self.listenOnlyChannel(channel):
+        if reply == '0' or self.listen_only(channel):
             print msg
-            if not self.handle_command(user_nick, channel, msg, True):
+            if not self.handle_command(user_nick, channel, msg.lower(), True):
                 add_to_brain(msg, self.factory.chain_length, write_to_file=True)
             return
 
@@ -244,9 +252,9 @@ class sadfaceBot(irc.IRCClient):
 class sadfaceBotFactory(protocol.ClientFactory):
     protocol = sadfaceBot
 
-    def __init__(self, channels, listenOnlyChannels, nickname, chain_length, max_words, static_commands, dynamic_commands):
+    def __init__(self, channels, listen_only_channels, nickname, chain_length, max_words, static_commands, dynamic_commands):
         self.channels = channels
-        self.listenOnlyChannels = listenOnlyChannels
+        self.listen_only_channels = listen_only_channels
         self.nickname = nickname
         self.chain_length = chain_length
         self.max_words = max_words
@@ -282,10 +290,10 @@ if __name__ == "__main__":
     for chan,chattiness in config.items("Channels"):
         channels['#' + chan.lower()] = float(chattiness)
 
-    listenOnlyChannels = []
+    listen_only_channels = []
     if config.has_option('Bot', 'listenOnlyChannels'):
         for chan in config.get('Bot', 'listenOnlyChannels').split(','):
-            listenOnlyChannels.append('#' + chan.strip().lower())
+            listen_only_channels.append('#' + chan.strip().lower())
 
     static_commands = []
     if config.has_option('Brain', 'static_commands_file'):
@@ -296,5 +304,5 @@ if __name__ == "__main__":
 
     dynamic_commands = [FormulaOneCountdown()]
 
-    reactor.connectTCP(host, port, sadfaceBotFactory(channels, listenOnlyChannels, nickname, chain_length, max_words, static_commands, dynamic_commands))
+    reactor.connectTCP(host, port, sadfaceBotFactory(channels, listen_only_channels, nickname, chain_length, max_words, static_commands, dynamic_commands))
     reactor.run()
