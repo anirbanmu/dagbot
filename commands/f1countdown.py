@@ -4,10 +4,10 @@ from datetime import datetime, timedelta
 from icalendar import Calendar, Event
 
 def get_raw_events(url):
-  file = urlopen(url)
-  contents = file.read()
-  file.close()
-  return contents
+    file = urlopen(url)
+    contents = file.read()
+    file.close()
+    return contents
 
 def sanitize_dt(dt):
     # Assume UTC for non tz aware events
@@ -34,6 +34,18 @@ def prune_past_events(ics_events, now):
                 events.append(component)
     return events
 
+def closest_event(events, event_type_end):
+    deltas = []
+    utc_now = sanitize_dt(datetime.utcnow())
+    for event in events:
+        delta = sanitize_dt(event.get('dtstart').dt) - utc_now
+        if (event.get('summary').lower().endswith(event_type_end) and delta > timedelta(microseconds=0)):
+            deltas.append((event, delta))
+    deltas.sort(key=lambda x: x[1])
+    if (len(deltas) == 0):
+        return None
+    return deltas[0]
+
 class FormulaOneCountdown():
     # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
     calendar_url = 'https://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics'
@@ -54,21 +66,9 @@ class FormulaOneCountdown():
         self.last_updated = datetime.utcnow()
         self.events = prune_past_events(Calendar.from_ical(get_raw_events(self.calendar_url)), self.last_updated)
 
-    def closest_event(self, event_type_end):
-        deltas = []
-        utc_now = sanitize_dt(datetime.utcnow())
-        for event in self.events:
-            delta = sanitize_dt(event.get('dtstart').dt) - utc_now
-            if (event.get('summary').lower().endswith(event_type_end) and delta > timedelta(microseconds=0)):
-                deltas.append((event, delta))
-        deltas.sort(key=lambda x: x[1])
-        if (len(deltas) == 0):
-            return None
-        return deltas[0]
-
-    def command_response(self, command_modifier):
+    def response(self, command_modifier):
         self.update_calendar()
-        event = self.closest_event(self.modifier_filters[command_modifier])
+        event = closest_event(self.events, self.modifier_filters[command_modifier])
         if not event:
             return 'No future event found'
 
