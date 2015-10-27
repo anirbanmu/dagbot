@@ -6,6 +6,7 @@ from twisted.internet import protocol
 from twisted.internet import reactor
 from collections import defaultdict
 from time import localtime, strftime
+from commands.f1countdown import FormulaOneCountdown
 
 #
 # Setting some settings
@@ -136,13 +137,29 @@ class sadfaceBot(irc.IRCClient):
     def receiver(self, user_nick, channel):
         return user_nick if channel.lower() == self.factory.nickname.lower() else channel
 
+    def send(self, user_nick, channel, msg):
+        self.msg(self.receiver(user_nick, channel), msg)
+
     def handle_command(self, user_nick, channel, msg, check_only = False):
+        prefix = user_nick + ': '
         # Check if this is a simple static command
         for command,response in self.factory.static_commands:
-            if msg.lower().startswith(command):
+            if msg.startswith(command):
                 if not check_only:
-                    self.msg(self.receiver(user_nick, channel), user_nick + ': ' + response)
+                    self.send(user_nick, channel, prefix + response)
                 return True
+
+        for command_object in self.factory.dynamic_commands:
+            for keyword in command_object.keywords:
+                if msg.startswith(keyword):
+                    found_modifier = ''
+                    keyword_index = msg.find(keyword)
+                    for modifier in command_object.modifiers:
+                        if msg[keyword_index:].startswith(keyword + modifier):
+                            found_modifier = modifier
+                    if not check_only:
+                        self.send(user_nick, channel, prefix + command_object.command_response(found_modifier))
+                    return True
         return False
 
     def privmsg(self, user, channel, msg):
@@ -170,7 +187,7 @@ class sadfaceBot(irc.IRCClient):
                 add_to_brain(msg, self.factory.chain_length, write_to_file=True)
             return
 
-        if self.handle_command(user_nick, channel, msg):
+        if self.handle_command(user_nick, channel, msg.lower()):
             return
 
         # Replies to messages containing the bot's name
@@ -227,13 +244,14 @@ class sadfaceBot(irc.IRCClient):
 class sadfaceBotFactory(protocol.ClientFactory):
     protocol = sadfaceBot
 
-    def __init__(self, channels, listenOnlyChannels, nickname, chain_length, max_words, static_commands):
+    def __init__(self, channels, listenOnlyChannels, nickname, chain_length, max_words, static_commands, dynamic_commands):
         self.channels = channels
         self.listenOnlyChannels = listenOnlyChannels
         self.nickname = nickname
         self.chain_length = chain_length
         self.max_words = max_words
         self.static_commands = static_commands
+        self.dynamic_commands = dynamic_commands
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s), reconnecting." % (reason,)
@@ -260,13 +278,6 @@ if __name__ == "__main__":
     else:
         print "Hoi! I need me some brains! Whaddya think I am, the Tin Man?"
 
-    static_commands = []
-    if config.has_option('Brain', 'static_commands_file'):
-        with open(config.get('Brain', 'static_commands_file'), 'r') as f:
-            for line in f:
-                split = line.split(':', 1);
-                static_commands.append((split[0].strip().lower(), split[1].strip()))
-
     channels = {}
     for chan,chattiness in config.items("Channels"):
         channels['#' + chan.lower()] = float(chattiness)
@@ -276,5 +287,14 @@ if __name__ == "__main__":
         for chan in config.get('Bot', 'listenOnlyChannels').split(','):
             listenOnlyChannels.append('#' + chan.strip().lower())
 
-    reactor.connectTCP(host, port, sadfaceBotFactory(channels, listenOnlyChannels, nickname, chain_length, max_words, static_commands))
+    static_commands = []
+    if config.has_option('Brain', 'static_commands_file'):
+        with open(config.get('Brain', 'static_commands_file'), 'r') as f:
+            for line in f:
+                split = line.split(':', 1);
+                static_commands.append((split[0].strip().lower(), split[1].strip()))
+
+    dynamic_commands = [FormulaOneCountdown()]
+
+    reactor.connectTCP(host, port, sadfaceBotFactory(channels, listenOnlyChannels, nickname, chain_length, max_words, static_commands, dynamic_commands))
     reactor.run()
