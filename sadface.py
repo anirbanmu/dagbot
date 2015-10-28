@@ -6,7 +6,7 @@ from twisted.internet import protocol
 from twisted.internet import reactor
 from collections import defaultdict
 from time import localtime, strftime
-from commands.f1countdown import FormulaOneCountdown
+from commands.calendarcountdown import CalendarCountdown
 
 #
 # Setting some settings
@@ -302,7 +302,11 @@ if __name__ == "__main__":
                 split = line.split(':', 1);
                 static_commands.append((split[0].strip().lower(), split[1].strip()))
 
-    dynamic_commands = [FormulaOneCountdown()]
+    # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
+    dynamic_commands = [CalendarCountdown('https://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics',
+                                          ['@countdown', '@next'],
+                                          ['r', 'q'],
+                                          {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying'})]
 
     reactor.connectTCP(host, port, sadfaceBotFactory(channels, listen_only_channels, nickname, chain_length, max_words, static_commands, dynamic_commands))
     reactor.run()

@@ -46,14 +46,13 @@ def closest_event(events, event_type_end):
         return None
     return deltas[0]
 
-class FormulaOneCountdown():
-    # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
-    calendar_url = 'https://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics'
+class CalendarCountdown():
     update_interval = timedelta(days=1)
-    keywords = ['@countdown', '@next']
-    modifiers = ['r', 'q']
-    modifier_filters = {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying'}
-    def __init__(self):
+    def __init__(self, calendar_url, keywords, modifiers, modifier_filters):
+        self.calendar_url = calendar_url
+        self.keywords = keywords
+        self.modifiers = modifiers
+        self.modifier_filters = modifier_filters
         self.events = []
         self.last_updated = datetime.min
         self.update_calendar()
