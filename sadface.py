@@ -57,6 +57,9 @@ if config.has_option('Brain', 'ignore_file'):
 #
 
 def add_to_brain(msg, chain_length, write_to_file=False):
+    if len(msg.strip()) == 0:
+        return
+
     if write_to_file:
         with open(brain_file, 'a') as f:
             f.write(msg + '\n')
