@@ -6,7 +6,7 @@ from twisted.internet import protocol
 from twisted.internet import reactor
 from collections import defaultdict
 from time import localtime, strftime
-from commands.f1countdown import FormulaOneCountdown
+from commands.calendarcountdown import CalendarCountdown
 
 #
 # Setting some settings
@@ -35,7 +35,7 @@ erroneousNickFallback = config.get('Bot', 'erroneousNickFallback')
 realname = config.get('Bot', 'realname')
 username = config.get('Bot', 'username')
 userinfo = config.get('Bot', 'userinfo')
-versionName = "sadface bot rev. 10"
+versionName = config.get('Bot', 'versionName')
 
 reply = config.get('Brain', 'reply')
 markov = defaultdict(list)
@@ -57,6 +57,9 @@ if config.has_option('Brain', 'ignore_file'):
 #
 
 def add_to_brain(msg, chain_length, write_to_file=False):
+    if len(msg.strip()) == 0:
+        return
+
     if write_to_file:
         with open(brain_file, 'a') as f:
             f.write(msg + '\n')
@@ -128,6 +131,9 @@ class sadfaceBot(irc.IRCClient):
         self.join(channel)
 
     def signedOn(self):
+        if self.password != '':
+            self.msg('nickserv', 'identify ' + self.password)
+
         for chan in self.factory.channels:
             self.joinChannel(chan)
 
@@ -302,7 +308,20 @@ if __name__ == "__main__":
                 split = line.split(':', 1);
                 static_commands.append((split[0].strip().lower(), split[1].strip()))
 
-    dynamic_commands = [FormulaOneCountdown()]
+                                          # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
+    dynamic_commands = [CalendarCountdown('https://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics',
+                                          ['@countdown', '@next'],
+                                          ['r', 'q'],
+                                          {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying'}),
+                                          # Calendar from http://icalshare.com/calendars/7111
+                        CalendarCountdown('https://www.google.com/calendar/ical/cq0hpuen3mvq11aq3surghrkjg%40group.calendar.google.com/public/basic.ics',
+                                          ['@wecnext', '@weccountdown'],
+                                          ['r', 'q'],
+                                          {'': '', 'r': 'race', 'q': 'qualifying'}),
+                        CalendarCountdown('https://www.google.com/calendar/ical/dc71ef6p5csp8i8gu4vai0h5mg%40group.calendar.google.com/public/basic.ics',
+                                          ['@gp3next', '@gp3countdown'],
+                                          ['r', 'q'],
+                                          {'': '', 'r': 'race', 'q': 'qualifying'})]
 
     reactor.connectTCP(host, port, sadfaceBotFactory(channels, listen_only_channels, nickname, chain_length, max_words, static_commands, dynamic_commands))
     reactor.run()

@@ -23,13 +23,18 @@ def prune_event_start(start_time, utc_now):
 def prune_event_end(end_time, utc_now):
     return sanitize_dt(end_time) < utc_now
 
+def prune_event(event, utc_now):
+    start = event.get('dtstart')
+    end = event.get('dtend')
+    return not hasattr(start.dt, 'hour') or prune_event_start(start.dt, utc_now) or (end and prune_event_end(end.dt, utc_now))
+
 def prune_past_events(ics_events, now):
     utc_now = now.replace(tzinfo=pytz.UTC)
     events = []
     for component in ics_events.walk():
             if component.name == "VEVENT":
                 end = component.get('dtend')
-                if prune_event_start(component.get('dtstart').dt, utc_now) or (end and prune_event_end(end.dt, utc_now)):
+                if prune_event(component, utc_now):
                     continue
                 events.append(component)
     return events
@@ -46,14 +51,13 @@ def closest_event(events, event_type_end):
         return None
     return deltas[0]
 
-class FormulaOneCountdown():
-    # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
-    calendar_url = 'https://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics'
+class CalendarCountdown():
     update_interval = timedelta(days=1)
-    keywords = ['@countdown', '@next']
-    modifiers = ['r', 'q']
-    modifier_filters = {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying'}
-    def __init__(self):
+    def __init__(self, calendar_url, keywords, modifiers, modifier_filters):
+        self.calendar_url = calendar_url
+        self.keywords = keywords
+        self.modifiers = modifiers
+        self.modifier_filters = modifier_filters
         self.events = []
         self.last_updated = datetime.min
         self.update_calendar()
