@@ -152,11 +152,11 @@ class sadfaceBot(irc.IRCClient):
     def send(self, user_nick, channel, msg):
         self.msg(self.receiver(user_nick, channel), msg)
 
-    def handle_dynamic(self, user_nick, channel, msg, command_object, keyword, check_only):
+    def handle_dynamic(self, user_nick, channel, msg, keyword, modifiers, response, check_only):
         prefix = user_nick + ': '
         if msg.startswith(keyword):
             if not check_only:
-                self.send(user_nick, channel, prefix + command_object.response(pick_modifier(command_object.modifiers, msg[len(keyword):])))
+                self.send(user_nick, channel, prefix + response(pick_modifier(modifiers, msg[len(keyword):])))
             return True
         return False
 
@@ -169,8 +169,9 @@ class sadfaceBot(irc.IRCClient):
                     self.send(user_nick, channel, prefix + response)
                 return True
 
-        for keyword,index in self.factory.dynamic_command_keywords:
-            if self.handle_dynamic(user_nick, channel, msg, self.factory.dynamic_commands[index], keyword, check_only):
+        for command_index,keyword_index in self.factory.dynamic_command_keyword_order:
+            command = self.factory.dynamic_commands[command_index]
+            if self.handle_dynamic(user_nick, channel, msg, command.keywords[keyword_index], command.modifiers, command.response, check_only):
                 return True
 
         return False
@@ -265,12 +266,14 @@ class sadfaceBotFactory(protocol.ClientFactory):
         self.max_words = max_words
         self.static_commands = static_commands
         self.dynamic_commands = dynamic_commands
-        self.dynamic_command_keywords = []
 
-        for index, command_object in enumerate(self.dynamic_commands):
-            for keyword in command_object.keywords:
-                self.dynamic_command_keywords.append((keyword, index))
-        self.dynamic_command_keywords.sort(key=lambda x: len(x[0]), reverse=True)
+        # Holds the order of matching for keywords from longest in length to shortest. This prevents collisions of substring keywords.
+        # Each array element is (index into dynamic_command, index into that specific command's keywords)
+        self.dynamic_command_keyword_order = []
+        for command_index, command_object in enumerate(self.dynamic_commands):
+            for keyword_index, keyword in enumerate(command_object.keywords):
+                self.dynamic_command_keyword_order.append((command_index, keyword_index))
+        self.dynamic_command_keyword_order.sort(key=lambda x: len(self.dynamic_commands[x[0]].keywords[x[1]]), reverse=True)
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s), reconnecting." % (reason,)
