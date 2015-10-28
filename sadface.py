@@ -311,6 +311,10 @@ if __name__ == "__main__":
                         CalendarCountdown('https://www.google.com/calendar/ical/cq0hpuen3mvq11aq3surghrkjg%40group.calendar.google.com/public/basic.ics',
                                           ['@wecnext', '@weccountdown'],
                                           ['r', 'q'],
+                                          {'': '', 'r': 'race', 'q': 'qualifying'}),
+                        CalendarCountdown('https://www.google.com/calendar/ical/dc71ef6p5csp8i8gu4vai0h5mg%40group.calendar.google.com/public/basic.ics',
+                                          ['@gp3next', '@gp3countdown'],
+                                          ['r', 'q'],
                                           {'': '', 'r': 'race', 'q': 'qualifying'})]
 
     reactor.connectTCP(host, port, sadfaceBotFactory(channels, listen_only_channels, nickname, chain_length, max_words, static_commands, dynamic_commands))
