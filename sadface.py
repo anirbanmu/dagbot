@@ -35,7 +35,7 @@ erroneousNickFallback = config.get('Bot', 'erroneousNickFallback')
 realname = config.get('Bot', 'realname')
 username = config.get('Bot', 'username')
 userinfo = config.get('Bot', 'userinfo')
-versionName = "sadface bot rev. 10"
+versionName = config.get('Bot', 'versionName')
 
 reply = config.get('Brain', 'reply')
 markov = defaultdict(list)
@@ -128,6 +128,9 @@ class sadfaceBot(irc.IRCClient):
         self.join(channel)
 
     def signedOn(self):
+        if self.password != '':
+            self.msg('nickserv', 'identify ' + self.password)
+
         for chan in self.factory.channels:
             self.joinChannel(chan)
 
