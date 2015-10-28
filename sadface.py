@@ -14,7 +14,7 @@ from commands.calendarcountdown import CalendarCountdown
 
 config_file = sys.argv[1]
 
-requiredconfig = [('Connection', 'host'), ('Connection', 'port'), ('Bot', 'nickname'), ('Bot', 'erroneousNickFallback'), ('Bot', 'realname'), ('Bot', 'username'), ('Bot', 'userinfo'), ('Brain', 'reply'), ('Brain', 'brain_file'), ('Brain', 'ignore_file'), ('Brain', 'STOP_WORD'), ('Brain', 'chain_length'), ('Brain', 'max_words')];
+requiredconfig = [('Connection', 'host'), ('Connection', 'port'), ('Bot', 'nickname'), ('Bot', 'erroneousNickFallback'), ('Bot', 'realname'), ('Bot', 'username'), ('Bot', 'userinfo'), ('Brain', 'reply'), ('Brain', 'brain_file'), ('Brain', 'ignore_file'), ('Brain', 'chain_length'), ('Brain', 'max_words')];
 config = ConfigParser.ConfigParser()
 config.read(config_file)
 for setting in requiredconfig:
@@ -40,8 +40,7 @@ versionName = config.get('Bot', 'versionName')
 reply = config.get('Brain', 'reply')
 markov = defaultdict(list)
 brain_file = config.get('Brain', 'brain_file')
-STOP_WORD = config.get('Brain', 'STOP_WORD')
-# punctuation = ['\n', '.', '?', '!', ',', '\r']
+
 # Chain_length is the length of the message that sadface compares
 chain_length = int(config.get('Brain', 'chain_length'))
 max_words = int(config.get('Brain', 'max_words'))
@@ -56,6 +55,11 @@ if config.has_option('Brain', 'ignore_file'):
 # Begin actual code
 #
 
+def add_to_markov_brain(msg, chain_length):
+    words = msg.split()
+    for i in xrange(chain_length, len(words)):
+        markov[tuple(words[i - chain_length : i])].append(words[i])
+
 def add_to_brain(msg, chain_length, write_to_file=False):
     if len(msg.strip()) == 0:
         return
@@ -63,45 +67,27 @@ def add_to_brain(msg, chain_length, write_to_file=False):
     if write_to_file:
         with open(brain_file, 'a') as f:
             f.write(msg + '\n')
-    buf = [STOP_WORD] * chain_length
-    for word in msg.split():
-        markov[tuple(buf)].append(word)
-        del buf[0]
-        buf.append(word)
-    markov[tuple(buf)].append(STOP_WORD)
+
+    add_to_markov_brain(msg, chain_length)
 
 # TODO
 # Find the brain state, keep it saved on disk instead of in RAM.
 
 def generate_sentence(msg, chain_length, max_words=1000): #max_words is defined elsewhere
-    if len(msg) > 0 and msg[-1][-1] in string.punctuation:
-#        msg[-1] = msg[-1][:-1]
-#        msg.replace([-1], '')
-# converts string to list, drops the end character, converts back to string
-        msg = list(msg)
-        msg[-1] = msg[-1][:-1]
-        msg[0] = msg[0].upper()
-        msg = "".join(msg)
-#    buf = msg.split()[-chain_length:]
-    buf = msg.split()[:chain_length]
+    if len(msg) > 0 and msg[-1] in string.punctuation:
+        # drop punctuation
+        msg = msg[:len(msg) - 1]
 
-# If message is longer than chain_length, shorten the message.
-    if len(msg.split()) > chain_length:
-        message = buf[:]
-    else:
-        message = []
-        for i in xrange(chain_length):
+    message = msg.split()[:chain_length]
+    if len(message) < chain_length:
+        for i in xrange(chain_length - len(message)):
             message.append(random.choice(markov[random.choice(markov.keys())]))
-    for i in xrange(max_words):
-        try:
-            next_word = random.choice(markov[tuple(buf)])
-        except IndexError:
-            continue
-        if next_word == STOP_WORD:
-            break
-        message.append(next_word)
-        del buf[0] # What happpens if this is moved down a line?
-        buf.append(next_word)
+
+    for i in xrange(chain_length, max_words):
+        word_choices = markov.get(tuple(message[i - chain_length : i]))
+        if word_choices:
+            message.append(random.choice(word_choices))
+
     return ' '.join(message)
 
 def ignore(user):
