@@ -302,11 +302,16 @@ if __name__ == "__main__":
                 split = line.split(':', 1);
                 static_commands.append((split[0].strip().lower(), split[1].strip()))
 
-    # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
+                                          # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
     dynamic_commands = [CalendarCountdown('https://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics',
                                           ['@countdown', '@next'],
                                           ['r', 'q'],
-                                          {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying'})]
+                                          {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying'}),
+                                          # Calendar from http://icalshare.com/calendars/7111
+                        CalendarCountdown('https://www.google.com/calendar/ical/cq0hpuen3mvq11aq3surghrkjg%40group.calendar.google.com/public/basic.ics',
+                                          ['@wecnext', '@weccountdown'],
+                                          ['r', 'q'],
+                                          {'': '', 'r': 'race', 'q': 'qualifying'})]
 
     reactor.connectTCP(host, port, sadfaceBotFactory(channels, listen_only_channels, nickname, chain_length, max_words, static_commands, dynamic_commands))
     reactor.run()

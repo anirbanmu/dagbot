@@ -23,13 +23,18 @@ def prune_event_start(start_time, utc_now):
 def prune_event_end(end_time, utc_now):
     return sanitize_dt(end_time) < utc_now
 
+def prune_event(event, utc_now):
+    start = event.get('dtstart')
+    end = event.get('dtend')
+    return not hasattr(start.dt, 'hour') or prune_event_start(start.dt, utc_now) or (end and prune_event_end(end.dt, utc_now))
+
 def prune_past_events(ics_events, now):
     utc_now = now.replace(tzinfo=pytz.UTC)
     events = []
     for component in ics_events.walk():
             if component.name == "VEVENT":
                 end = component.get('dtend')
-                if prune_event_start(component.get('dtstart').dt, utc_now) or (end and prune_event_end(end.dt, utc_now)):
+                if prune_event(component, utc_now):
                     continue
                 events.append(component)
     return events
