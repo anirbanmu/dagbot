@@ -152,13 +152,12 @@ class sadfaceBot(irc.IRCClient):
     def send(self, user_nick, channel, msg):
         self.msg(self.receiver(user_nick, channel), msg)
 
-    def handle_dynamic(self, user_nick, channel, msg, command_object, check_only):
+    def handle_dynamic(self, user_nick, channel, msg, command_object, keyword, check_only):
         prefix = user_nick + ': '
-        for keyword in command_object.keywords:
-            if msg.startswith(keyword):
-                if not check_only:
-                    self.send(user_nick, channel, prefix + command_object.response(pick_modifier(command_object.modifiers, msg[len(keyword):])))
-                return True
+        if msg.startswith(keyword):
+            if not check_only:
+                self.send(user_nick, channel, prefix + command_object.response(pick_modifier(command_object.modifiers, msg[len(keyword):])))
+            return True
         return False
 
     def handle_command(self, user_nick, channel, msg, check_only = False):
@@ -170,8 +169,8 @@ class sadfaceBot(irc.IRCClient):
                     self.send(user_nick, channel, prefix + response)
                 return True
 
-        for command_object in self.factory.dynamic_commands:
-            if self.handle_dynamic(user_nick, channel, msg, command_object, check_only):
+        for keyword,index in self.factory.dynamic_command_keywords:
+            if self.handle_dynamic(user_nick, channel, msg, self.factory.dynamic_commands[index], keyword, check_only):
                 return True
 
         return False
@@ -266,6 +265,12 @@ class sadfaceBotFactory(protocol.ClientFactory):
         self.max_words = max_words
         self.static_commands = static_commands
         self.dynamic_commands = dynamic_commands
+        self.dynamic_command_keywords = []
+
+        for index, command_object in enumerate(self.dynamic_commands):
+            for keyword in command_object.keywords:
+                self.dynamic_command_keywords.append((keyword, index))
+        self.dynamic_command_keywords.sort(key=lambda x: len(x[0]), reverse=True)
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s), reconnecting." % (reason,)
@@ -310,16 +315,16 @@ if __name__ == "__main__":
 
                                           # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
     dynamic_commands = [CalendarCountdown('https://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics',
-                                          ['@countdown', '@next'],
+                                          ['@next', '@countdown'],
                                           ['r', 'q'],
                                           {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying'}),
                                           # Calendar from http://icalshare.com/calendars/7111
                         CalendarCountdown('https://www.google.com/calendar/ical/cq0hpuen3mvq11aq3surghrkjg%40group.calendar.google.com/public/basic.ics',
-                                          ['@wecnext', '@weccountdown'],
+                                          ['@nextwec', '@countdownwec'],
                                           ['r', 'q'],
                                           {'': '', 'r': 'race', 'q': 'qualifying'}),
                         CalendarCountdown('https://www.google.com/calendar/ical/dc71ef6p5csp8i8gu4vai0h5mg%40group.calendar.google.com/public/basic.ics',
-                                          ['@gp3next', '@gp3countdown'],
+                                          ['@nextgp3', '@countdowngp3'],
                                           ['r', 'q'],
                                           {'': '', 'r': 'race', 'q': 'qualifying'})]
 
