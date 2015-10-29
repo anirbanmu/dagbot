@@ -7,6 +7,7 @@ from twisted.internet import reactor
 from collections import defaultdict
 from time import localtime, strftime
 from commands.calendarcountdown import CalendarCountdown
+from markovbrain import MarkovBrain
 
 #
 # Setting some settings
@@ -38,8 +39,9 @@ userinfo = config.get('Bot', 'userinfo')
 versionName = config.get('Bot', 'versionName')
 
 reply = config.get('Brain', 'reply')
-markov = defaultdict(list)
 brain_file = config.get('Brain', 'brain_file')
+if not os.path.exists(brain_file):
+    sys.exit('Error: Hoi! I need me some brains! Whaddya think I am, the Tin Man?')
 
 # Chain_length is the length of the message that sadface compares
 chain_length = int(config.get('Brain', 'chain_length'))
@@ -51,44 +53,46 @@ if config.has_option('Brain', 'ignore_file'):
         for line in f:
             ignore_nicks.append(line.strip())
 
+channels = {}
+for chan,chattiness in config.items("Channels"):
+    channels['#' + chan.lower()] = float(chattiness)
+
+listen_only_channels = []
+if config.has_option('Bot', 'listenOnlyChannels'):
+    for chan in config.get('Bot', 'listenOnlyChannels').split(','):
+        listen_only_channels.append('#' + chan.strip().lower())
+
+static_commands = []
+if config.has_option('Brain', 'static_commands_file'):
+    with open(config.get('Brain', 'static_commands_file'), 'r') as f:
+        for line in f:
+            split = line.split(':', 1);
+            static_commands.append((split[0].strip().lower(), split[1].strip()))
+
+                                      # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
+dynamic_commands = [CalendarCountdown('https://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics',
+                                      ['@next', '@countdown'],
+                                      ['r', 'q'],
+                                      {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying'}),
+                                      # Calendar from http://icalshare.com/calendars/7111
+                    CalendarCountdown('https://www.google.com/calendar/ical/cq0hpuen3mvq11aq3surghrkjg%40group.calendar.google.com/public/basic.ics',
+                                      ['@nextwec', '@countdownwec'],
+                                      ['r', 'q'],
+                                      {'': '', 'r': 'race', 'q': 'qualifying'}),
+                    CalendarCountdown('https://www.google.com/calendar/ical/smcvrb4c50unt7gs59tli4kq9o%40group.calendar.google.com/public/basic.ics',
+                                      ['@nextgp2', '@countdowngp2'],
+                                      ['r', 'q'],
+                                      {'': '', 'r': 'race', 'q': 'qualifying'}),
+                    CalendarCountdown('https://www.google.com/calendar/ical/dc71ef6p5csp8i8gu4vai0h5mg%40group.calendar.google.com/public/basic.ics',
+                                      ['@nextgp3', '@countdowngp3'],
+                                      ['r', 'q'],
+                                      {'': '', 'r': 'race', 'q': 'qualifying'})]
+
+markov = MarkovBrain(brain_file, chain_length, max_words)
+
 #
 # Begin actual code
 #
-
-def add_to_markov_brain(msg, chain_length):
-    words = msg.split()
-    for i in xrange(chain_length, len(words)):
-        markov[tuple(words[i - chain_length : i])].append(words[i])
-
-def add_to_brain(msg, chain_length, write_to_file=False):
-    if len(msg.strip()) == 0:
-        return
-
-    if write_to_file:
-        with open(brain_file, 'a') as f:
-            f.write(msg + '\n')
-
-    add_to_markov_brain(msg, chain_length)
-
-# TODO
-# Find the brain state, keep it saved on disk instead of in RAM.
-
-def generate_sentence(msg, chain_length, max_words=1000): #max_words is defined elsewhere
-    if len(msg) > 0 and msg[-1] in string.punctuation:
-        # drop punctuation
-        msg = msg[:len(msg) - 1]
-
-    message = msg.split()[:chain_length]
-    if len(message) < chain_length:
-        for i in xrange(chain_length - len(message)):
-            message.append(random.choice(markov[random.choice(markov.keys())]))
-
-    for i in xrange(chain_length, max_words):
-        word_choices = markov.get(tuple(message[i - chain_length : i]))
-        if word_choices:
-            message.append(random.choice(word_choices))
-
-    return ' '.join(message)
 
 def ignore(user):
     if user in ignore_nicks:
@@ -184,7 +188,7 @@ class sadfaceBot(irc.IRCClient):
         if reply == '0' or self.listen_only(channel):
             print msg
             if not self.handle_command(user_nick, channel, msg.lower(), True):
-                add_to_brain(msg, self.factory.chain_length, write_to_file=True)
+                self.factory.markov.add_to_brain(msg.strip())
             return
 
         if self.handle_command(user_nick, channel, msg.lower()):
@@ -203,10 +207,10 @@ class sadfaceBot(irc.IRCClient):
             else:
                 prefix = ''
 
-            add_to_brain(msg, self.factory.chain_length, write_to_file=True)
+            self.factory.markov.add_to_brain(msg.strip())
             print "\t" + msg #prints to stdout what sadface added to brain
             if prefix or (channel == self.nickname or random.random() <= self.factory.channels[channel]):
-                sentence = generate_sentence(msg, self.factory.chain_length, self.factory.max_words)
+                sentence = self.factory.markov.generate_sentence(msg)
                 if sentence:
                     self.msg(self.receiver(user_nick, channel), prefix + sentence)
                     print ">" + "\t" + sentence #prints to stdout what sadface said
@@ -222,10 +226,10 @@ class sadfaceBot(irc.IRCClient):
                 msg = re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg)
                 prefix = ''
 
-            add_to_brain(msg, self.factory.chain_length, write_to_file=True)
+            self.factory.markov.add_to_brain(msg.strip())
             print "\t" + msg #prints to stdout what sadface added to brain
             if prefix or (channel == self.nickname or random.random() <= self.factory.channels[channel]):
-                sentence = generate_sentence(msg, self.factory.chain_length, self.factory.max_words)
+                sentence = self.factory.markov.generate_sentence(msg)
                 if sentence:
                     self.msg(self.receiver(user_nick, channel), prefix + sentence)
                     print ">" + "\t" + sentence #prints to stdout what sadface said
@@ -244,12 +248,11 @@ class sadfaceBot(irc.IRCClient):
 class sadfaceBotFactory(protocol.ClientFactory):
     protocol = sadfaceBot
 
-    def __init__(self, channels, listen_only_channels, nickname, chain_length, max_words, static_commands, dynamic_commands):
+    def __init__(self, markov, channels, listen_only_channels, nickname, static_commands, dynamic_commands):
+        self.markov = markov
         self.channels = channels
         self.listen_only_channels = listen_only_channels
         self.nickname = nickname
-        self.chain_length = chain_length
-        self.max_words = max_words
         self.static_commands = static_commands
         self.dynamic_commands = dynamic_commands
 
@@ -277,49 +280,8 @@ if __name__ == "__main__":
     if config_file == False:
         print "Please specify a valid config file in the arguments."
         print "Example:"
-        print "python sadface_configgable.py default.ini"
-    if os.path.exists(brain_file):
-        with open(brain_file, 'r') as f:
-            for line in f:
-                add_to_brain(line, chain_length)
-            print 'Brain reloaded'
-    else:
-        print "Hoi! I need me some brains! Whaddya think I am, the Tin Man?"
+        print "python sadface.py default.ini"
 
-    channels = {}
-    for chan,chattiness in config.items("Channels"):
-        channels['#' + chan.lower()] = float(chattiness)
-
-    listen_only_channels = []
-    if config.has_option('Bot', 'listenOnlyChannels'):
-        for chan in config.get('Bot', 'listenOnlyChannels').split(','):
-            listen_only_channels.append('#' + chan.strip().lower())
-
-    static_commands = []
-    if config.has_option('Brain', 'static_commands_file'):
-        with open(config.get('Brain', 'static_commands_file'), 'r') as f:
-            for line in f:
-                split = line.split(':', 1);
-                static_commands.append((split[0].strip().lower(), split[1].strip()))
-
-                                          # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
-    dynamic_commands = [CalendarCountdown('https://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics',
-                                          ['@next', '@countdown'],
-                                          ['r', 'q'],
-                                          {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying'}),
-                                          # Calendar from http://icalshare.com/calendars/7111
-                        CalendarCountdown('https://www.google.com/calendar/ical/cq0hpuen3mvq11aq3surghrkjg%40group.calendar.google.com/public/basic.ics',
-                                          ['@nextwec', '@countdownwec'],
-                                          ['r', 'q'],
-                                          {'': '', 'r': 'race', 'q': 'qualifying'}),
-                        CalendarCountdown('https://www.google.com/calendar/ical/smcvrb4c50unt7gs59tli4kq9o%40group.calendar.google.com/public/basic.ics',
-                                          ['@nextgp2', '@countdowngp2'],
-                                          ['r', 'q'],
-                                          {'': '', 'r': 'race', 'q': 'qualifying'}),
-                        CalendarCountdown('https://www.google.com/calendar/ical/dc71ef6p5csp8i8gu4vai0h5mg%40group.calendar.google.com/public/basic.ics',
-                                          ['@nextgp3', '@countdowngp3'],
-                                          ['r', 'q'],
-                                          {'': '', 'r': 'race', 'q': 'qualifying'})]
-
-    reactor.connectTCP(host, port, sadfaceBotFactory(channels, listen_only_channels, nickname, chain_length, max_words, static_commands, dynamic_commands))
+    reactor.connectTCP(host, port, sadfaceBotFactory(markov, channels, listen_only_channels, nickname, static_commands, dynamic_commands))
     reactor.run()
+    markov.dump_brain()
