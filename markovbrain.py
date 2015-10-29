@@ -19,11 +19,12 @@ class MarkovBrain():
     def load_brain(self):
         with open(self.brain_file, 'r') as f:
             for line in f:
-                self.add_to_brain(line.strip())
+                self.add_to_brain(line)
         print 'Brain loaded with %i lines.' % (len(self.flat_brain))
         print 'Markov dictionary has %i keys & %i total list entries.' % (len(self.markov.keys()), total_entries(self.markov.values()))
 
-    def add_to_brain(self, msg):
+    def add_to_brain(self, original_msg):
+        msg = original_msg.strip()
         if len(msg) == 0:
             return
 
@@ -43,11 +44,12 @@ class MarkovBrain():
                 self.markov[key] = [(line_index, i)]
 
     def generate_sentence(self, seed_msg):
-        if len(seed_msg) > 0 and seed_msg[-1] in string.punctuation:
+        msg = seed_msg.strip()
+        if len(msg) > 0 and msg[-1] in string.punctuation:
             # drop punctuation
-            seed_msg = seed_msg[:len(seed_msg) - 1]
+            msg = msg[:len(msg) - 1]
 
-        message = seed_msg.split()[:self.chain_length]
+        message = msg.split()[:self.chain_length]
         if len(message) < self.chain_length:
             for i in xrange(self.chain_length - len(message)):
                 message.append(self.retrieve_word(random.choice(self.markov[random.choice(self.markov.keys())])))

@@ -188,7 +188,7 @@ class sadfaceBot(irc.IRCClient):
         if reply == '0' or self.listen_only(channel):
             print msg
             if not self.handle_command(user_nick, channel, msg.lower(), True):
-                self.factory.markov.add_to_brain(msg.strip())
+                self.factory.markov.add_to_brain(msg)
             return
 
         if self.handle_command(user_nick, channel, msg.lower()):
@@ -207,7 +207,7 @@ class sadfaceBot(irc.IRCClient):
             else:
                 prefix = ''
 
-            self.factory.markov.add_to_brain(msg.strip())
+            self.factory.markov.add_to_brain(msg)
             print "\t" + msg #prints to stdout what sadface added to brain
             if prefix or (channel == self.nickname or random.random() <= self.factory.channels[channel]):
                 sentence = self.factory.markov.generate_sentence(msg)
@@ -226,7 +226,7 @@ class sadfaceBot(irc.IRCClient):
                 msg = re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg)
                 prefix = ''
 
-            self.factory.markov.add_to_brain(msg.strip())
+            self.factory.markov.add_to_brain(msg)
             print "\t" + msg #prints to stdout what sadface added to brain
             if prefix or (channel == self.nickname or random.random() <= self.factory.channels[channel]):
                 sentence = self.factory.markov.generate_sentence(msg)
