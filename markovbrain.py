@@ -38,7 +38,8 @@ class MarkovBrain():
             entry = self.markov.get(key)
             word_hash = hash(words[i])
             if entry:
-                entry.append(word_hash)
+                if not word_hash in entry:
+                    entry.append(word_hash)
             else:
                 self.markov[key] = [word_hash]
             if not self.word_dict.get(word_hash):
