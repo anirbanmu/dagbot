@@ -284,4 +284,5 @@ if __name__ == "__main__":
 
     reactor.connectTCP(host, port, sadfaceBotFactory(markov, channels, listen_only_channels, nickname, static_commands, dynamic_commands))
     reactor.run()
-    markov.dump_brain()
+
+    markov.dump_new_brain_lines()
