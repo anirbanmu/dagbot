@@ -75,7 +75,7 @@ dynamic_commands = [CalendarCountdown('https://www.google.com/calendar/ical/hend
                                       ['r', 'q'],
                                       {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying'}),
                                       # Calendar from http://icalshare.com/calendars/7111
-                    CalendarCountdown('https://www.google.com/calendar/ical/cq0hpuen3mvq11aq3surghrkjg%40group.calendar.google.com/public/basic.ics',
+                    CalendarCountdown('https://calendar.google.com/calendar/ical/hq7d8mnvjfodf60rno2rbr6leg%40group.calendar.google.com/public/basic.ics',
                                       ['@nextwec', '@countdownwec'],
                                       ['r', 'q'],
                                       {'': '', 'r': 'race', 'q': 'qualifying'}),
@@ -199,10 +199,6 @@ class sadfaceBot(irc.IRCClient):
             if self.nickname in msg:
                 time.sleep(0.2) #to prevent flooding
                 msg = re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg)
-                prefix = "%s: " % (user_nick, )
-            elif msg.lower().translate(string.maketrans("",""), string.punctuation).startswith(("hello", "hi", "sup", "howdy", "hola", "salutation", "yo", "greeting", "what up")):
-                time.sleep(0.2) #to prevent flooding
-                msg = re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg) + " to you"
                 prefix = "%s: " % (user_nick, )
             else:
                 prefix = ''
