@@ -8,6 +8,7 @@ from collections import defaultdict
 from time import localtime, strftime
 from commands.calendarcountdown import CalendarCountdown
 from markovbrain import MarkovBrain
+from calendar import Calendar
 
 #
 # Setting some settings
@@ -69,21 +70,23 @@ if config.has_option('Brain', 'static_commands_file'):
             split = line.split(':', 1);
             static_commands.append((split[0].strip().lower(), split[1].strip()))
 
-                                      # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
-dynamic_commands = [CalendarCountdown('https://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics',
+# Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
+formula1_calendar = Calendar('https://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics')
+
+dynamic_commands = [CalendarCountdown(formula1_calendar,
                                       ['@next', '@countdown'],
                                       ['r', 'q'],
                                       {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying'}),
                                       # Calendar from http://icalshare.com/calendars/7111
-                    CalendarCountdown('https://calendar.google.com/calendar/ical/hq7d8mnvjfodf60rno2rbr6leg%40group.calendar.google.com/public/basic.ics',
+                    CalendarCountdown(Calendar('https://calendar.google.com/calendar/ical/hq7d8mnvjfodf60rno2rbr6leg%40group.calendar.google.com/public/basic.ics'),
                                       ['@nextwec', '@countdownwec'],
                                       ['r', 'q'],
                                       {'': '', 'r': 'race', 'q': 'qualifying'}),
-                    CalendarCountdown('https://www.google.com/calendar/ical/smcvrb4c50unt7gs59tli4kq9o%40group.calendar.google.com/public/basic.ics',
+                    CalendarCountdown(Calendar('https://www.google.com/calendar/ical/smcvrb4c50unt7gs59tli4kq9o%40group.calendar.google.com/public/basic.ics'),
                                       ['@nextgp2', '@countdowngp2'],
                                       ['r', 'q'],
                                       {'': '', 'r': 'race', 'q': 'qualifying'}),
-                    CalendarCountdown('https://www.google.com/calendar/ical/dc71ef6p5csp8i8gu4vai0h5mg%40group.calendar.google.com/public/basic.ics',
+                    CalendarCountdown(Calendar('https://www.google.com/calendar/ical/dc71ef6p5csp8i8gu4vai0h5mg%40group.calendar.google.com/public/basic.ics'),
                                       ['@nextgp3', '@countdowngp3'],
                                       ['r', 'q'],
                                       {'': '', 'r': 'race', 'q': 'qualifying'})]
@@ -188,10 +191,15 @@ class sadfaceBot(irc.IRCClient):
         if reply == '0' or self.listen_only(channel):
             print msg
             if not self.handle_command(user_nick, channel, msg.lower(), True):
-                self.factory.markov.add_to_brain(msg)
+                self.factory.markov.add_to_brain(re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg))
             return
 
         if self.handle_command(user_nick, channel, msg.lower()):
+            return
+
+        if self.factory.quiet_hours_calendar.in_event():
+            print "No response during quiet hours. Message: " + msg
+            self.factory.markov.add_to_brain(re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg))
             return
 
         # Replies to messages containing the bot's name
@@ -244,13 +252,14 @@ class sadfaceBot(irc.IRCClient):
 class sadfaceBotFactory(protocol.ClientFactory):
     protocol = sadfaceBot
 
-    def __init__(self, markov, channels, listen_only_channels, nickname, static_commands, dynamic_commands):
+    def __init__(self, markov, channels, listen_only_channels, nickname, static_commands, dynamic_commands, quiet_hours_calendar):
         self.markov = markov
         self.channels = channels
         self.listen_only_channels = listen_only_channels
         self.nickname = nickname
         self.static_commands = static_commands
         self.dynamic_commands = dynamic_commands
+        self.quiet_hours_calendar = quiet_hours_calendar
 
         # Holds the order of matching for keywords from longest in length to shortest. This prevents collisions of substring keywords.
         # Each array element is (index into dynamic_command, index into that specific command's keywords)
@@ -278,7 +287,7 @@ if __name__ == "__main__":
         print "Example:"
         print "python sadface.py default.ini"
 
-    reactor.connectTCP(host, port, sadfaceBotFactory(markov, channels, listen_only_channels, nickname, static_commands, dynamic_commands))
+    reactor.connectTCP(host, port, sadfaceBotFactory(markov, channels, listen_only_channels, nickname, static_commands, dynamic_commands, formula1_calendar))
     reactor.run()
 
     markov.dump_new_brain_lines()
