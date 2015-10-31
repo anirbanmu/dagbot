@@ -1,4 +1,5 @@
-import string, random
+import string
+from numpy.random import choice
 
 # Get total number of entries for a dictionary which has the value type list
 def total_entries(d):
@@ -6,6 +7,11 @@ def total_entries(d):
     for k in d.keys():
         entries += len(d[k])
     return entries
+
+def pick_weighted_random(choices):
+    probabilities = [c[1] for c in choices]
+    total_probability = sum(probabilities)
+    return choice([c[0] for c in choices], p = [float(p) / total_probability for p in probabilities])
 
 class MarkovBrain():
     new_brain_lines_limit = 1024
@@ -37,11 +43,15 @@ class MarkovBrain():
             key = hash(tuple(words[i - self.chain_length : i]))
             entry = self.markov.get(key)
             word_hash = hash(words[i])
-            if entry:
-                if not word_hash in entry:
-                    entry.append(word_hash)
+            if not entry:
+                self.markov[key] = [(word_hash, 1)]
             else:
-                self.markov[key] = [word_hash]
+                word_hash_index = next((i for i,v in enumerate(entry) if v[0] == word_hash), None)
+                if word_hash_index:
+                    entry[word_hash_index] = (word_hash, entry[word_hash_index][1] + 1)
+                else:
+                    entry.append((word_hash, 1))
+
             if not self.word_dict.get(word_hash):
                 self.word_dict[word_hash] = words[i]
 
@@ -74,14 +84,15 @@ class MarkovBrain():
             msg = msg[:len(msg) - 1]
 
         message = msg.split()[:self.chain_length]
+
         if len(message) < self.chain_length:
             for i in xrange(self.chain_length - len(message)):
-                message.append(self.word_dict[random.choice(self.markov[random.choice(self.markov.keys())])])
+                message.append(self.word_dict[pick_weighted_random(self.markov[choice(self.markov.keys())])])
 
         for i in xrange(self.chain_length, self.max_words):
             word_choices = self.markov.get(hash(tuple(message[i - self.chain_length : i])))
             if not word_choices:
                 break
-            message.append(self.word_dict[random.choice(word_choices)])
+            message.append(self.word_dict[pick_weighted_random(word_choices)])
 
         return ' '.join(message)
