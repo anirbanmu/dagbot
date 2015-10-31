@@ -76,12 +76,12 @@ class Calendar():
         self.last_updated = datetime.utcnow()
         self.events = prune_past_events(icalendar.Calendar.from_ical(get_raw_events(self.calendar_url)), self.last_updated)
 
-    def get_events(self):
+    def __get_events(self):
         self.__update_calendar()
         return self.events
 
     def closest_event(self, event_end_filter):
-        return closest_event(self.events, event_end_filter)
+        return closest_event(self.__get_events(), event_end_filter)
 
     def in_event(self):
-        return in_event(self.events, self.default_event_duration)
+        return in_event(self.__get_events(), self.default_event_duration)
