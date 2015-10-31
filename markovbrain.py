@@ -1,5 +1,5 @@
 import string
-from numpy.random import choice
+from random import choice
 
 # Get total number of entries for a dictionary which has the value type list
 def total_entries(d):
@@ -9,9 +9,7 @@ def total_entries(d):
     return entries
 
 def pick_weighted_random(choices):
-    probabilities = [c[1] for c in choices]
-    total_probability = sum(probabilities)
-    return choice([c[0] for c in choices], p = [float(p) / total_probability for p in probabilities])
+    return choice([c[0] for c in choices])
 
 class MarkovBrain():
     new_brain_lines_limit = 1024
