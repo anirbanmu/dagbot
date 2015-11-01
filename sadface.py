@@ -4,7 +4,6 @@ import sys, os, random, re, time, ConfigParser, string
 from twisted.words.protocols import irc
 from twisted.internet import protocol
 from twisted.internet import reactor
-from collections import defaultdict
 from time import localtime, strftime
 from commands.calendarcountdown import CalendarCountdown
 from markovbrain import MarkovBrain

@@ -1,5 +1,5 @@
 import string
-from random import choice
+from random import choice, random
 
 # Get total number of entries for a dictionary which has the value type list
 def total_entries(d):
@@ -9,7 +9,12 @@ def total_entries(d):
     return entries
 
 def pick_weighted_random(choices):
-    return choice([c[0] for c in choices])
+    r = random() * sum([c[1] for c in choices])
+    for c,p in choices:
+        r -= p
+        if r <= 0:
+            return c
+    assert False
 
 class MarkovBrain():
     new_brain_lines_limit = 1024
