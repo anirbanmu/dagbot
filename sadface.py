@@ -95,7 +95,7 @@ if config.has_option('Brain', 'dynamic_command_aliases_file'):
         for line in f:
             command,aliases = line.split(':', 1)
             command = command.strip().lower()
-            aliases = [a.strip() for a in aliases.split(',')]
+            aliases = [a.strip() for a in aliases.split(',')] if ',' in aliases else [aliases.strip()]
             for c in dynamic_commands:
                 if command in c.keywords:
                     c.keywords.extend([a for a in aliases if a not in c.keywords])
