@@ -90,6 +90,16 @@ dynamic_commands = [CalendarCountdown(formula1_calendar,
                                       ['r', 'q'],
                                       {'': '', 'r': 'race', 'q': 'qualifying'})]
 
+if config.has_option('Brain', 'dynamic_command_aliases_file'):
+    with open(config.get('Brain', 'dynamic_command_aliases_file'), 'r') as f:
+        for line in f:
+            command,aliases = line.split(':', 1)
+            command = command.strip().lower()
+            aliases = [a.strip() for a in aliases.split(',')] if ',' in aliases else [aliases.strip()]
+            for c in dynamic_commands:
+                if command in c.keywords:
+                    c.keywords.extend([a for a in aliases if a not in c.keywords])
+
 markov = MarkovBrain(brain_file, chain_length, max_words)
 
 #
