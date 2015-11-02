@@ -1,7 +1,7 @@
 import sys, os
 sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/../..'))
 
-from calendar import Calendar
+from utilities.calendar import Calendar
 
 class CalendarCountdown():
     def __init__(self, calendar, keywords, modifiers, modifier_filters):

@@ -7,7 +7,7 @@ from twisted.internet import reactor
 from time import localtime, strftime
 from commands.calendarcountdown import CalendarCountdown
 from markovbrain import MarkovBrain
-from calendar import Calendar
+from utilities.calendar import Calendar
 
 #
 # Setting some settings
