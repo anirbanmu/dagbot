@@ -1,15 +1,14 @@
 import pytz, icalendar
-from urllib2 import urlopen
+from urllib3 import PoolManager
 from datetime import datetime, timedelta
 from collections import namedtuple
 
 Event = namedtuple('Event', ['start', 'end', 'summary'])
 
-def get_raw_events(url):
-    file = urlopen(url)
-    contents = file.read()
-    file.close()
-    return contents
+def get_raw_events(pool_manager, url):
+    with pool_manager.request('GET', url) as r:
+        print "Loaded calendar from " + url
+        return r.read()
 
 def sanitize_dt(dt):
     # Assume UTC for non tz aware events
@@ -63,6 +62,8 @@ def in_event(events, default_event_duration):
 class Calendar(object):
     update_interval = timedelta(days=1)
     default_event_duration = timedelta(minutes=90)
+    pool_manager = PoolManager()
+
     def __init__(self, calendar_url):
         self.calendar_url = calendar_url
         self.last_updated = datetime.min
@@ -75,7 +76,7 @@ class Calendar(object):
 
     def __get_new_calendar(self):
         self.last_updated = datetime.utcnow()
-        self.events = prune_past_events(icalendar.Calendar.from_ical(get_raw_events(self.calendar_url)), self.last_updated)
+        self.events = prune_past_events(icalendar.Calendar.from_ical(get_raw_events(self.pool_manager, self.calendar_url)), self.last_updated)
 
     def __get_events(self):
         self.__update_calendar()
