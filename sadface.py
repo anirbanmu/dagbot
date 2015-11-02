@@ -7,7 +7,7 @@ from twisted.internet import reactor
 from time import localtime, strftime
 from commands.calendarcountdown import CalendarCountdown
 from markovbrain import MarkovBrain
-from calendar import Calendar
+from utilities.calendar import Calendar
 
 #
 # Setting some settings
@@ -77,15 +77,15 @@ dynamic_commands = [CalendarCountdown(formula1_calendar,
                                       ['r', 'q'],
                                       {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying'}),
                                       # Calendar from http://icalshare.com/calendars/7111
-                    CalendarCountdown(Calendar('https://calendar.google.com/calendar/ical/hq7d8mnvjfodf60rno2rbr6leg%40group.calendar.google.com/public/basic.ics'),
+                    CalendarCountdown('https://calendar.google.com/calendar/ical/hq7d8mnvjfodf60rno2rbr6leg%40group.calendar.google.com/public/basic.ics',
                                       ['@nextwec', '@countdownwec'],
                                       ['r', 'q'],
                                       {'': '', 'r': 'race', 'q': 'qualifying'}),
-                    CalendarCountdown(Calendar('https://www.google.com/calendar/ical/smcvrb4c50unt7gs59tli4kq9o%40group.calendar.google.com/public/basic.ics'),
+                    CalendarCountdown('https://www.google.com/calendar/ical/smcvrb4c50unt7gs59tli4kq9o%40group.calendar.google.com/public/basic.ics',
                                       ['@nextgp2', '@countdowngp2'],
                                       ['r', 'q'],
                                       {'': '', 'r': 'race', 'q': 'qualifying'}),
-                    CalendarCountdown(Calendar('https://www.google.com/calendar/ical/dc71ef6p5csp8i8gu4vai0h5mg%40group.calendar.google.com/public/basic.ics'),
+                    CalendarCountdown('https://www.google.com/calendar/ical/dc71ef6p5csp8i8gu4vai0h5mg%40group.calendar.google.com/public/basic.ics',
                                       ['@nextgp3', '@countdowngp3'],
                                       ['r', 'q'],
                                       {'': '', 'r': 'race', 'q': 'qualifying'})]

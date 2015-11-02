@@ -1,6 +1,9 @@
 import pytz, icalendar
 from urllib2 import urlopen
 from datetime import datetime, timedelta
+from collections import namedtuple
+
+Event = namedtuple('Event', ['start', 'end', 'summary'])
 
 def get_raw_events(url):
     file = urlopen(url)
@@ -22,9 +25,7 @@ def prune_event_start(start_time, utc_now):
 def prune_event_end(end_time, utc_now):
     return sanitize_dt(end_time) < utc_now
 
-def prune_event(event, utc_now):
-    start = event.get('dtstart')
-    end = event.get('dtend')
+def prune_event(event, utc_now, start, end):
     return not hasattr(start.dt, 'hour') or prune_event_start(start.dt, utc_now) or (end and prune_event_end(end.dt, utc_now))
 
 def prune_past_events(ics_events, now):
@@ -32,18 +33,19 @@ def prune_past_events(ics_events, now):
     events = []
     for component in ics_events.walk():
             if component.name == "VEVENT":
+                start = component.get('dtstart')
                 end = component.get('dtend')
-                if prune_event(component, utc_now):
+                if prune_event(component, utc_now, start, end):
                     continue
-                events.append(component)
+                events.append(Event(sanitize_dt(start.dt), sanitize_dt(end.dt) if end else None, component.get('summary')))
     return events
 
 def closest_event(events, event_type_end):
     deltas = []
     utc_now = sanitize_dt(datetime.utcnow())
     for event in events:
-        delta = sanitize_dt(event.get('dtstart').dt) - utc_now
-        if (event.get('summary').lower().endswith(event_type_end) and delta > timedelta(microseconds=0)):
+        delta = event.start - utc_now
+        if (event.summary.lower().endswith(event_type_end) and delta > timedelta(microseconds=0)):
             deltas.append((event, delta))
     deltas.sort(key=lambda x: x[1])
     if (len(deltas) == 0):
@@ -53,13 +55,12 @@ def closest_event(events, event_type_end):
 def in_event(events, default_event_duration):
     utc_now = sanitize_dt(datetime.utcnow())
     for event in events:
-        start = sanitize_dt(event.get('dtstart').dt)
-        end = sanitize_dt(event.get('dtend').dt) if event.get('dtend') else start + default_event_duration
-        if start < utc_now and utc_now < end:
+        end = event.end if event.end else event.start + default_event_duration
+        if event.start < utc_now and utc_now < end:
             return True
     return False
 
-class Calendar():
+class Calendar(object):
     update_interval = timedelta(days=1)
     default_event_duration = timedelta(minutes=90)
     def __init__(self, calendar_url):
