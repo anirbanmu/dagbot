@@ -70,22 +70,22 @@ if config.has_option('Brain', 'static_commands_file'):
             static_commands.append((split[0].strip().lower(), split[1].strip()))
 
 # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
-formula1_calendar = Calendar('https://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics')
+formula1_calendar = Calendar('http://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics')
 
 dynamic_commands = [CalendarCountdown(formula1_calendar,
                                       ['@next', '@countdown'],
                                       ['r', 'q'],
                                       {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying'}),
                                       # Calendar from http://icalshare.com/calendars/7111
-                    CalendarCountdown('https://calendar.google.com/calendar/ical/hq7d8mnvjfodf60rno2rbr6leg%40group.calendar.google.com/public/basic.ics',
+                    CalendarCountdown('http://calendar.google.com/calendar/ical/hq7d8mnvjfodf60rno2rbr6leg%40group.calendar.google.com/public/basic.ics',
                                       ['@nextwec', '@countdownwec'],
                                       ['r', 'q'],
                                       {'': '', 'r': 'race', 'q': 'qualifying'}),
-                    CalendarCountdown('https://www.google.com/calendar/ical/smcvrb4c50unt7gs59tli4kq9o%40group.calendar.google.com/public/basic.ics',
+                    CalendarCountdown('http://www.google.com/calendar/ical/smcvrb4c50unt7gs59tli4kq9o%40group.calendar.google.com/public/basic.ics',
                                       ['@nextgp2', '@countdowngp2'],
                                       ['r', 'q'],
                                       {'': '', 'r': 'race', 'q': 'qualifying'}),
-                    CalendarCountdown('https://www.google.com/calendar/ical/dc71ef6p5csp8i8gu4vai0h5mg%40group.calendar.google.com/public/basic.ics',
+                    CalendarCountdown('http://www.google.com/calendar/ical/dc71ef6p5csp8i8gu4vai0h5mg%40group.calendar.google.com/public/basic.ics',
                                       ['@nextgp3', '@countdowngp3'],
                                       ['r', 'q'],
                                       {'': '', 'r': 'race', 'q': 'qualifying'})]
