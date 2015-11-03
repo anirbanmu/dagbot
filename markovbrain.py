@@ -71,7 +71,7 @@ class MarkovBrain():
         self.new_brain_lines = []
 
     def add_to_brain(self, original_msg):
-        msg = original_msg.replace('\x00', '').strip().decode('ascii')
+        msg = original_msg.replace('\x00', '').strip().decode('utf-8')
 
         # Don't bother with empty lines.
         if len(msg) == 0:
@@ -81,7 +81,7 @@ class MarkovBrain():
         self.__add_to_markov_brain(msg)
 
     def generate_sentence(self, seed_msg):
-        msg = seed_msg.strip().decode('ascii')
+        msg = seed_msg.strip().decode('utf-8')
         if len(msg) > 0 and msg[-1] in string.punctuation:
             # drop punctuation
             msg = msg[:len(msg) - 1]
@@ -98,4 +98,4 @@ class MarkovBrain():
                 break
             message.append(self.word_dict[pick_weighted_random(word_choices)])
 
-        return ' '.join(message).encode('ascii')
+        return ' '.join(message).encode('utf-8')
