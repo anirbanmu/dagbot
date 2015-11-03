@@ -33,7 +33,7 @@ class MarkovBrain():
     def load_brain(self):
         with open(self.brain_file, 'r') as f:
             for line in f:
-                self.__add_to_markov_brain(line.strip())
+                self.__add_to_markov_brain(line.strip().decode('utf-8'))
         print 'Brain loaded.'
         print 'Markov dictionary has %i keys & %i total list entries.' % (len(self.markov.keys()), total_entries(self.markov))
         print 'Word dictionary has %i words.' % (len(self.word_dict.keys()))
@@ -59,19 +59,19 @@ class MarkovBrain():
                 self.word_dict[word_hash] = words[i]
 
     def __add_new_brain_line(self, msg):
-        self.new_brain_lines.append(msg)
+        self.new_brain_lines.append(msg + '\n')
         if len(self.new_brain_lines) >= self.new_brain_lines_limit:
             self.dump_new_brain_lines()
 
     def dump_new_brain_lines(self):
         with open(self.brain_file, 'a') as f:
             for line in self.new_brain_lines:
-                f.write(line + '\n')
+                f.write(line.encode('utf-8'))
         print '%i new brain lines dumped.' % (len(self.new_brain_lines))
         self.new_brain_lines = []
 
     def add_to_brain(self, original_msg):
-        msg = original_msg.strip()
+        msg = original_msg.replace('\x00', '').strip().decode('ascii')
 
         # Don't bother with empty lines.
         if len(msg) == 0:
@@ -81,7 +81,7 @@ class MarkovBrain():
         self.__add_to_markov_brain(msg)
 
     def generate_sentence(self, seed_msg):
-        msg = seed_msg.strip()
+        msg = seed_msg.strip().decode('ascii')
         if len(msg) > 0 and msg[-1] in string.punctuation:
             # drop punctuation
             msg = msg[:len(msg) - 1]
@@ -98,4 +98,4 @@ class MarkovBrain():
                 break
             message.append(self.word_dict[pick_weighted_random(word_choices)])
 
-        return ' '.join(message)
+        return ' '.join(message).encode('ascii')
