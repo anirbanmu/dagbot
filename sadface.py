@@ -77,7 +77,7 @@ dynamic_commands = [CalendarCountdown(formula1_calendar,
                                       ['r', 'q'],
                                       {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying'}),
                                       # Calendar from http://icalshare.com/calendars/7111
-                    CalendarCountdown('http://calendar.google.com/calendar/ical/hq7d8mnvjfodf60rno2rbr6leg%40group.calendar.google.com/public/basic.ics',
+                    CalendarCountdown('http://www.google.com/calendar/ical/hq7d8mnvjfodf60rno2rbr6leg%40group.calendar.google.com/public/basic.ics',
                                       ['@nextwec', '@countdownwec'],
                                       ['r', 'q'],
                                       {'': '', 'r': 'race', 'q': 'qualifying'}),
