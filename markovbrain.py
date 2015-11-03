@@ -59,7 +59,7 @@ class MarkovBrain():
                 self.word_dict[word_hash] = words[i]
 
     def __add_new_brain_line(self, msg):
-        self.new_brain_lines.append(msg.replace('\x00', '').strip() + '\n')
+        self.new_brain_lines.append(msg + '\n')
         if len(self.new_brain_lines) >= self.new_brain_lines_limit:
             self.dump_new_brain_lines()
 
@@ -71,7 +71,7 @@ class MarkovBrain():
         self.new_brain_lines = []
 
     def add_to_brain(self, original_msg):
-        msg = original_msg.strip()
+        msg = original_msg.replace('\x00', '').strip().decode('ascii')
 
         # Don't bother with empty lines.
         if len(msg) == 0:
@@ -81,7 +81,7 @@ class MarkovBrain():
         self.__add_to_markov_brain(msg)
 
     def generate_sentence(self, seed_msg):
-        msg = seed_msg.strip()
+        msg = seed_msg.strip().decode('ascii')
         if len(msg) > 0 and msg[-1] in string.punctuation:
             # drop punctuation
             msg = msg[:len(msg) - 1]
