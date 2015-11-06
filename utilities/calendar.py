@@ -1,4 +1,4 @@
-import pytz, icalendar
+import pytz, icalendar, warnings
 from urllib3 import PoolManager
 from datetime import datetime, timedelta
 from collections import namedtuple
@@ -6,9 +6,11 @@ from collections import namedtuple
 Event = namedtuple('Event', ['start', 'end', 'summary'])
 
 def get_raw_events(pool_manager, url):
-    with pool_manager.request('GET', url) as r:
-        print "Loaded calendar from " + url
-        return r.read()
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        with pool_manager.request('GET', url) as r:
+            print "Loaded calendar from " + url
+            return r.read()
 
 def sanitize_dt(dt):
     # Assume UTC for non tz aware events
