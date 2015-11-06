@@ -93,6 +93,6 @@ class MarkovBrain():
         return ' '.join(message).encode('utf-8')
 
     def close(self):
-        self.__dump_new_brain_lines
+        self.__dump_new_brain_lines()
         self.markov.close()
         os.remove(self.temp_db_file)
