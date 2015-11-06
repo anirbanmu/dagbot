@@ -79,7 +79,7 @@ class MarkovBrain():
         message = msg.split()[:self.chain_length]
 
         if len(message) < self.chain_length:
-            r = markov.get_random_key()
+            r = self.markov.get_random_key()
             if not r or len(r) < self.chain_length:
                 return ''
             message = list(r)[:self.chain_length]
