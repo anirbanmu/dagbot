@@ -299,4 +299,4 @@ if __name__ == "__main__":
     reactor.connectTCP(host, port, sadfaceBotFactory(markov, channels, listen_only_channels, nickname, static_commands, dynamic_commands, formula1_calendar))
     reactor.run()
 
-    markov.dump_new_brain_lines()
+    markov.close()
