@@ -13,12 +13,18 @@ def total_entries(d):
     return entries
 
 def pick_weighted_random(choices):
-    r = random() * sum([c[1] for c in choices])
-    for c,p in choices:
+    r = random() * sum(choices.itervalues())
+    for c,p in choices.iteritems():
         r -= p
         if r <= 0:
             return c
     assert False
+
+def as_process(target, args):
+    p = Process(target = target, args = args)
+    p.start()
+    p.join()
+    p.terminate()
 
 class MarkovBrain():
     new_brain_lines_limit = 1024
@@ -31,17 +37,14 @@ class MarkovBrain():
         temp_f, self.temp_db_file = tempfile.mkstemp()
         os.close(temp_f)
         print 'Using %s as temporary database dictionary file' % self.temp_db_file
-        self.markov = None # Holds markov chain data. key(tuple(words[chain_length])) -> [(word_choice1, count), (word_choice2, count)]
+        self.markov = None # Holds markov chain data. key(tuple(words[chain_length])) -> {word_choice1: count, word_choice2: count}
         self.new_brain_lines = [] # New lines seen since brain was loaded. Will be added to brain file when size reaches new_brain_lines_limit
 
         self.load_brain()
 
     def load_brain(self):
         print 'Brain loading...'
-        p = Process(target = markov_dictionary_from_file, args = (self.temp_db_file, self.brain_file, self.chain_length))
-        p.start()
-        p.join()
-        p.terminate()
+        as_process(markov_dictionary_from_file, (self.temp_db_file, self.brain_file, self.chain_length)) # Shields main process from intermediate memory used
         self.markov = DatabaseDictionary(self.temp_db_file)
         print 'Brain loaded.'
         print 'Markov dictionary has %i keys' % (self.markov.key_count(),)
@@ -67,7 +70,9 @@ class MarkovBrain():
             return
 
         self.__add_new_brain_line(msg)
+        self.markov.begin()
         add_to_markov_dictionary(self.markov, self.chain_length, msg)
+        self.markov.commit()
 
     @time_function
     def generate_sentence(self, seed_msg):
