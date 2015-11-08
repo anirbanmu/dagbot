@@ -1,7 +1,7 @@
 import string, tempfile, os
 from multiprocessing import Process
 from random import choice, random
-from markovcommon import markov_dictionary_from_file, add_to_markov_dictionary
+from markovcommon import markov_dictionary_from_file, add_to_markov_dictionary, STOP_CODE
 from utilities.common import time_function
 from utilities.dbdict import DatabaseDictionary
 
@@ -93,7 +93,10 @@ class MarkovBrain():
             word_choices = self.markov.get(tuple(message[i - self.chain_length : i]))
             if not word_choices:
                 break
-            message.append(pick_weighted_random(word_choices))
+            choice = pick_weighted_random(word_choices)
+            if choice == STOP_CODE:
+                break
+            message.append(choice)
 
         return ' '.join(message).encode('utf-8')
 

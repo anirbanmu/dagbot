@@ -1,10 +1,13 @@
 from utilities.common import ProgressBar, time_function
 from utilities.dbdict import DatabaseDictionary
 
+START_CODE = u'␂␀␃'
+STOP_CODE = u'␃␀␂'
+
 # Markov dictionary has form key(tuple(words[chain_length])) -> {word_choice1: count, word_choice2: count}
 
 def add_to_markov_dictionary(markov_dict, chain_length, line):
-    words = line.split()
+    words = line.split() + [STOP_CODE]
 
     for i in xrange(chain_length, len(words)):
         key = tuple(words[i - chain_length : i])
