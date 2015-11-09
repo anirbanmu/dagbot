@@ -1,7 +1,7 @@
 import string, tempfile, os
 from multiprocessing import Process
 from random import choice, random
-from markovcommon import markov_dictionary_from_file, add_to_markov_dictionary, STOP_CODE
+from markovcommon import markov_dictionary_from_file, add_to_markov_dictionary, STOP_CODE, MARKOV_VALUE_PROPS
 from utilities.common import time_function
 from utilities.dbdict import DatabaseDictionary
 
@@ -45,7 +45,7 @@ class MarkovBrain():
     def load_brain(self):
         print 'Brain loading...'
         as_process(markov_dictionary_from_file, (self.temp_db_file, self.brain_file, self.chain_length)) # Shields main process from intermediate memory used
-        self.markov = DatabaseDictionary(self.temp_db_file)
+        self.markov = DatabaseDictionary(self.temp_db_file, MARKOV_VALUE_PROPS)
         print 'Brain loaded.'
         print 'Markov dictionary has %i keys' % (self.markov.key_count(),)
 
@@ -93,7 +93,7 @@ class MarkovBrain():
             word_choices = self.markov.get(tuple(message[i - self.chain_length : i]))
             if not word_choices:
                 break
-            choice = pick_weighted_random(word_choices)
+            choice = pick_weighted_random(word_choices.dict)
             if choice == STOP_CODE:
                 break
             message.append(choice)
