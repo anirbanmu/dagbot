@@ -45,6 +45,11 @@ class DatabaseDictionary(object):
 
         self.cursor.execute('CREATE TABLE IF NOT EXISTS dictionary (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, key BLOB UNIQUE NOT NULL,' + ','.join(v.name + ' ' + v.type for v in self.value_props) + ')')
 
+    def get_random_filtered_key(self, filter_conditions):
+        self.cursor.execute('SELECT key FROM dictionary WHERE ' + ' AND '.join(filter_conditions) + ' ORDER BY RANDOM() LIMIT 1')
+        key = self.cursor.fetchone()
+        return from_db(key[0]) if key else None
+
     def get_random_key(self):
         self.cursor.execute('SELECT key FROM dictionary ORDER BY RANDOM() LIMIT 1')
         key = self.cursor.fetchone()

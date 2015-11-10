@@ -1,7 +1,6 @@
-import string, tempfile, os
+import tempfile, os
 from multiprocessing import Process
-from random import choice, random
-from markovcommon import markov_dictionary_from_file, add_to_markov_dictionary, STOP_CODE, MARKOV_VALUE_PROPS
+from markovcommon import markov_dictionary_from_file, add_to_markov_dictionary, generate_sentence, MARKOV_VALUE_PROPS
 from utilities.common import time_function
 from utilities.dbdict import DatabaseDictionary
 
@@ -11,14 +10,6 @@ def total_entries(d):
     for k in d.keys():
         entries += len(d[k])
     return entries
-
-def pick_weighted_random(choices):
-    r = random() * sum(choices.itervalues())
-    for c,p in choices.iteritems():
-        r -= p
-        if r <= 0:
-            return c
-    assert False
 
 def as_process(target, args):
     p = Process(target = target, args = args)
@@ -74,31 +65,8 @@ class MarkovBrain():
         add_to_markov_dictionary(self.markov, self.chain_length, msg)
         self.markov.commit()
 
-    @time_function
     def generate_sentence(self, seed_msg):
-        msg = seed_msg.strip().decode('utf-8')
-        if len(msg) > 0 and msg[-1] in string.punctuation:
-            # drop punctuation
-            msg = msg[:len(msg) - 1]
-
-        message = msg.split()[:self.chain_length]
-
-        if len(message) < self.chain_length:
-            r = self.markov.get_random_key()
-            if not r or len(r) < self.chain_length:
-                return ''
-            message = list(r)[:self.chain_length]
-
-        for i in xrange(self.chain_length, self.max_words):
-            word_choices = self.markov.get(tuple(message[i - self.chain_length : i]))
-            if not word_choices:
-                break
-            choice = pick_weighted_random(word_choices.dict)
-            if choice == STOP_CODE:
-                break
-            message.append(choice)
-
-        return ' '.join(message).encode('utf-8')
+        return generate_sentence(self.markov, seed_msg, self.chain_length, self.max_words)
 
     def close(self):
         self.__dump_new_brain_lines()
