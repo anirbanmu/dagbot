@@ -76,7 +76,7 @@ def generate_sentence(markov_dict, seed_msg, chain_length, max_words):
 
     if len(message) == 0:
         # Get a random seed from one word key
-        r = markov_dict.get_random_filtered_key(['chain_length = 1', 'start_count > 1'])
+        r = markov_dict.get_random_filtered_key(['chain_length = 1', 'start_count > 0'])
         if not r:
             return ''
         message.append(r[0])
