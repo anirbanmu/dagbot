@@ -78,7 +78,6 @@ def pick_seed(markov_dict, msg, chain_length):
     phrases = []
     for sentence in pattern.en.parse(msg, chunks=False, relations=True).split():
         roles = {}
-        print type(sentence)
         for word,_,_,_,role in sentence:
             interesting_roles = ['SBJ', 'OBJ']
             if any(r in role for r in interesting_roles):
