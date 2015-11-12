@@ -1,7 +1,8 @@
 from collections import namedtuple
 from utilities.common import ProgressBar, time_function
 from utilities.dbdict import DatabaseDictionary
-from random import random
+from random import random,choice
+import pattern.en
 import string
 
 START_CODE = u'␂␀␃'
@@ -65,6 +66,30 @@ def markov_dictionary_from_file(temp_db_file, brain_file, chain_length):
     db_dict.commit()
     db_dict.close()
 
+def pick_seed(markov_dict, msg, chain_length):
+    if len(msg) == 0:
+        # Get a random seed from one word key
+        r = markov_dict.get_random_filtered_key(['chain_length = 1', 'start_count > 0'])
+        if not r:
+            return ''
+        return [r[0]]
+
+    # Try to find subject or object phrases in original message to use as seed
+    phrases = []
+    for sentence in pattern.en.parse(msg, chunks=False, relations=True).split():
+        roles = {}
+        print type(sentence)
+        for word,_,_,_,role in sentence:
+            interesting_roles = ['SBJ', 'OBJ']
+            if any(r in role for r in interesting_roles):
+                roles[role] = roles[role] + [word] if role in roles else [word]
+        phrases += roles.values()
+
+    if phrases:
+        return choice(phrases)
+
+    return msg.split()[:chain_length]
+
 @time_function
 def generate_sentence(markov_dict, seed_msg, chain_length, max_words):
     msg = seed_msg.strip().decode('utf-8')
@@ -72,14 +97,7 @@ def generate_sentence(markov_dict, seed_msg, chain_length, max_words):
         # drop punctuation
         msg = msg[:len(msg) - 1]
 
-    message = msg.split()[:chain_length]
-
-    if len(message) == 0:
-        # Get a random seed from one word key
-        r = markov_dict.get_random_filtered_key(['chain_length = 1', 'start_count > 0'])
-        if not r:
-            return ''
-        message.append(r[0])
+    message = pick_seed(markov_dict, msg, chain_length)
 
     length = len(message)
     while length < max_words:
