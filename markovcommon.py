@@ -75,14 +75,8 @@ def pick_seed(markov_dict, msg, chain_length):
         return [r[0]]
 
     # Try to find subject or object phrases in original message to use as seed
-    phrases = []
-    for sentence in pattern.en.parse(msg, chunks=False, relations=True).split():
-        roles = {}
-        for word,_,_,_,role in sentence:
-            interesting_roles = ['SBJ', 'OBJ']
-            if any(r in role for r in interesting_roles):
-                roles[role] = roles[role] + [word] if role in roles else [word]
-        phrases += roles.values()
+    sentences = pattern.en.parsetree(msg, relations=True)
+    phrases = [p.string.split() for p in set(p for s in sentences for p in s.subjects + s.objects)]
 
     if phrases:
         return choice(phrases)
