@@ -38,7 +38,7 @@ class MarkovBrain():
         as_process(markov_dictionary_from_file, (self.temp_db_file, self.brain_file, self.chain_length)) # Shields main process from intermediate memory used
         self.markov = DatabaseDictionary(self.temp_db_file, MARKOV_VALUE_PROPS)
         print 'Brain loaded.'
-        print 'Markov dictionary has %i keys' % (self.markov.key_count(),)
+        print 'Markov dictionary has %i keys' % (len(self.markov),)
 
     def __add_new_brain_line(self, msg):
         self.new_brain_lines.append(msg + '\n')

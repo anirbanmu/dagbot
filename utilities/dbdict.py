@@ -1,12 +1,13 @@
-import sqlite3, pickle
+import sqlite3
+from msgpack import packb, unpackb
 from base64 import b64encode, b64decode
 from collections import namedtuple
 
 def to_db(data):
-    return b64encode(pickle.dumps(data, pickle.HIGHEST_PROTOCOL))
+    return b64encode(packb(data, use_bin_type=True))
 
 def from_db(data):
-    return pickle.loads(b64decode(data))
+    return unpackb(b64decode(data), use_list=False, encoding='utf-8')
 
 def convert_tuple(data, properties, tuple_type, convert):
     assert isinstance(data, tuple)
@@ -68,6 +69,10 @@ class DatabaseDictionary(object):
         self.__getitem__(key) # Will ensure key exists
         self.cursor.execute('DELETE FROM dictionary WHERE key = ?', (to_db(key),))
 
+    def __len__(self):
+        self.cursor.execute('SELECT COUNT(*) FROM dictionary')
+        return self.cursor.fetchone()[0]
+
     def update(self, other):
         self.cursor.executemany(self.insert_replace_sql, ((to_db(k),) + tuple_to_db(v, self.value_props, self.row_tuple) for k,v in other.iteritems()))
 
@@ -84,10 +89,6 @@ class DatabaseDictionary(object):
         self.cursor.execute('SELECT key FROM dictionary')
         values = self.cursor.fetchall()
         return [from_db(v[0]) for v in values]
-
-    def key_count(self):
-        self.cursor.execute('SELECT COUNT(*) FROM dictionary')
-        return self.cursor.fetchone()[0]
 
     def begin(self):
         self.cursor.execute('BEGIN')
