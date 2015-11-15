@@ -72,7 +72,7 @@ def pick_seed(markov_dict, msg, chain_length):
         r = markov_dict.get_random_filtered_key(['chain_length = 1', 'start_count > 0'])
         if not r:
             return ''
-        return [r[0]]
+        return list(r.key)
 
     # Try to find subject or object phrases in original message to use as seed
     sentences = pattern.en.parsetree(msg, relations=True)
