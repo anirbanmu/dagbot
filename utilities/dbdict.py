@@ -1,14 +1,13 @@
 import sqlite3
 from msgpack import packb, unpackb
-from base64 import b64encode, b64decode
 from collections import namedtuple
 from functools import partial
 
 def to_db(data):
-    return b64encode(packb(data, use_bin_type=True))
+    return sqlite3.Binary(packb(data, use_bin_type=True))
 
 def from_db(data):
-    return unpackb(b64decode(data), use_list=False, encoding='utf-8')
+    return unpackb(data, use_list=False, encoding='utf-8')
 
 # tuple_type should be a namedtuple if present
 def convert_tuple(data, properties, convert, tuple_type=None):
@@ -38,17 +37,19 @@ class DatabaseDictionary(object):
         assert len(value_types) != 0
 
         column_types = [('key', 'BLOB UNIQUE NOT NULL')] + value_types
-        self.column_props = {c[0]: ColumnProperties('blob' in c[1].lower()) for c in column_types}
 
         values_sql = 'VALUES(null' + ',?' * len(column_types) + ')'
         self.insert_sql = 'INSERT INTO dictionary ' + values_sql
         self.insert_replace_sql = 'INSERT OR REPLACE INTO dictionary ' + values_sql
         self.select_sql = 'SELECT ' + ','.join(v[0] for v in value_types) + ' FROM dictionary WHERE key = ?'
-        self.row_tuple = namedtuple('RowTuple', ','.join(v[0] for v in value_types))
 
         self.connection = sqlite3.connect(file_name, isolation_level = None)
         self.cursor = self.connection.cursor()
-        self.cursor.row_factory = partial(named_tuple_factory, properties = self.column_props, tuple_type = self.row_tuple)
+
+        RowValuesTuple = namedtuple('RowValuesTuple', ','.join(v[0] for v in value_types))
+        column_props = {c[0]: ColumnProperties('blob' in c[1].lower()) for c in column_types}
+        self.cursor.row_factory = partial(named_tuple_factory, properties = column_props, tuple_type = RowValuesTuple)
+        self.tuple_to_db = partial(tuple_to_db, properties = column_props, tuple_type = RowValuesTuple)
 
         self.cursor.execute('PRAGMA journal_mode=WAL')
         self.cursor.execute('PRAGMA synchronous=OFF')
@@ -64,12 +65,12 @@ class DatabaseDictionary(object):
         return self.cursor.fetchone()
 
     def __setitem__(self, key, value):
-        self.cursor.execute(self.insert_replace_sql, (to_db(key),) + tuple_to_db(value, self.column_props, self.row_tuple))
+        self.cursor.execute(self.insert_replace_sql, (to_db(key),) + self.tuple_to_db(value))
 
     def __getitem__(self, key):
         value = self.get(key)
         if value == None:
-            raise KeyError
+            raise KeyError(key)
         return value
 
     def __delitem__(self, key):
@@ -82,11 +83,11 @@ class DatabaseDictionary(object):
         return cursor.fetchone()[0]
 
     def update(self, other):
-        self.cursor.executemany(self.insert_replace_sql, ((to_db(k),) + tuple_to_db(v, self.column_props, self.row_tuple) for k,v in other.iteritems()))
+        self.cursor.executemany(self.insert_replace_sql, ((to_db(k),) + self.tuple_to_db(v) for k,v in other.iteritems()))
 
     def replace(self, other):
         self.cursor.execute('DELETE FROM dictionary')
-        self.cursor.executemany(self.insert_sql, ((to_db(k),) + tuple_to_db(v, self.column_props, self.row_tuple) for k,v in other.iteritems()))
+        self.cursor.executemany(self.insert_sql, ((to_db(k),) + self.tuple_to_db(v) for k,v in other.iteritems()))
 
     def get(self, key):
         self.cursor.execute(self.select_sql, (to_db(key),))
