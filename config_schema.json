@@ -1,0 +1,133 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "title": "Bot config",
+    "type": "object",
+    "properties": {
+        "irc": {
+            "description": "IRC configuration for bot",
+            "type": "object",
+            "properties": {
+                "host": {
+                    "description": "Host URL for IRC server to connection",
+                    "type": "string"
+                },
+                "port": {
+                    "description": "Port to use for IRC server connection",
+                    "type": "integer",
+                    "minimum": 0
+                },
+                "nickname": {
+                    "description": "List of nicks to use. If one is in use, next one is tried",
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "minimum": 0.0,
+                        "maximum": 1.0
+                    },
+                    "minItems": 2,
+                    "uniqueItems": true
+                },
+                "password": {
+                    "description": "NickServ password",
+                    "type": "string"
+                },
+                "realname": {
+                    "description": "Real name of bot",
+                    "type": "string"
+                },
+                "username": {
+                    "description": "User name of bot",
+                    "type": "string"
+                },
+                "user_info": {
+                    "description": "User info query string",
+                    "type": "string"
+                },
+                "version_info": {
+                    "description": "Version info query string",
+                    "type": "string"
+                },
+                "responsive_channels": {
+                    "description": "Channels to join where the bot will be responsive & their corresponding chattiness (how often the bot replies to people without prompting; 1.0 = 100% & 0.0 is 0%)",
+                    "type": "object",
+                    "patternProperties": {
+                        "^#\\S+$" : {
+                            "type": "number",
+                            "minimum": 0.0,
+                            "maximum": 1.0
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "unresponsive_channels": {
+                    "description": "List of channels where the bot will only listen and never respond",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "ignore_users": {
+                    "description": "List of users to always ignore",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                }
+            },
+            "required": ["host", "port", "nickname", "realname", "username", "user_info", "version_info"]
+        },
+        "brain": {
+            "description": "Markov brain related configuration",
+            "type": "object",
+            "properties": {
+                "reply_mode": {
+                    "description": "To reply to direct notices or not? 0 for no replies to messages. 1 for replies to messages containing a highlight & 2 for replies to messages starting with a highlight, of the form nickname + '[:,#]* ?'",
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2
+                },
+                "brain_file": {
+                    "description": "Location of a plain text file containing sentences separated by \n",
+                    "type": "string"
+                },
+                "static_commands_file": {
+                    "description": "Location of a plain text file containing commands with simple static respones separated by \n. Format of each line is '@command: this is the bot response'",
+                    "type": "string"
+                },
+                "dynamic_command_aliases_file": {
+                    "description": "Lists aliases for dynamic commands in the format - @command: @commandalias1,@commandalias2 (optional)",
+                    "type": "string"
+                },
+                "chain_length": {
+                    "description": "How many words to use to find the next sentence",
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "max_words": {
+                    "description": "Maximum sentence length in words, can be very large. Keep it small to prevent flooding.",
+                    "type": "integer"
+                }
+            },
+            "required": ["reply_mode", "brain_file", "chain_length", "max_words"]
+        },
+        "commands": {
+            "description": "Command related configuration",
+            "type": "object",
+            "properties": {
+                "dynamic_aliases": {
+                    "description": "Aliases for dynamic commands. Property name is the original command and it's value would be a list of aliases.",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "minItems": 1
+                    }
+                }
+            }
+        }
+    },
+    "required": ["irc", "brain", "commands"]
+}

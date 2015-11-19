@@ -1,0 +1,28 @@
+{
+    "irc": {
+        "host": "irc.server.net",
+        "port": 6667,
+        "nickname": ["sadface", "sadface_"],
+        "password": "password",
+        "realname": "This bot belongs to Boom_Farmer",
+        "username": "sadface",
+        "user_info": "A markov chain bot",
+        "version_info": "sadface bot rev7",
+        "responsive_channels": {"#chan1": 0.0, "#chan2": 0.5, "#chan3": 1.0},
+        "unresponsive_channels": ["chan4", "chan5", "chan6"],
+        "ignore_users": ["nick1", "nick2", "nick3"]
+    },
+    "brain": {
+        "reply_mode": 1,
+        "brain_file": "brain_file.txt",
+        "static_commands_file": "static_commands.txt",
+        "chain_length": 2,
+        "max_words": 70
+    },
+    "commands": {
+        "dynamic_aliases": {
+            "@cmd1": ["@cmdalias1", "@cmdalias2"],
+            "@cmd2": ["@cmdalias3"]
+        }
+    }
+}

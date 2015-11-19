@@ -1,6 +1,3 @@
-import sys, os
-sys.path.append(os.path.abspath(os.path.dirname(__file__) + '/../..'))
-
 from utilities.calendar import Calendar
 
 class CalendarCountdown():
@@ -20,4 +17,4 @@ class CalendarCountdown():
         hours, remainder = divmod(delta.seconds, 3600)
         minutes, seconds = divmod(remainder, 60)
         response = '%s starting in %d %s %02d:%02d:%02d' % (event[0].summary, delta.days, 'days' if delta.days != 1 else 'day', hours, minutes, seconds)
-        return response.encode('ascii')
+        return response.encode('utf-8')
