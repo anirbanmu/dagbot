@@ -20,9 +20,7 @@
                     "description": "List of nicks to use. If one is in use, next one is tried",
                     "type": "array",
                     "items": {
-                        "type": "string",
-                        "minimum": 0.0,
-                        "maximum": 1.0
+                        "type": "string"
                     },
                     "minItems": 2,
                     "uniqueItems": true
@@ -92,14 +90,6 @@
                     "description": "Location of a plain text file containing sentences separated by \n",
                     "type": "string"
                 },
-                "static_commands_file": {
-                    "description": "Location of a plain text file containing commands with simple static respones separated by \n. Format of each line is '@command: this is the bot response'",
-                    "type": "string"
-                },
-                "dynamic_command_aliases_file": {
-                    "description": "Lists aliases for dynamic commands in the format - @command: @commandalias1,@commandalias2 (optional)",
-                    "type": "string"
-                },
                 "chain_length": {
                     "description": "How many words to use to find the next sentence",
                     "type": "integer",
@@ -116,8 +106,20 @@
             "description": "Command related configuration",
             "type": "object",
             "properties": {
+                "static_commands": {
+                    "description": "Simple commands with a set pool of responses to be chosen from at random.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "minItems": 1
+                    }
+                },
                 "dynamic_aliases": {
                     "description": "Aliases for dynamic commands. Property name is the original command and it's value would be a list of aliases.",
+                    "type": "object",
                     "additionalProperties": {
                         "type": "array",
                         "items": {

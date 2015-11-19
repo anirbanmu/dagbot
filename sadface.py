@@ -37,13 +37,6 @@ listen_only_channels = []
 if 'unresponsive_channels' in config['irc']:
     listen_only_channels = ['#' + c.lower() for c in config['irc']['unresponsive_channels']]
 
-static_commands = []
-if 'static_commands_file' in config['brain']:
-    with open(config['brain']['static_commands_file'], 'r') as f:
-        for line in f:
-            split = line.split(':', 1);
-            static_commands.append((split[0].strip().lower(), split[1].strip()))
-
 # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
 formula1_calendar = Calendar('http://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics')
 
@@ -134,10 +127,10 @@ class sadfaceBot(irc.IRCClient):
     def handle_command(self, user_nick, channel, msg, check_only = False):
         prefix = user_nick + ': '
         # Check if this is a simple static command
-        for command,response in self.factory.static_commands:
+        for command,responses in self.factory.static_commands.iteritems():
             if msg.startswith(command):
                 if not check_only:
-                    self.send(user_nick, channel, prefix + response)
+                    self.send(user_nick, channel, prefix + random.choice(responses))
                 return True
 
         for command_index,keyword_index in self.factory.dynamic_command_keyword_order:
@@ -267,6 +260,7 @@ if __name__ == "__main__":
 
     irc_config = config['irc']
     responsive_channels = irc_config['responsive_channels'] if 'responsive_channels' in irc_config else {}
+    static_commands = config['commands']['static_commands'] if 'static_commands' in config['commands'] else {}
     reactor.connectTCP(irc_config['host'], irc_config['port'], sadfaceBotFactory(markov, responsive_channels, listen_only_channels, static_commands, dynamic_commands, formula1_calendar))
     reactor.run()
 

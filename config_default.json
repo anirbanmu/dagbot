@@ -15,11 +15,13 @@
     "brain": {
         "reply_mode": 1,
         "brain_file": "brain_file.txt",
-        "static_commands_file": "static_commands.txt",
         "chain_length": 2,
         "max_words": 70
     },
     "commands": {
+        "static_commands": {
+            "@nyan": ["meow", "miaaau", "miao", "miaou", "purr", "nyan", "nya", "nyao", "myah", "goro goro", "ニャーニャー", "ニャー", "ニャン", "ニャーン", "ニャーオ", "ごろごろ", "nyaong", "yaong"]
+        },
         "dynamic_aliases": {
             "@cmd1": ["@cmdalias1", "@cmdalias2"],
             "@cmd2": ["@cmdalias3"]
