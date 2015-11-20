@@ -1,9 +1,8 @@
 __author__ = "Benjamin Keith (ben@benlk.com)"
 
-import sys, os, random, re, time, string, json, jsonschema
+import sys, os, platform, random, re, time, string, json, jsonschema
 from twisted.words.protocols import irc
-from twisted.internet import protocol
-from twisted.internet import reactor
+from twisted.internet import protocol, reactor
 from time import localtime, strftime
 from commands.calendarcountdown import CalendarCountdown
 from markovbrain import MarkovBrain
@@ -83,35 +82,68 @@ def pick_modifier(modifiers, str):
     return ''
 
 class sadfaceBot(irc.IRCClient):
-    realname = config['irc']['realname']
-    username = config['irc']['username']
-    userinfo = config['irc']['user_info']
-    versionName = config['irc']['version_info']
-    erroneousNickFallback = config['irc']['nickname'][1]
-    password = config['irc']['password'] if 'password' in config['irc'] else None
+    versionEnv = platform.platform()
 
-    def _get_nickname(self):
-        return self.factory.nickname
-    nickname = property(_get_nickname)
+    @property
+    def nickname(self):
+        return self.irc_cfg['nickname'][0]
 
-    def joinChannel(self, channel):
-        self.join(channel)
+    @property
+    def erroneousNickFallback(self):
+        return self.irc_cfg['nickname'][1]
+
+    @property
+    def realname(self):
+        return self.irc_cfg['realname']
+
+    @property
+    def username(self):
+        return self.irc_cfg['username']
+
+    @property
+    def userinfo(self):
+        return self.irc_cfg['user_info']
+
+    @property
+    def versionName(self):
+        return self.irc_cfg['version_info']['name']
+
+    @property
+    def versionNum(self):
+        return self.irc_cfg['version_info']['number']
+
+    @property
+    def config(self):
+        return self.factory.config
+
+    @property
+    def irc_cfg(self):
+        return self.config['irc']
+
+    @property
+    def cmd_cfg(self):
+        return self.config['commands']
+
+    @property
+    def brain_cfg(self):
+        return self.config['brain']
 
     def signedOn(self):
-        if self.password:
-            self.msg('nickserv', 'identify ' + self.password)
+        irc_cfg = self.irc_cfg
+        if irc_cfg['password']:
+            self.msg('nickserv', 'identify ' + irc_cfg['password'])
 
-        for chan in self.factory.channels.keys() + self.factory.listen_only_channels:
-            self.joinChannel(chan)
+        for c in irc_cfg['responsive_channels'].keys() + irc_cfg['unresponsive_channels']:
+            self.join(c)
 
     def joined(self, channel):
-        print "Joined %s as %s." % (channel,self.nickname)
+        print "Joined %s as %s." % (channel, self.nickname)
 
-    def listen_only(self, channel):
-        return channel.lower() in self.factory.listen_only_channels
+    def unresponsive(self, channel):
+        return channel.lower() in self.irc_cfg['unresponsive_channels']
 
     def receiver(self, user_nick, channel):
-        return user_nick if channel.lower() == self.factory.nickname.lower() else channel
+        return user_nick if channel.lower() == self.nickname.lower() else channel
 
     def send(self, user_nick, channel, msg):
         self.msg(self.receiver(user_nick, channel), msg)
@@ -127,7 +159,7 @@ class sadfaceBot(irc.IRCClient):
     def handle_command(self, user_nick, channel, msg, check_only = False):
         prefix = user_nick + ': '
         # Check if this is a simple static command
-        for command,responses in self.factory.static_commands.iteritems():
+        for command,responses in self.cmd_cfg['static_commands'].iteritems():
             if msg.startswith(command):
                 if not check_only:
                     self.send(user_nick, channel, prefix + random.choice(responses))
@@ -159,9 +191,9 @@ class sadfaceBot(irc.IRCClient):
             print "\t" + "Ignored message from <" + user_nick + "> at: " + strftime("%a, %d %b %Y %H:%M:%S %Z", localtime()) # Time method from http://stackoverflow.com/a/415527
             return
 
-        reply = config['brain']['reply_mode']
+        reply = self.brain_cfg['reply_mode']
 
-        if reply == 0 or self.listen_only(channel):
+        if reply == 0 or self.unresponsive(channel):
             print msg
             if not self.handle_command(user_nick, channel, msg.lower(), True):
                 self.factory.markov.add_to_brain(re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg))
@@ -186,7 +218,7 @@ class sadfaceBot(irc.IRCClient):
 
             self.factory.markov.add_to_brain(msg)
             print "\t" + msg #prints to stdout what sadface added to brain
-            if prefix or (channel == self.nickname or random.random() <= self.factory.channels[channel]):
+            if prefix or (channel == self.nickname or random.random() <= self.irc_cfg['responsive_channels'][channel]):
                 sentence = self.factory.markov.generate_sentence(msg)
                 if sentence:
                     self.msg(self.receiver(user_nick, channel), prefix + sentence)
@@ -205,7 +237,7 @@ class sadfaceBot(irc.IRCClient):
 
             self.factory.markov.add_to_brain(msg)
             print "\t" + msg #prints to stdout what sadface added to brain
-            if prefix or (channel == self.nickname or random.random() <= self.factory.channels[channel]):
+            if prefix or (channel == self.nickname or random.random() <= self.irc_cfg['responsive_channels'][channel]):
                 sentence = self.factory.markov.generate_sentence(msg)
                 if sentence:
                     self.msg(self.receiver(user_nick, channel), prefix + sentence)
@@ -225,12 +257,9 @@ class sadfaceBot(irc.IRCClient):
 class sadfaceBotFactory(protocol.ClientFactory):
     protocol = sadfaceBot
 
-    def __init__(self, markov, channels, listen_only_channels, static_commands, dynamic_commands, quiet_hours_calendar):
+    def __init__(self, config, markov, dynamic_commands, quiet_hours_calendar):
         self.markov = markov
-        self.channels = channels
-        self.listen_only_channels = listen_only_channels
-        self.nickname = config['irc']['nickname'][0]
-        self.static_commands = static_commands
+        self.config = config
         self.dynamic_commands = dynamic_commands
         self.quiet_hours_calendar = quiet_hours_calendar
 
@@ -260,8 +289,8 @@ if __name__ == "__main__":
         print "Example:"
         print "python sadface.py default.ini"
 
-    irc_config = config['irc']
-    reactor.connectTCP(irc_config['host'], irc_config['port'], sadfaceBotFactory(markov, irc_config['responsive_channels'], irc_config['unresponsive_channels'], config['commands']['static_commands'], dynamic_commands, formula1_calendar))
+    irc_cfg = config['irc']
+    reactor.connectTCP(irc_cfg['host'], irc_cfg['port'], sadfaceBotFactory(config, markov, dynamic_commands, formula1_calendar))
     reactor.run()
 
     markov.close()
