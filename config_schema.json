@@ -48,6 +48,7 @@
                 "responsive_channels": {
                     "description": "Channels to join where the bot will be responsive & their corresponding chattiness (how often the bot replies to people without prompting; 1.0 = 100% & 0.0 is 0%)",
                     "type": "object",
+                    "default": {},
                     "patternProperties": {
                         "^#\\S+$" : {
                             "type": "number",
@@ -60,17 +61,19 @@
                 "unresponsive_channels": {
                     "description": "List of channels where the bot will only listen and never respond",
                     "type": "array",
+                    "default": [],
                     "items": {
                         "type": "string"
-                    }
+                    },
+                    "uniqueItems": true
                 },
                 "ignore_users": {
                     "description": "List of users to always ignore",
                     "type": "array",
+                    "default": [],
                     "items": {
                         "type": "string"
                     },
-                    "minItems": 1,
                     "uniqueItems": true
                 }
             },
@@ -105,10 +108,12 @@
         "commands": {
             "description": "Command related configuration",
             "type": "object",
+            "default": {},
             "properties": {
                 "static_commands": {
                     "description": "Simple commands with a set pool of responses to be chosen from at random.",
                     "type": "object",
+                    "default": {},
                     "additionalProperties": {
                         "type": "array",
                         "items": {
@@ -120,6 +125,7 @@
                 "dynamic_aliases": {
                     "description": "Aliases for dynamic commands. Property name is the original command and it's value would be a list of aliases.",
                     "type": "object",
+                    "default": {},
                     "additionalProperties": {
                         "type": "array",
                         "items": {
@@ -131,5 +137,5 @@
             }
         }
     },
-    "required": ["irc", "brain", "commands"]
+    "required": ["irc", "brain"]
 }

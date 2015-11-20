@@ -8,8 +8,8 @@ from time import localtime, strftime
 from commands.calendarcountdown import CalendarCountdown
 from markovbrain import MarkovBrain
 from utilities.calendar import Calendar
-from utilities.common import json_encode, time_function
-from functools import partial
+from utilities.common import time_function
+from utilities.json import json_encode, default_setting_jsonschema_validator
 
 #
 # Setting some settings
@@ -17,9 +17,12 @@ from functools import partial
 def read_config(schema_file_path, config_file_path):
     with open(schema_file_path, 'r') as schema_file:
         with open(config_file_path, 'r') as config_file:
-            config = json.load(config_file, object_hook = partial(json_encode, encoding = 'utf-8'))
-            jsonschema.validate(config, json.load(schema_file)) # Throws on error
-            return config
+            schema = json.load(schema_file)
+            config = json.load(config_file)
+            jsonschema.Draft4Validator.check_schema(schema)
+            validator = default_setting_jsonschema_validator(jsonschema.Draft4Validator)
+            validator(schema).validate(config) # Throws on error
+            return json_encode(config, 'utf-8')
 
 try:
     config = read_config(os.path.join(os.path.dirname(__file__), 'config_schema.json'), sys.argv[1])
@@ -28,9 +31,7 @@ except jsonschema.ValidationError as e:
     print e
     sys.exit()
 
-reply = config['brain']['reply_mode']
-brain_file = config['brain']['brain_file']
-if not os.path.exists(brain_file):
+if not os.path.exists(config['brain']['brain_file']):
     sys.exit('Error: Hoi! I need me some brains! Whaddya think I am, the Tin Man?')
 
 listen_only_channels = []
@@ -64,7 +65,7 @@ if 'dynamic_aliases' in config['commands']:
             if command in dynamic_command.keywords:
                 dynamic_command.keywords = dynamic_command.keywords + [a for a in aliases if a not in dynamic_command.keywords]
 
-markov = MarkovBrain(brain_file, config['brain']['chain_length'], config['brain']['max_words'])
+markov = MarkovBrain(config['brain']['brain_file'], config['brain']['chain_length'], config['brain']['max_words'])
 
 #
 # Begin actual code
@@ -158,6 +159,8 @@ class sadfaceBot(irc.IRCClient):
         if ignore(user_nick):
             print "\t" + "Ignored message from <" + user_nick + "> at: " + strftime("%a, %d %b %Y %H:%M:%S %Z", localtime()) # Time method from http://stackoverflow.com/a/415527
             return
+
+        reply = config['brain']['reply_mode']
 
         if reply == 0 or self.listen_only(channel):
             print msg
@@ -259,9 +262,7 @@ if __name__ == "__main__":
         print "python sadface.py default.ini"
 
     irc_config = config['irc']
-    responsive_channels = irc_config['responsive_channels'] if 'responsive_channels' in irc_config else {}
-    static_commands = config['commands']['static_commands'] if 'static_commands' in config['commands'] else {}
-    reactor.connectTCP(irc_config['host'], irc_config['port'], sadfaceBotFactory(markov, responsive_channels, listen_only_channels, static_commands, dynamic_commands, formula1_calendar))
+    reactor.connectTCP(irc_config['host'], irc_config['port'], sadfaceBotFactory(markov, irc_config['responsive_channels'] , listen_only_channels, config['commands']['static_commands'], dynamic_commands, formula1_calendar))
     reactor.run()
 
     markov.close()
