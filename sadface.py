@@ -34,9 +34,9 @@ except jsonschema.ValidationError as e:
 if not os.path.exists(config['brain']['brain_file']):
     sys.exit('Error: Hoi! I need me some brains! Whaddya think I am, the Tin Man?')
 
-listen_only_channels = []
-if 'unresponsive_channels' in config['irc']:
-    listen_only_channels = ['#' + c.lower() for c in config['irc']['unresponsive_channels']]
+config['irc']['responsive_channels'] = {k.lower(): v for k,v in config['irc']['responsive_channels'].iteritems()}
+config['irc']['unresponsive_channels'] = map(string.lower, config['irc']['unresponsive_channels'])
+config['irc']['ignore_users'] = map(string.lower, config['irc']['ignore_users'])
 
 # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
 formula1_calendar = Calendar('http://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics')
@@ -59,11 +59,14 @@ dynamic_commands = [CalendarCountdown(formula1_calendar,
                                       ['r', 'q'],
                                       {'': '', 'r': 'race', 'q': 'qualifying'})]
 
+for dynamic_command in dynamic_commands:
+    dynamic_command.keywords = map(string.lower, dynamic_command.keywords)
+
 if 'dynamic_aliases' in config['commands']:
     for command,aliases in config['commands']['dynamic_aliases'].iteritems():
         for dynamic_command in dynamic_commands:
             if command in dynamic_command.keywords:
-                dynamic_command.keywords = dynamic_command.keywords + [a for a in aliases if a not in dynamic_command.keywords]
+                dynamic_command.keywords = dynamic_command.keywords + [a.lower() for a in aliases if a.lower() not in dynamic_command.keywords]
 
 markov = MarkovBrain(config['brain']['brain_file'], config['brain']['chain_length'], config['brain']['max_words'])
 
@@ -71,12 +74,11 @@ markov = MarkovBrain(config['brain']['brain_file'], config['brain']['chain_lengt
 # Begin actual code
 #
 def ignore(user):
-    ignore_users = config['irc'].get('ignore_users')
-    return ignore_users and user in ignore_users
+    return user.lower() in config['irc']['ignore_users']
 
 def pick_modifier(modifiers, str):
     for modifier in modifiers:
-        if str.startswith(modifier):
+        if str.startswith(modifier.lower()):
             return modifier
     return ''
 
@@ -99,10 +101,7 @@ class sadfaceBot(irc.IRCClient):
         if self.password:
             self.msg('nickserv', 'identify ' + self.password)
 
-        for chan in self.factory.channels:
-            self.joinChannel(chan)
-
-        for chan in self.factory.listen_only_channels:
+        for chan in self.factory.channels.keys() + self.factory.listen_only_channels:
             self.joinChannel(chan)
 
     def joined(self, channel):
@@ -262,7 +261,7 @@ if __name__ == "__main__":
         print "python sadface.py default.ini"
 
     irc_config = config['irc']
-    reactor.connectTCP(irc_config['host'], irc_config['port'], sadfaceBotFactory(markov, irc_config['responsive_channels'] , listen_only_channels, config['commands']['static_commands'], dynamic_commands, formula1_calendar))
+    reactor.connectTCP(irc_config['host'], irc_config['port'], sadfaceBotFactory(markov, irc_config['responsive_channels'], irc_config['unresponsive_channels'], config['commands']['static_commands'], dynamic_commands, formula1_calendar))
     reactor.run()
 
     markov.close()
