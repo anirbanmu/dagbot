@@ -8,7 +8,7 @@ from twisted.internet import protocol, reactor
 from markovbrain import MarkovBrain
 from utilities.calendar import Calendar
 from utilities.common import time_function
-from utilities.jsonhelpers import validate_load_default_json
+from utilities.jsonhelpers import validate_load_default_json, validate_default_json
 
 #
 # Setting some settings
@@ -34,7 +34,7 @@ config['commands']['dynamic_aliases'] = {k.lower(): map(string.lower, v) for k,v
 #
 
 # For each command in the path given, we find the command_handler and return a sorted dictionary of handlers.
-def gather_commands(path, aliases):
+def gather_commands(path, aliases, command_configs):
     commands = {}
 
     for importer, name, _ in pkgutil.iter_modules([path]):
@@ -44,7 +44,14 @@ def gather_commands(path, aliases):
             module = imp.load_module(name, f, filename, description)
             if hasattr(module, 'command_handler_properties'):
                 json_file_name = name + '.json'
-                command_config = validate_load_default_json(os.path.join(os.path.join(path, 'schema'), json_file_name), os.path.join(os.path.join(path, 'config'), json_file_name), 'utf-8')
+                schema_file_path = os.path.join(os.path.join(path, 'schema'), json_file_name)
+                fallback_config_path = os.path.join(os.path.join(path, 'config'), json_file_name)
+
+                if name in command_configs:
+                    command_config = validate_default_json(schema_file_path, command_configs[name], 'utf-8')
+                else:
+                    command_config = validate_load_default_json(schema_file_path, fallback_config_path, 'utf-8')
+
                 command_handler_type, keywords = getattr(module, 'command_handler_properties')
                 command_handler = command_handler_type(command_config)
 
@@ -254,7 +261,7 @@ if __name__ == "__main__":
         print "python sadface.py default.ini"
 
     irc_cfg = config['irc']
-    dynamic_commands = gather_commands(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'commands'), config['commands']['dynamic_aliases'])
+    dynamic_commands = gather_commands(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'commands'), config['commands']['dynamic_aliases'], config['commands']['command_configs'])
 
     # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
     formula1_calendar = Calendar('http://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics')
