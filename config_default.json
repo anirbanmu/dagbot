@@ -7,7 +7,7 @@
         "realname": "This bot belongs to Boom_Farmer",
         "username": "sadface",
         "user_info": "A markov chain bot",
-        "version_info": "sadface bot rev7",
+        "version_info": {"name": "sadface", "number": "rev7"},
         "responsive_channels": {"#chan1": 0.0, "#chan2": 0.5, "#chan3": 1.0},
         "unresponsive_channels": ["#chan4", "#chan5", "#chan6"],
         "ignore_users": ["nick1", "nick2", "nick3"]

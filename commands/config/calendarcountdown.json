@@ -1,0 +1,37 @@
+[
+    {
+        "identifiers": ["", "f1"],
+        "calendar_url": "http://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics",
+        "filters": {
+            "r": "grand prix",
+            "q": "grand prix qualifying",
+            "fp1": "first practice",
+            "fp2": "second practice",
+            "fp3": "third practice"
+        }
+    },
+    {
+        "identifiers": ["wec"],
+        "calendar_url": "http://www.google.com/calendar/ical/hq7d8mnvjfodf60rno2rbr6leg%40group.calendar.google.com/public/basic.ics",
+        "filters": {
+            "r": "race",
+            "q": "qualifying"
+        }
+    },
+    {
+        "identifiers": ["gp2"],
+        "calendar_url": "http://www.google.com/calendar/ical/smcvrb4c50unt7gs59tli4kq9o%40group.calendar.google.com/public/basic.ics",
+        "filters": {
+            "r": "race",
+            "q": "qualifying"
+        }
+    },
+    {
+        "identifiers": ["gp3"],
+        "calendar_url": "http://www.google.com/calendar/ical/dc71ef6p5csp8i8gu4vai0h5mg%40group.calendar.google.com/public/basic.ics",
+        "filters": {
+            "r": "race",
+            "q": "qualifying"
+        }
+    }
+]
