@@ -145,6 +145,11 @@
                             "type": "string"
                         }
                     }
+                },
+                "command_configs": {
+                    "description": "Embedded configs for specific commands keyed by name of command module",
+                    "type": "object",
+                    "default": {}
                 }
             }
         }

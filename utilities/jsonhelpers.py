@@ -43,12 +43,19 @@ def default_setting_jsonschema_validator(validator_class):
 
     return jsonschema.validators.extend(validator_class, {'properties': set_defaults})
 
-def validate_load_default_json(schema_path, json_path, encoding):
+def validate_load_schema(schema_path):
     with open(schema_path, 'r') as schema_file:
         schema = json.load(schema_file)
         jsonschema.Draft4Validator.check_schema(schema)
-        with open(json_path, 'r') as config_file:
-            config = json.load(config_file)
-            validator = default_setting_jsonschema_validator(jsonschema.Draft4Validator)
-            validator(schema).validate(config) # Throws on error
-            return json_encode(config, encoding)
+        return schema
+
+def validate_default_json(schema_path, json_data, encoding):
+    schema = validate_load_schema(schema_path)
+    validator = default_setting_jsonschema_validator(jsonschema.Draft4Validator)
+    validator(schema).validate(json_data) # Throws on error
+    return json_encode(json_data, encoding)
+
+def validate_load_default_json(schema_path, json_path, encoding):
+    with open(json_path, 'r') as config_file:
+        config = json.load(config_file)
+        return validate_default_json(schema_path, config, encoding)
