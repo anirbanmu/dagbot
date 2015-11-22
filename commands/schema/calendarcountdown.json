@@ -1,0 +1,28 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "title": "Calendar countdown config",
+    "type": "array",
+    "default": [],
+    "items": {
+        "identifiers": {
+            "description": "Identifiers to identify this countdown",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+                "type": "string"
+            }
+        },
+        "calendar_url": {
+            "type": "string"
+        },
+        "filters": {
+            "description": "Mapping of filter shortcuts to a searchable string to use in filtering calendar events",
+            "type": "object",
+            "default": {},
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "required": ["identifiers", "calendar_url"]
+    }
+}

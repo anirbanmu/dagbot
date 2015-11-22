@@ -1,30 +1,20 @@
 __author__ = "Benjamin Keith (ben@benlk.com)"
 
-import sys, os, platform, random, re, time, string, json, jsonschema
+import sys, os, platform, random, re, time, string, json, jsonschema, pkgutil, imp
+from time import localtime, strftime
+from collections import OrderedDict
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
-from time import localtime, strftime
-from commands.calendarcountdown import CalendarCountdown
 from markovbrain import MarkovBrain
 from utilities.calendar import Calendar
 from utilities.common import time_function
-from utilities.json import json_encode, default_setting_jsonschema_validator
+from utilities.jsonhelpers import validate_load_default_json
 
 #
 # Setting some settings
 #
-def read_config(schema_file_path, config_file_path):
-    with open(schema_file_path, 'r') as schema_file:
-        with open(config_file_path, 'r') as config_file:
-            schema = json.load(schema_file)
-            config = json.load(config_file)
-            jsonschema.Draft4Validator.check_schema(schema)
-            validator = default_setting_jsonschema_validator(jsonschema.Draft4Validator)
-            validator(schema).validate(config) # Throws on error
-            return json_encode(config, 'utf-8')
-
 try:
-    config = read_config(os.path.join(os.path.dirname(__file__), 'config_schema.json'), sys.argv[1])
+    config = validate_load_default_json(os.path.join(os.path.dirname(__file__), 'config_schema.json'), sys.argv[1], 'utf-8')
 except jsonschema.ValidationError as e:
     print 'Error validating config file (%s).' % sys.argv[1]
     print e
@@ -36,50 +26,36 @@ if not os.path.exists(config['brain']['brain_file']):
 config['irc']['responsive_channels'] = {k.lower(): v for k,v in config['irc']['responsive_channels'].iteritems()}
 config['irc']['unresponsive_channels'] = map(string.lower, config['irc']['unresponsive_channels'])
 config['irc']['ignore_users'] = map(string.lower, config['irc']['ignore_users'])
-
-# Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
-formula1_calendar = Calendar('http://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics')
-
-dynamic_commands = [CalendarCountdown(formula1_calendar,
-                                      ['@next', '@countdown'],
-                                      ['r', 'q', 'fp1', 'fp2', 'fp3'],
-                                      {'': '', 'r': 'grand prix', 'q': 'grand prix qualifying', 'fp1': 'first practice', 'fp2': 'second practice', 'fp3': 'third practice'}),
-                                      # Calendar from http://icalshare.com/calendars/7111
-                    CalendarCountdown('http://www.google.com/calendar/ical/hq7d8mnvjfodf60rno2rbr6leg%40group.calendar.google.com/public/basic.ics',
-                                      ['@nextwec', '@countdownwec'],
-                                      ['r', 'q'],
-                                      {'': '', 'r': 'race', 'q': 'qualifying'}),
-                    CalendarCountdown('http://www.google.com/calendar/ical/smcvrb4c50unt7gs59tli4kq9o%40group.calendar.google.com/public/basic.ics',
-                                      ['@nextgp2', '@countdowngp2'],
-                                      ['r', 'q'],
-                                      {'': '', 'r': 'race', 'q': 'qualifying'}),
-                    CalendarCountdown('http://www.google.com/calendar/ical/dc71ef6p5csp8i8gu4vai0h5mg%40group.calendar.google.com/public/basic.ics',
-                                      ['@nextgp3', '@countdowngp3'],
-                                      ['r', 'q'],
-                                      {'': '', 'r': 'race', 'q': 'qualifying'})]
-
-for dynamic_command in dynamic_commands:
-    dynamic_command.keywords = map(string.lower, dynamic_command.keywords)
-
-if 'dynamic_aliases' in config['commands']:
-    for command,aliases in config['commands']['dynamic_aliases'].iteritems():
-        for dynamic_command in dynamic_commands:
-            if command in dynamic_command.keywords:
-                dynamic_command.keywords = dynamic_command.keywords + [a.lower() for a in aliases if a.lower() not in dynamic_command.keywords]
-
-markov = MarkovBrain(config['brain']['brain_file'], config['brain']['chain_length'], config['brain']['max_words'])
+config['commands']['static_commands'] = {k.lower(): v for k,v in config['commands']['static_commands'].iteritems()}
+config['commands']['dynamic_aliases'] = {k.lower(): map(string.lower, v) for k,v in config['commands']['dynamic_aliases'].iteritems()}
 
 #
 # Begin actual code
 #
-def ignore(user):
-    return user.lower() in config['irc']['ignore_users']
 
-def pick_modifier(modifiers, str):
-    for modifier in modifiers:
-        if str.startswith(modifier.lower()):
-            return modifier
-    return ''
+# For each command in the path given, we find the command_handler and return a sorted dictionary of handlers.
+def gather_commands(path, aliases):
+    commands = {}
+
+    for importer, name, _ in pkgutil.iter_modules([path]):
+        f, filename, description = imp.find_module(name, [path])
+
+        try:
+            module = imp.load_module(name, f, filename, description)
+            if hasattr(module, 'command_handler_properties'):
+                json_file_name = name + '.json'
+                command_config = validate_load_default_json(os.path.join(os.path.join(path, 'schema'), json_file_name), os.path.join(os.path.join(path, 'config'), json_file_name), 'utf-8')
+                command_handler_type, keywords = getattr(module, 'command_handler_properties')
+                command_handler = command_handler_type(command_config)
+
+                for keyword in keywords:
+                    aliases = [keyword] + (aliases[keyword] if keyword in aliases else [])
+                    for alias in aliases:
+                        commands[alias] = command_handler
+        finally:
+            f.close()
+
+    return OrderedDict(sorted(commands.iteritems(), reverse=True, key=lambda t: len(t[0])))
 
 class sadfaceBot(irc.IRCClient):
     versionEnv = platform.platform()
@@ -128,6 +104,9 @@ class sadfaceBot(irc.IRCClient):
     def brain_cfg(self):
         return self.config['brain']
 
+    def ignore(self, user):
+        return user.lower() in self.irc_cfg['ignore_users']
+
     def signedOn(self):
         irc_cfg = self.irc_cfg
         if irc_cfg['password']:
@@ -148,14 +127,6 @@ class sadfaceBot(irc.IRCClient):
     def send(self, user_nick, channel, msg):
         self.msg(self.receiver(user_nick, channel), msg)
 
-    def handle_dynamic(self, user_nick, channel, msg, keyword, modifiers, response, check_only):
-        prefix = user_nick + ': '
-        if msg.startswith(keyword):
-            if not check_only:
-                self.send(user_nick, channel, prefix + response(pick_modifier(modifiers, msg[len(keyword):])))
-            return True
-        return False
-
     def handle_command(self, user_nick, channel, msg, check_only = False):
         prefix = user_nick + ': '
         # Check if this is a simple static command
@@ -165,9 +136,10 @@ class sadfaceBot(irc.IRCClient):
                     self.send(user_nick, channel, prefix + random.choice(responses))
                 return True
 
-        for command_index,keyword_index in self.factory.dynamic_command_keyword_order:
-            command = self.factory.dynamic_commands[command_index]
-            if self.handle_dynamic(user_nick, channel, msg, command.keywords[keyword_index], command.modifiers, command.response, check_only):
+        for keyword,handler in self.factory.dynamic_commands.iteritems():
+            if msg.startswith(keyword):
+                if not check_only:
+                    self.send(user_nick, channel, prefix + handler.get_response(msg[len(keyword):]))
                 return True
 
         return False
@@ -187,7 +159,7 @@ class sadfaceBot(irc.IRCClient):
             return
 
         # Ignores the message if the person is in the ignore list
-        if ignore(user_nick):
+        if self.ignore(user_nick):
             print "\t" + "Ignored message from <" + user_nick + "> at: " + strftime("%a, %d %b %Y %H:%M:%S %Z", localtime()) # Time method from http://stackoverflow.com/a/415527
             return
 
@@ -263,14 +235,6 @@ class sadfaceBotFactory(protocol.ClientFactory):
         self.dynamic_commands = dynamic_commands
         self.quiet_hours_calendar = quiet_hours_calendar
 
-        # Holds the order of matching for keywords from longest in length to shortest. This prevents collisions of substring keywords.
-        # Each array element is (index into dynamic_command, index into that specific command's keywords)
-        self.dynamic_command_keyword_order = []
-        for command_index, command_object in enumerate(self.dynamic_commands):
-            for keyword_index, keyword in enumerate(command_object.keywords):
-                self.dynamic_command_keyword_order.append((command_index, keyword_index))
-        self.dynamic_command_keyword_order.sort(key=lambda x: len(self.dynamic_commands[x[0]].keywords[x[1]]), reverse=True)
-
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s), reconnecting." % (reason,)
         connector.connect()
@@ -290,6 +254,13 @@ if __name__ == "__main__":
         print "python sadface.py default.ini"
 
     irc_cfg = config['irc']
+    dynamic_commands = gather_commands(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'commands'), config['commands']['dynamic_aliases'])
+
+    # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
+    formula1_calendar = Calendar('http://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics')
+
+    markov = MarkovBrain(config['brain']['brain_file'], config['brain']['chain_length'], config['brain']['max_words'])
+
     reactor.connectTCP(irc_cfg['host'], irc_cfg['port'], sadfaceBotFactory(config, markov, dynamic_commands, formula1_calendar))
     reactor.run()
 
