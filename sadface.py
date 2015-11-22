@@ -261,7 +261,9 @@ if __name__ == "__main__":
         print "python sadface.py default.ini"
 
     irc_cfg = config['irc']
-    dynamic_commands = gather_commands(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'commands'), config['commands']['dynamic_aliases'], config['commands']['command_configs'])
+    cmd_cfg = config['commands']
+    commands_dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'commands')
+    dynamic_commands = gather_commands(commands_dir_path, cmd_cfg['dynamic_aliases'], cmd_cfg['command_configs'])
 
     # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
     formula1_calendar = Calendar('http://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics')
