@@ -96,6 +96,10 @@ class sadfaceBot(irc.IRCClient):
         return self.irc_cfg['version_info']['number']
 
     @property
+    def sourceURL(self):
+        return self.irc_cfg['source']
+
+    @property
     def config(self):
         return self.factory.config
 
