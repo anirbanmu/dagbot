@@ -1,4 +1,4 @@
-import pytz, icalendar, warnings
+import pytz, icalendar, warnings, threading
 from urllib3 import PoolManager
 from datetime import datetime, timedelta
 from collections import namedtuple
@@ -49,9 +49,7 @@ def closest_event(events, event_type_end):
         if (event.summary.lower().endswith(event_type_end) and delta > timedelta(microseconds=0)):
             deltas.append((event, delta))
     deltas.sort(key=lambda x: x[1])
-    if (len(deltas) == 0):
-        return None
-    return deltas[0]
+    return deltas[0] if deltas else None
 
 def in_event(events, default_event_duration):
     utc_now = sanitize_dt(datetime.utcnow())
@@ -61,28 +59,42 @@ def in_event(events, default_event_duration):
             return True
     return False
 
+def singleton_per_args(cls):
+    singletons = {}
+    singletons_lock = threading.Lock()
+    def get_instance(*args):
+        key = (cls,) + args
+        with singletons_lock:
+            if key not in singletons:
+                singletons[key] = cls(*args)
+            return singletons[key]
+    return get_instance
+
+@singleton_per_args
 class Calendar(object):
     update_interval = timedelta(days=1)
     default_event_duration = timedelta(minutes=90)
     pool_manager = PoolManager()
 
     def __init__(self, calendar_url):
+        self.lock = threading.Lock()
         self.calendar_url = calendar_url
         self.last_updated = datetime.min
         self.events = []
         self.__update_calendar()
 
     def __update_calendar(self):
-            if datetime.utcnow() - self.last_updated > self.update_interval:
-                self.__get_new_calendar()
+        if datetime.utcnow() - self.last_updated > self.update_interval:
+            self.__get_new_calendar()
 
     def __get_new_calendar(self):
         self.last_updated = datetime.utcnow()
         self.events = prune_past_events(icalendar.Calendar.from_ical(get_raw_events(self.pool_manager, self.calendar_url)), self.last_updated)
 
     def __get_events(self):
-        self.__update_calendar()
-        return self.events
+        with self.lock:
+            self.__update_calendar()
+            return list(self.events)
 
     def closest_event(self, event_end_filter):
         return closest_event(self.__get_events(), event_end_filter)
