@@ -57,6 +57,11 @@
                         }
                     }
                 },
+                "source": {
+                    "description": "Source code",
+                    "type": "string",
+                    "default": "https://github.com/anirbanmu/dagbot"
+                },
                 "responsive_channels": {
                     "description": "Channels to join where the bot will be responsive & their corresponding chattiness (how often the bot replies to people without prompting; 1.0 = 100% & 0.0 is 0%)",
                     "type": "object",
