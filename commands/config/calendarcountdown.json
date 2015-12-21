@@ -1,6 +1,6 @@
 [
     {
-        "identifiers": ["", "f1"],
+        "identifiers": ["", "f1", "formula1"],
         "calendar_url": "http://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "grand prix",
@@ -32,6 +32,15 @@
         "filters": {
             "r": "race",
             "q": "qualifying"
+        }
+    },
+    {
+        "identifiers": ["fe", "formulae", "formula-e"],
+        "calendar_url": "http://www.google.com/calendar/ical/eeodnmo3ucoeestvlvfft6ubvo%40group.calendar.google.com/public/basic.ics",
+        "filters": {
+            "r": "race",
+            "q": "quali",
+            "p": "practise"
         }
     }
 ]
