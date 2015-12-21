@@ -22,7 +22,7 @@ def pick_weighted_random(choices):
     assert False
 
 def add_to_markov_dictionary(markov_dict, chain_length, line):
-    words = line.split() + [STOP_CODE]
+    words = line.lower().split() + [STOP_CODE]
 
     for i in xrange(chain_length, len(words)):
         key = tuple(words[i - chain_length : i])
@@ -85,7 +85,7 @@ def pick_seed(markov_dict, msg, chain_length):
 
 @time_function
 def generate_sentence(markov_dict, seed_msg, chain_length, max_words):
-    msg = seed_msg.strip().decode('utf-8')
+    msg = seed_msg.strip().decode('utf-8').lower()
     if len(msg) > 0 and msg[-1] in string.punctuation:
         # drop punctuation
         msg = msg[:len(msg) - 1]
