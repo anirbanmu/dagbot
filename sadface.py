@@ -155,7 +155,7 @@ class sadfaceBot(irc.IRCClient):
 
         return False
 
-    def privmsg(self, user, channel, msg):
+    def privmsg(self, user, channel, raw_msg):
 # TODO
 # make the privmsg class run:
 #    check for user
@@ -163,6 +163,8 @@ class sadfaceBot(irc.IRCClient):
 #        check for self.
         channel = channel.lower()
         user_nick = user.split('!', 1)[0]
+        msg = raw_msg.lower()
+
         # Prints the message to stdout
         print channel + " <" + user_nick + "> " + msg
         if not user:
