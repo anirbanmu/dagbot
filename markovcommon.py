@@ -22,7 +22,7 @@ def pick_weighted_random(choices):
     assert False
 
 def add_to_markov_dictionary(markov_dict, chain_length, line):
-    words = line.lower().split() + [STOP_CODE]
+    words = line.split() + [STOP_CODE]
 
     for i in xrange(chain_length, len(words)):
         key = tuple(words[i - chain_length : i])
@@ -56,7 +56,7 @@ def markov_dictionary_from_file(temp_db_file, brain_file, chain_length):
         with open(brain_file, 'r') as f:
             progress_bar = ProgressBar(line_count)
             for line in f:
-                add_to_markov_dictionary(temp_dict, c, line.strip().decode('utf-8'))
+                add_to_markov_dictionary(temp_dict, c, line.strip().decode('utf-8').lower())
                 progress_bar.update()
 
     print 'Populating database dictionary with markov chains'
@@ -85,7 +85,7 @@ def pick_seed(markov_dict, msg, chain_length):
 
 @time_function
 def generate_sentence(markov_dict, seed_msg, chain_length, max_words):
-    msg = seed_msg.strip().decode('utf-8').lower()
+    msg = seed_msg.strip().decode('utf-8')
     if len(msg) > 0 and msg[-1] in string.punctuation:
         # drop punctuation
         msg = msg[:len(msg) - 1]
