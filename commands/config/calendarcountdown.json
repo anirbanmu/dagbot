@@ -42,5 +42,37 @@
             "q": "quali",
             "p": "practise"
         }
+    },
+    {
+        "identifiers": ["irl", "indy", "indycar"],
+        "calendar_url": "http://www.google.com/calendar/ical/03m0sojab8os5vhtdi622pqgcg%40group.calendar.google.com/public/basic.ics",
+        "filters": {}
+    },
+    {
+        "identifiers": ["dtm"],
+        "calendar_url": "http://www.google.com/calendar/ical/0qmpcuk59tnbtbk0bnm8a1k58c%40group.calendar.google.com/public/basic.ics",
+        "filters": {}
+    },
+    {
+        "identifiers": ["v8sc", "v8supercars", "v8straya"],
+        "calendar_url": "http://www.google.com/calendar/ical/140ecqiacjb11f164fi521p6do%40group.calendar.google.com/public/basic.ics",
+        "filters": {}
+    },
+    {
+        "identifiers": ["uscr"],
+        "calendar_url": "http://www.google.com/calendar/ical/j8nonipo8o4khddhluqk4lkbq4%40group.calendar.google.com/public/basic.ics",
+        "filters": {
+            "r": "race",
+            "q": "qualifying",
+            "p1": "practise 1",
+            "p2": "practise 2",
+            "p3": "practise 3",
+            "p4": "practise 4"
+        }
+    },
+    {
+        "identifiers": ["motogp"],
+        "calendar_url": "http://www.google.com/calendar/ical/85m3674fs8l8856pl2f6b32f6g%40group.calendar.google.com/public/basic.ics",
+        "filters": {}
     }
 ]
