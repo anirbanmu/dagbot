@@ -74,5 +74,10 @@
         "identifiers": ["motogp"],
         "calendar_url": "http://www.google.com/calendar/ical/85m3674fs8l8856pl2f6b32f6g%40group.calendar.google.com/public/basic.ics",
         "filters": {}
+    },
+    {
+        "identifiers": ["wrc", "rally"],
+        "calendar_url": "http://www.google.com/calendar/ical/9and96c615vqe3ge8bujk9eg0g%40group.calendar.google.com/public/basic.ics",
+        "filters": {}
     }
 ]
