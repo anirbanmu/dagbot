@@ -104,5 +104,10 @@
         "identifiers": ["wrc", "rally"],
         "calendar_url": "http://calendar.google.com/calendar/ical/a2uk9e9ndiver19pg9d6dm1ecs%40group.calendar.google.com/public/basic.ics",
         "filters": {}
+    },
+    {
+        "identifiers": ["wrx", "rallycross"],
+        "calendar_url": "http://calendar.google.com/calendar/ical/s2fh7a3fnvmsishigak73ti99g%40group.calendar.google.com/public/basic.ics",
+        "filters": {}
     }
 ]
