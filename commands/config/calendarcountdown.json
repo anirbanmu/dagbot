@@ -12,7 +12,7 @@
     },
     {
         "identifiers": ["wec"],
-        "calendar_url": "http://www.google.com/calendar/ical/hq7d8mnvjfodf60rno2rbr6leg%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://calendar.google.com/calendar/ical/8ifivd9lmjh4mm72kl1bng6j94%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "qualifying"
@@ -36,7 +36,7 @@
     },
     {
         "identifiers": ["fe", "formulae", "formula-e"],
-        "calendar_url": "http://www.google.com/calendar/ical/eeodnmo3ucoeestvlvfft6ubvo%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://calendar.google.com/calendar/ical/f7jo4l0op3lfb8u5686ekt4jq4%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "quali",
@@ -45,22 +45,39 @@
     },
     {
         "identifiers": ["irl", "indy", "indycar"],
-        "calendar_url": "http://www.google.com/calendar/ical/03m0sojab8os5vhtdi622pqgcg%40group.calendar.google.com/public/basic.ics",
-        "filters": {}
+        "calendar_url": "http://calendar.google.com/calendar/ical/4uu4mja63b94cs24b3vo5jlim8%40group.calendar.google.com/public/basic.ics",
+        "filters": {
+            "r": "race",
+            "q": "qualifying",
+            "p1": "practise 1",
+            "p2": "practise 2",
+            "p3": "practise 3"
+        }
     },
     {
         "identifiers": ["dtm"],
-        "calendar_url": "http://www.google.com/calendar/ical/0qmpcuk59tnbtbk0bnm8a1k58c%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://calendar.google.com/calendar/ical/b23fcevejg80tfs7grknb2kj5k%40group.calendar.google.com/public/basic.ics",
         "filters": {}
     },
     {
         "identifiers": ["v8sc", "v8supercars", "v8straya"],
-        "calendar_url": "http://www.google.com/calendar/ical/140ecqiacjb11f164fi521p6do%40group.calendar.google.com/public/basic.ics",
-        "filters": {}
+        "calendar_url": "http://calendar.google.com/calendar/ical/1v4rp3ut2fllh0gi0u383mvv0c%40group.calendar.google.com/public/basic.ics",
+        "filters": {
+            "r1": "race 1",
+            "r2": "race 2",
+            "r3": "race 3",
+            "q1": "qualifying 1",
+            "q2": "qualifying 2",
+            "q3": "qualifying 3",
+            "p1": "practise 1",
+            "p2": "practise 2",
+            "p3": "practise 3",
+            "s": "shootout"
+        }
     },
     {
-        "identifiers": ["uscr"],
-        "calendar_url": "http://www.google.com/calendar/ical/j8nonipo8o4khddhluqk4lkbq4%40group.calendar.google.com/public/basic.ics",
+        "identifiers": ["uscr", "imsa"],
+        "calendar_url": "http://calendar.google.com/calendar/ical/n9mu3bmutgm042cf52ukap6n94%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
@@ -72,12 +89,25 @@
     },
     {
         "identifiers": ["motogp"],
-        "calendar_url": "http://www.google.com/calendar/ical/85m3674fs8l8856pl2f6b32f6g%40group.calendar.google.com/public/basic.ics",
-        "filters": {}
+        "calendar_url": "http://calendar.google.com/calendar/ical/bdkgs5okq2049tv4k9hbm2l57o%40group.calendar.google.com/public/basic.ics",
+        "filters": {
+            "r": "race",
+            "q1": "qualifying 1",
+            "q2": "qualifying 2",
+            "p1": "practise 1",
+            "p2": "practise 2",
+            "p3": "practise 3",
+            "p4": "practise 4"
+        }
     },
     {
         "identifiers": ["wrc", "rally"],
-        "calendar_url": "http://www.google.com/calendar/ical/9and96c615vqe3ge8bujk9eg0g%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://calendar.google.com/calendar/ical/a2uk9e9ndiver19pg9d6dm1ecs%40group.calendar.google.com/public/basic.ics",
+        "filters": {}
+    },
+    {
+        "identifiers": ["wrx", "rallycross"],
+        "calendar_url": "http://calendar.google.com/calendar/ical/s2fh7a3fnvmsishigak73ti99g%40group.calendar.google.com/public/basic.ics",
         "filters": {}
     }
 ]
