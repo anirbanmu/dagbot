@@ -1,0 +1,25 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "title": "Twitter config",
+    "type": "object",
+    "default": {},
+    "items": {
+        "api_key": {
+            "description": "Twitter API key",
+            "type": "string"
+        },
+        "api_secret": {
+            "description": "Twitter API secret",
+            "type": "string"
+        },
+        "access_token": {
+            "description": "Twitter access token",
+            "type": "string"
+        },
+        "access_token_secret": {
+            "description": "Twitter access token secret",
+            "type": "string"
+        },
+        "required": ["api_key", "api_secret", "access_token", "access_token_secret"]
+    }
+}

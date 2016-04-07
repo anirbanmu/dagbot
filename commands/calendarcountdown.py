@@ -34,7 +34,7 @@ class CalendarCountdownPool(object):
         self.calendars = OrderedDict(sorted(self.calendars.iteritems(), reverse=True, key=lambda t: len(t[0])))
 
     # param_str should be lowercase
-    def get_response(self, param_str):
+    def get_response(self, param_str, _):
         for id in self.calendars:
             if param_str.startswith(id):
                 return self.calendars[id].get_response(param_str[len(id):])
