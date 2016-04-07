@@ -143,14 +143,26 @@ class sadfaceBot(irc.IRCClient):
         if channel not in self.irc_cfg['unrecorded_channels']:
             self.factory.markov.add_to_brain(msg)
 
-    def receiver(self, user_nick, channel):
-        return user_nick if channel.lower() == self.nickname.lower() else channel
+    def is_pm(self, channel):
+        return channel.lower() == self.nickname.lower()
 
-    def send(self, user_nick, channel, msg, use_notice):
+    def receiver(self, user_nick, channel):
+        return user_nick if self.is_pm(channel) else channel
+
+    def send(self, user_nick, channel, msg, use_notice = False):
         if use_notice:
             self.notice(user_nick, msg)
             return
         self.msg(self.receiver(user_nick, channel), msg)
+
+    def send_markov_sentence(self, user_nick, channel, prefix, msg):
+        self.factory.last_response[self.receiver(user_nick, channel)] = msg
+        self.send(user_nick, channel, prefix + msg)
+
+    def last_markov_sentence(self, user_nick, channel):
+        receiver = self.receiver(user_nick, channel)
+        last = self.factory.last_response.get(receiver)
+        return '' if not last else last
 
     def handle_command(self, user_nick, channel, msg, check_only = False):
         prefix = user_nick + ': '
@@ -164,7 +176,7 @@ class sadfaceBot(irc.IRCClient):
         for keyword,cmd_props in self.factory.dynamic_commands.iteritems():
             if msg.startswith(keyword):
                 if not check_only:
-                    reply = prefix + cmd_props.handler.get_response(msg[len(keyword):], self.factory.markov.last_sentence)
+                    reply = prefix + cmd_props.handler.get_response(msg[len(keyword):], self.last_markov_sentence(user_nick, channel))
                     self.send(user_nick, channel, reply, cmd_props.use_notice)
                 return True
 
@@ -177,7 +189,7 @@ class sadfaceBot(irc.IRCClient):
 #    check for reply
 #        check for self.
         channel = channel.lower()
-        user_nick = user.split('!', 1)[0]
+        user_nick = user.split('!', 1)[0].lower()
         msg = raw_msg.lower()
 
         # Prints the message to stdout
@@ -221,7 +233,7 @@ class sadfaceBot(irc.IRCClient):
             if prefix or (channel == self.nickname or random.random() <= self.irc_cfg['responsive_channels'][channel]):
                 sentence = self.factory.markov.generate_sentence(msg)
                 if sentence:
-                    self.msg(self.receiver(user_nick, channel), prefix + sentence)
+                    self.send_markov_sentence(user_nick, channel, prefix, sentence)
                     print ">" + "\t" + sentence #prints to stdout what sadface said
             return
 
@@ -240,7 +252,7 @@ class sadfaceBot(irc.IRCClient):
             if prefix or (channel == self.nickname or random.random() <= self.irc_cfg['responsive_channels'][channel]):
                 sentence = self.factory.markov.generate_sentence(msg)
                 if sentence:
-                    self.msg(self.receiver(user_nick, channel), prefix + sentence)
+                    self.send_markov_sentence(user_nick, channel, prefix, sentence)
                     print ">" + "\t" + sentence #prints to stdout what sadface said
             return
 
@@ -262,6 +274,7 @@ class sadfaceBotFactory(protocol.ClientFactory):
         self.config = config
         self.dynamic_commands = dynamic_commands
         self.quiet_hours_calendar = quiet_hours_calendar
+        self.last_response = {}
 
     def clientConnectionLost(self, connector, reason):
         print "Lost connection (%s), reconnecting." % (reason,)

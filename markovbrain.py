@@ -30,7 +30,6 @@ class MarkovBrain():
         print 'Using %s as temporary database dictionary file' % self.temp_db_file
         self.markov = None # Holds markov chain data. key(tuple(words[chain_length])) -> {word_choice1: count, word_choice2: count}
         self.new_brain_lines = [] # New lines seen since brain was loaded. Will be added to brain file when size reaches new_brain_lines_limit
-        self.last_sentence = u''
 
         self.load_brain()
 
@@ -67,8 +66,7 @@ class MarkovBrain():
         self.markov.commit()
 
     def generate_sentence(self, seed_msg):
-        self.last_sentence = generate_sentence(self.markov, seed_msg, self.chain_length, self.max_words)
-        return self.last_sentence
+        return generate_sentence(self.markov, seed_msg, self.chain_length, self.max_words)
 
     def close(self):
         self.__dump_new_brain_lines()
