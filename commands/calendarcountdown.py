@@ -40,4 +40,4 @@ class CalendarCountdownPool(object):
                 return self.calendars[id].get_response(param_str[len(id):])
         return 'Logic error'
 
-command_handler_properties = (CalendarCountdownPool, ['@next'])
+command_handler_properties = (CalendarCountdownPool, ['@next'], True)
