@@ -75,6 +75,19 @@
                     },
                     "additionalProperties": false
                 },
+                "unrecorded_channels": {
+                    "description": "Responsive but unrecorded for brain. Same format as responsive_channels.",
+                    "type": "object",
+                    "default": {},
+                    "patternProperties": {
+                        "^#\\S+$" : {
+                            "type": "number",
+                            "minimum": 0.0,
+                            "maximum": 1.0
+                        }
+                    },
+                    "additionalProperties": false
+                },
                 "unresponsive_channels": {
                     "description": "List of channels where the bot will only listen and never respond",
                     "type": "array",

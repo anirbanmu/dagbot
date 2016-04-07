@@ -24,8 +24,11 @@ except jsonschema.ValidationError as e:
 if not os.path.exists(config['brain']['brain_file']):
     sys.exit('Error: Hoi! I need me some brains! Whaddya think I am, the Tin Man?')
 
+config['irc']['unrecorded_channels'] = {k.lower(): v for k,v in config['irc']['unrecorded_channels'].iteritems()}
 config['irc']['responsive_channels'] = {k.lower(): v for k,v in config['irc']['responsive_channels'].iteritems()}
+config['irc']['responsive_channels'].update(config['irc']['unrecorded_channels']) # Unrecorded channels are also responsive.
 config['irc']['unresponsive_channels'] = map(string.lower, config['irc']['unresponsive_channels'])
+
 config['irc']['ignore_users'] = map(string.lower, config['irc']['ignore_users'])
 config['commands']['static_commands'] = {k.lower(): v for k,v in config['commands']['static_commands'].iteritems()}
 config['commands']['dynamic_aliases'] = {k.lower(): map(string.lower, v) for k,v in config['commands']['dynamic_aliases'].iteritems()}
@@ -136,6 +139,10 @@ class sadfaceBot(irc.IRCClient):
     def unresponsive(self, channel):
         return channel.lower() in self.irc_cfg['unresponsive_channels']
 
+    def add_to_brain(self, channel, msg):
+        if channel not in self.irc_cfg['unrecorded_channels']:
+            self.factory.markov.add_to_brain(msg)
+
     def receiver(self, user_nick, channel):
         return user_nick if channel.lower() == self.nickname.lower() else channel
 
@@ -188,7 +195,7 @@ class sadfaceBot(irc.IRCClient):
         if reply == 0 or self.unresponsive(channel):
             print msg
             if not self.handle_command(user_nick, channel, msg.lower(), True):
-                self.factory.markov.add_to_brain(re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg))
+                self.add_to_brain(channel, re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg))
             return
 
         if self.handle_command(user_nick, channel, msg.lower()):
@@ -196,7 +203,7 @@ class sadfaceBot(irc.IRCClient):
 
         if self.factory.quiet_hours_calendar.in_event():
             print "No response during quiet hours. Message: " + msg
-            self.factory.markov.add_to_brain(re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg))
+            self.add_to_brain(channel, re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg))
             return
 
         # Replies to messages containing the bot's name
@@ -208,7 +215,7 @@ class sadfaceBot(irc.IRCClient):
             else:
                 prefix = ''
 
-            self.factory.markov.add_to_brain(msg)
+            self.add_to_brain(channel, msg)
             print "\t" + msg #prints to stdout what sadface added to brain
             if prefix or (channel == self.nickname or random.random() <= self.irc_cfg['responsive_channels'][channel]):
                 sentence = self.factory.markov.generate_sentence(msg)
@@ -227,7 +234,7 @@ class sadfaceBot(irc.IRCClient):
                 msg = re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg)
                 prefix = ''
 
-            self.factory.markov.add_to_brain(msg)
+            self.add_to_brain(channel, msg)
             print "\t" + msg #prints to stdout what sadface added to brain
             if prefix or (channel == self.nickname or random.random() <= self.irc_cfg['responsive_channels'][channel]):
                 sentence = self.factory.markov.generate_sentence(msg)
