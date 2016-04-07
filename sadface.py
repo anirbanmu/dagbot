@@ -2,13 +2,14 @@ __author__ = "Benjamin Keith (ben@benlk.com)"
 
 import sys, os, platform, random, re, time, string, json, jsonschema, pkgutil, imp
 from time import localtime, strftime
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
 from markovbrain import MarkovBrain
 from utilities.calendar import Calendar
 from utilities.common import time_function
 from utilities.jsonhelpers import validate_load_default_json, validate_default_json
+
 
 #
 # Setting some settings
@@ -37,6 +38,8 @@ config['commands']['dynamic_aliases'] = {k.lower(): map(string.lower, v) for k,v
 def gather_commands(path, aliases, command_configs):
     commands = {}
 
+    CommandHandlerProps = namedtuple('CommandHandlerProps', ['handler', 'use_notice'])
+
     for importer, name, _ in pkgutil.iter_modules([path]):
         f, filename, description = imp.find_module(name, [path])
 
@@ -52,13 +55,14 @@ def gather_commands(path, aliases, command_configs):
                 else:
                     command_config = validate_load_default_json(schema_file_path, fallback_config_path, 'utf-8')
 
-                command_handler_type, keywords = getattr(module, 'command_handler_properties')
+                command_handler_type, keywords, use_notice = getattr(module, 'command_handler_properties')
                 command_handler = command_handler_type(command_config)
+                command_handler_props = CommandHandlerProps(command_handler, use_notice)
 
                 for keyword in keywords:
                     aliases = [keyword] + (aliases[keyword] if keyword in aliases else [])
                     for alias in aliases:
-                        commands[alias] = command_handler
+                        commands[alias] = command_handler_props
         finally:
             f.close()
 
@@ -135,7 +139,10 @@ class sadfaceBot(irc.IRCClient):
     def receiver(self, user_nick, channel):
         return user_nick if channel.lower() == self.nickname.lower() else channel
 
-    def send(self, user_nick, channel, msg):
+    def send(self, user_nick, channel, msg, use_notice):
+        if use_notice:
+            self.notice(user_nick, msg)
+            return
         self.msg(self.receiver(user_nick, channel), msg)
 
     def handle_command(self, user_nick, channel, msg, check_only = False):
@@ -147,10 +154,10 @@ class sadfaceBot(irc.IRCClient):
                     self.send(user_nick, channel, prefix + random.choice(responses))
                 return True
 
-        for keyword,handler in self.factory.dynamic_commands.iteritems():
+        for keyword,cmd_props in self.factory.dynamic_commands.iteritems():
             if msg.startswith(keyword):
                 if not check_only:
-                    self.send(user_nick, channel, prefix + handler.get_response(msg[len(keyword):]))
+                    self.send(user_nick, channel, prefix + cmd_props.handler.get_response(msg[len(keyword):]), cmd_props.use_notice)
                 return True
 
         return False
