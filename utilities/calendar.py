@@ -72,7 +72,7 @@ def singleton_per_args(cls):
 
 @singleton_per_args
 class Calendar(object):
-    update_interval = timedelta(days=1)
+    update_interval = timedelta(hours=6)
     default_event_duration = timedelta(minutes=90)
     pool_manager = PoolManager()
 
