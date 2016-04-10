@@ -40,7 +40,7 @@
         "filters": {
             "r": "race",
             "q": "quali",
-            "p": "practise"
+            "p": "practice"
         }
     },
     {
@@ -49,9 +49,9 @@
         "filters": {
             "r": "race",
             "q": "qualifying",
-            "p1": "practise 1",
-            "p2": "practise 2",
-            "p3": "practise 3"
+            "p1": "practice 1",
+            "p2": "practice 2",
+            "p3": "practice 3"
         }
     },
     {
@@ -60,7 +60,7 @@
         "filters": {}
     },
     {
-        "identifiers": ["v8sc", "v8supercars", "v8straya"],
+        "identifiers": ["v8sc", "v8supercars", "v8straya", "v8"],
         "calendar_url": "http://calendar.google.com/calendar/ical/1v4rp3ut2fllh0gi0u383mvv0c%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r1": "race 1",
@@ -69,9 +69,9 @@
             "q1": "qualifying 1",
             "q2": "qualifying 2",
             "q3": "qualifying 3",
-            "p1": "practise 1",
-            "p2": "practise 2",
-            "p3": "practise 3",
+            "p1": "practice 1",
+            "p2": "practice 2",
+            "p3": "practice 3",
             "s": "shootout"
         }
     },
@@ -81,23 +81,45 @@
         "filters": {
             "r": "race",
             "q": "qualifying",
-            "p1": "practise 1",
-            "p2": "practise 2",
-            "p3": "practise 3",
-            "p4": "practise 4"
+            "p1": "practice 1",
+            "p2": "practice 2",
+            "p3": "practice 3",
+            "p4": "practice 4"
         }
     },
     {
-        "identifiers": ["motogp"],
+        "identifiers": ["motogp", "moto"],
         "calendar_url": "http://calendar.google.com/calendar/ical/bdkgs5okq2049tv4k9hbm2l57o%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q1": "qualifying 1",
             "q2": "qualifying 2",
-            "p1": "practise 1",
-            "p2": "practise 2",
-            "p3": "practise 3",
-            "p4": "practise 4"
+            "fp1": "practice 1",
+            "fp2": "practice 2",
+            "fp3": "practice 3",
+            "fp4": "practice 4"
+        }
+    },
+    {
+        "identifiers": ["moto2"],
+        "calendar_url": "http://calendar.google.com/calendar/ical/10ijdgvdtmu142pjidvu2ca2hs%40group.calendar.google.com/public/basic.ics",
+        "filters": {
+            "r": "race",
+            "q": "qualifying",
+            "fp1": "practice 1",
+            "fp2": "practice 2",
+            "fp3": "practice 3"
+        }
+    },
+    {
+        "identifiers": ["moto3"],
+        "calendar_url": "http://calendar.google.com/calendar/ical/rlhgjeg9dgqa0kol03icd9dgo8%40group.calendar.google.com/public/basic.ics",
+        "filters": {
+            "r": "race",
+            "q": "qualifying",
+            "fp1": "practice 1",
+            "fp2": "practice 2",
+            "fp3": "practice 3"
         }
     },
     {
@@ -109,5 +131,28 @@
         "identifiers": ["wrx", "rallycross"],
         "calendar_url": "http://calendar.google.com/calendar/ical/s2fh7a3fnvmsishigak73ti99g%40group.calendar.google.com/public/basic.ics",
         "filters": {}
+    },
+    {
+        "identifiers": ["nascar", "NSCS"],
+        "calendar_url": "http://calendar.google.com/calendar/ical/9cpircejjbjgmsrjv2ksbht4vo%40group.calendar.google.com/public/basic.ics",
+        "filters": {
+            "r": "race",
+            "q": "qualifying",
+            "p1": "practice 1",
+            "p2": "practice 2",
+            "p3": "practice 3"
+        }
+    },
+    {
+        "identifiers": ["blancpain"],
+        "calendar_url": "https://calendar.google.com/calendar/ical/0urph7hfm9r78rftk6jpvaskos%40group.calendar.google.com/public/basic.ics",
+        "filters": {
+            "r": "race",
+            "q": "qualifying",
+            "qr": "qualifying race",
+            "mr": "main race",
+            "fp1": "practice 1",
+            "fp2": "practice 2"
+        }
     }
 ]
