@@ -8,9 +8,9 @@ Event = namedtuple('Event', ['start', 'end', 'summary'])
 def get_raw_events(pool_manager, url):
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
-        with pool_manager.request('GET', url) as r:
-            print "Loaded calendar from " + url
-            return r.read()
+        r = pool_manager.request('GET', url).data
+        print "Loaded calendar from " + url
+        return r
 
 def sanitize_dt(dt):
     # Assume UTC for non tz aware events
