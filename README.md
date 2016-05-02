@@ -54,12 +54,13 @@ Add whatever you need to to clean up the files you feed sadface.
 to the brain file. This can have a different name, set in the `.json` file
 
 - Python 2.7.3
-- [python-twisted](http://twistedmatrix.com/trac/wiki/Downloads)
+- [twisted](https://pypi.python.org/pypi/Twisted)
 - [icalendar](https://pypi.python.org/pypi/icalendar)
 - [pattern](https://pypi.python.org/pypi/Pattern)
 - [urllib3](https://pypi.python.org/pypi/urllib3)
-- [msgpack](https://pypi.python.org/pypi/msgpack-python)
+- [msgpack-python](https://pypi.python.org/pypi/msgpack-python)
 - [jsonschema](https://pypi.python.org/pypi/jsonschema)
+- [tweepy](https://pypi.python.org/pypi/tweepy/3.5.0)
 
 ## Credits
 
