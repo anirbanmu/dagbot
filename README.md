@@ -60,7 +60,7 @@ to the brain file. This can have a different name, set in the `.json` file
 - [urllib3](https://pypi.python.org/pypi/urllib3)
 - [msgpack-python](https://pypi.python.org/pypi/msgpack-python)
 - [jsonschema](https://pypi.python.org/pypi/jsonschema)
-- [tweepy](https://pypi.python.org/pypi/tweepy/3.5.0)
+- [tweepy](https://pypi.python.org/pypi/tweepy)
 
 ## Credits
 
