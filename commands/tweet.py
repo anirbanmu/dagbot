@@ -12,7 +12,7 @@ class TweetHandler(object):
         if length == 0:
             return 'Bot has not said anything'
 
-        if length > 160:
+        if length > 140:
             return 'Last message too long'
 
         response = self.api.update_status(status = msg)
