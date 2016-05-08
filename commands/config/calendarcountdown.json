@@ -145,7 +145,7 @@
     },
     {
         "identifiers": ["blancpain"],
-        "calendar_url": "https://calendar.google.com/calendar/ical/0urph7hfm9r78rftk6jpvaskos%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://calendar.google.com/calendar/ical/0urph7hfm9r78rftk6jpvaskos%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",

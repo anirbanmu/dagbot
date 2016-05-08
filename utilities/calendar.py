@@ -8,8 +8,8 @@ Event = namedtuple('Event', ['start', 'end', 'summary'])
 def get_raw_events(pool_manager, url):
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
+        print 'Loading calendar from ' + url
         r = pool_manager.request('GET', url).data
-        print "Loaded calendar from " + url
         return r
 
 def sanitize_dt(dt):

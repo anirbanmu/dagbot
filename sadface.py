@@ -21,6 +21,9 @@ except jsonschema.ValidationError as e:
     print e
     sys.exit()
 
+# Handle home directory
+config['brain']['brain_file'] = config['brain']['brain_file'].replace('~', os.path.expanduser('~'))
+
 if not os.path.exists(config['brain']['brain_file']):
     sys.exit('Error: Hoi! I need me some brains! Whaddya think I am, the Tin Man?')
 
