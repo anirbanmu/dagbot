@@ -20,7 +20,7 @@
     },
     {
         "identifiers": ["gp2"],
-        "calendar_url": "http://www.google.com/calendar/ical/smcvrb4c50unt7gs59tli4kq9o%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://calendar.google.com/calendar/ical/f89q741pbrtnunigua22k4hokk%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "qualifying"
@@ -28,7 +28,7 @@
     },
     {
         "identifiers": ["gp3"],
-        "calendar_url": "http://www.google.com/calendar/ical/dc71ef6p5csp8i8gu4vai0h5mg%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://calendar.google.com/calendar/ical/8j63d89a2tmorav5m480l9kk6o%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "qualifying"

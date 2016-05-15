@@ -18,27 +18,28 @@ def sanitize_dt(dt):
     newdt = newdt if newdt.tzinfo != None else newdt.replace(tzinfo=pytz.UTC)
     return newdt
 
-# Conservative delta used. No event should be longer than 1 week.
+# Conservative delta used. No event should be longer than 5 days.
 def prune_event_start(start_time, utc_now):
-    delta = utc_now - sanitize_dt(start_time)
-    return delta > timedelta(weeks=1)
+    delta = utc_now - start_time
+    return delta > timedelta(days=5)
 
 def prune_event_end(end_time, utc_now):
-    return sanitize_dt(end_time) < utc_now
+    return end_time < utc_now
 
 def prune_event(event, utc_now, start, end):
-    return prune_event_start(start.dt, utc_now) or (end and prune_event_end(end.dt, utc_now))
+    return prune_event_start(start, utc_now) or (end and prune_event_end(end, utc_now))
 
 def prune_past_events(ics_events, now):
     utc_now = now.replace(tzinfo=pytz.UTC)
     events = []
     for component in ics_events.walk():
-            if component.name == "VEVENT":
-                start = component.get('dtstart')
-                end = component.get('dtend')
-                if prune_event(component, utc_now, start, end):
-                    continue
-                events.append(Event(sanitize_dt(start.dt), sanitize_dt(end.dt) if end else None, component.get('summary')))
+        if component.name == "VEVENT":
+            start = sanitize_dt(component.get('dtstart').dt)
+            end = component.get('dtend')
+            end = sanitize_dt(end.dt) if end else None
+            if prune_event(component, utc_now, start, end):
+                continue
+            events.append(Event(start, end, component.get('summary')))
     return events
 
 def closest_event(events, event_type_end):
@@ -51,11 +52,11 @@ def closest_event(events, event_type_end):
     deltas.sort(key=lambda x: x[1])
     return deltas[0] if deltas else None
 
-def in_event(events, default_event_duration):
+def in_event(events, default_event_duration, longest_duration):
     utc_now = sanitize_dt(datetime.utcnow())
     for event in events:
         end = event.end if event.end else event.start + default_event_duration
-        if event.start < utc_now and utc_now < end:
+        if event.start < utc_now and utc_now < end and end - event.start < longest_duration:
             return True
     return False
 
@@ -99,5 +100,5 @@ class Calendar(object):
     def closest_event(self, event_end_filter):
         return closest_event(self.__get_events(), event_end_filter)
 
-    def in_event(self):
-        return in_event(self.__get_events(), self.default_event_duration)
+    def in_event(self, longest_duration):
+        return in_event(self.__get_events(), self.default_event_duration, longest_duration)

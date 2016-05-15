@@ -2,6 +2,7 @@ __author__ = "Benjamin Keith (ben@benlk.com)"
 
 import sys, os, platform, random, re, time, string, json, jsonschema, pkgutil, imp
 from time import localtime, strftime
+from datetime import timedelta
 from collections import OrderedDict, namedtuple
 from twisted.words.protocols import irc
 from twisted.internet import protocol, reactor
@@ -217,7 +218,7 @@ class sadfaceBot(irc.IRCClient):
         if self.handle_command(user_nick, channel, msg.lower()):
             return
 
-        if self.factory.quiet_hours_calendar.in_event():
+        if self.factory.quiet_hours_calendar.in_event(timedelta(hours=6)):
             print "No response during quiet hours. Message: " + msg
             self.add_to_brain(channel, re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg))
             return
