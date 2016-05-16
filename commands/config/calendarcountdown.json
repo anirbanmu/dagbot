@@ -1,6 +1,6 @@
 [
     {
-        "identifiers": ["", "f1", "formula1"],
+        "identifiers": ["f1", "formula1"],
         "calendar_url": "http://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "grand prix",
@@ -8,7 +8,8 @@
             "fp1": "first practice",
             "fp2": "second practice",
             "fp3": "third practice"
-        }
+        },
+        "default_id": "true"
     },
     {
         "identifiers": ["wec"],

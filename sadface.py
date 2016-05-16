@@ -180,7 +180,7 @@ class sadfaceBot(irc.IRCClient):
         for keyword,cmd_props in self.factory.dynamic_commands.iteritems():
             if msg.startswith(keyword):
                 if not check_only:
-                    reply = prefix + cmd_props.handler.get_response(msg[len(keyword):], self.last_markov_sentence(user_nick, channel))
+                    reply = prefix + cmd_props.handler.get_response(msg[len(keyword):], self.last_markov_sentence(user_nick, channel), channel)
                     self.send(user_nick, channel, reply, cmd_props.use_notice)
                 return True
 
