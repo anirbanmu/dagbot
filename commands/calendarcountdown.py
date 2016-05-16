@@ -27,17 +27,33 @@ class CalendarCountdown(object):
 class CalendarCountdownPool(object):
     def __init__(self, json_config):
         self.calendars = {}
+        self.default_id = None
         for config in json_config:
             calendar = CalendarCountdown(config['calendar_url'], {k.lower(): v.lower() for k,v in config['filters'].iteritems()})
             for id in config['identifiers']:
                 self.calendars[id.lower()] = calendar
+
+            if 'default_id' in config and config['default_id']:
+                self.default_id = config['identifiers'][0].lower()
+
         self.calendars = OrderedDict(sorted(self.calendars.iteritems(), reverse=True, key=lambda t: len(t[0])))
 
-    # param_str should be lowercase
-    def get_response(self, param_str, _):
+    def choose_calendar_id(self, param_str, chan):
         for id in self.calendars:
             if param_str.startswith(id):
-                return self.calendars[id].get_response(param_str[len(id):])
-        return 'Logic error'
+                return (id, param_str[len(id):])
+
+        if chan[1:] in self.calendars:
+            return (chan[1:], param_str)
+
+        return (self.default_id, param_str)
+
+    # param_str should be lowercase
+    def get_response(self, param_str, _, chan):
+        id,filter = self.choose_calendar_id(param_str, chan)
+        if not id:
+            return 'Bad calendar countdown config. Check your JSON.'.encode('utf-8')
+
+        return self.calendars[id].get_response(filter)
 
 command_handler_properties = (CalendarCountdownPool, ['@next'], False)

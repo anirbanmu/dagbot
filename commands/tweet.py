@@ -7,7 +7,7 @@ class TweetHandler(object):
 
         self.api = tweepy.API(auth)
 
-    def get_response(self, _, msg):
+    def get_response(self, _0, msg, _1):
         length = len(msg)
         if length == 0:
             return 'Bot has not said anything'

@@ -23,6 +23,10 @@
                 "type": "string"
             }
         },
+        "default_id": {
+            "description": "If no identifier is found, use this one",
+            "type": "boolean"
+        },
         "required": ["identifiers", "calendar_url"]
     }
 }
