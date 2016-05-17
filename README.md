@@ -1,59 +1,25 @@
-# sadface
+# dagbot
 
-an IRC Markov Chain chatbot
+An IRC Markov Chain chatbot with a simple pluggable command system using Python 2.7.
 
 ## Intro
 
-Markov bots make for amusing text generators. They don’t make much sense,
-usually. When they do make sense, it’s pure chance.
+Markov bots work on based on the simple idea of markov chains. They usually require a substantially large corpus (flat text file with known good phrases / sentences). One could call this the "brain" of dagbot. Without a large corpus, markov bots will usually generate gibberish phrases that look nothing like what a human would say.
 
-sadface draws its vocabulary and concepts from a flat text file, where
-each line is considered a sentence. The bot chains words together to create
-sentences, which it passes to the IRC channel it is in.
+## Details
 
-Right now, sadface only supports one channel, but you can have multiple
-instances of sadface running with different configuration files. The
-configuration file is specified at runtime as an argument:
-`python sadface.py config-file.json`
+Commands have a very simple interface which tell the bot what keywords are triggers & what class should handle said keywords.
 
-Included in this repo are sadface.py and config_default.json. If you want to change
-config_default.json, I encourage you to copy config_default.json and change the variables,
-so you can have an untouched config_default.json.
+All configuration data for the bot is defined & validated via [jsonschema](http://json-schema.org/). The `config_schema.json` file defines the main configuration data that dagbot uses (irc channels, response rate etc). It also serves as documentation of configuration format & what each setting means.
 
-You can start sadface with a blank brain_file.txt, but its replies won’t
-make much sense at all until it’s heard a lot of conversation. I recommend
-putting several books into the file. Project Gutenberg
-(http://www.gutenberg.org/browse/scores/top) is a good place to start.
-Separate sentences by newlines. Replies look best if there are no quotes
-or tabs in brain_file.txt. You can specify different brain files with your
-config.json.
+Configuration data for each command is also configurable but by default goes in `commands/config` directory. Command config is totally separate from main bot configuration and is fully customizable. At runtime, all commands are pulled in automatically from the `commands` directory.
 
-## Included files
+Logic for markov responses is fairly simple. First the [pattern](https://github.com/clips/pattern) library is used to try to find interesting words in a phrase like the subject. If none can be found, we fall back to just picking the first n (markov chain length) words of the phrase that was sent to the bot.
 
-`sadface.py`
+The brain file is just a flat text file of sentences that have been seen before (said by a human). Dagbot records all messages said in the IRC channels it joins (unless a channel is configured not to be recorded). This means the brain file you use will be modified when the bot is running. At runtime, the text file is parsed into actual markov chains which are stored in a [sqlite3](https://www.sqlite.org/) backed dictionary. The database was used to save memory since using python's built in dictionary consumes massive amounts of memory.
 
-Usage: `python sadface.py /path/to/config.json`
+Dagbot depends on the following libraries:
 
-sadface also requires brain_file.txt, which is a flat txt file of newline-
-separated sentences. brain_file.txt is specified in config.json
-
-`config_default.json`
-
-The example configuration
-
-`sed_cleaning.sh`
-
-Usage: `sed_cleaning.sh old_brain.txt temporaryfile clean_brain.txt`
-
-A sed script that cleans up brain_file.txt by writing it to a new brain_file.
-Add whatever you need to to clean up the files you feed sadface.
-
-## Prerequisites
-
-- `brain_file.txt`: A flat text file of newline-separated sentences. sadface draws from `brain_file.txt` to create its replies, and adds things said in-channel
-to the brain file. This can have a different name, set in the `.json` file
-
-- Python 2.7.3
 - [twisted](https://pypi.python.org/pypi/Twisted)
 - [icalendar](https://pypi.python.org/pypi/icalendar)
 - [pattern](https://pypi.python.org/pypi/Pattern)
@@ -62,7 +28,26 @@ to the brain file. This can have a different name, set in the `.json` file
 - [jsonschema](https://pypi.python.org/pypi/jsonschema)
 - [tweepy](https://pypi.python.org/pypi/tweepy)
 
+Running the following should install all the dependencies:
+
+    pip install twisted icalendar pattern urllib3 msgpack-python jsonschema tweepy
+
+More info on pip is [here](https://pypi.python.org/pypi/pip) if something breaks.
+
+After you've tweaked the configuration file to your liking, you can start the bot with:
+
+    python sadface.py /path/to/config.json
+
+There is no issue with using [pypy](http://pypy.org/) with dagbot instead of CPython. In fact I fully recommend using pypy!
+
+Dagbot is obviously originally derived from sadface but has at this point diverged & grown substantially from the original code.
+
+You can find dagbot chatting away on a number of channels on [snoonet](https://snoonet.org/) if you're interested in seeing how well it performs. The `#f1` channel is quite familiar with dagbot especially due to the countdown command.
+
 ## Credits
+
+- Ben Keith
+    - Original author of the markov portion of sadface!
 
 - Eric Florenzano
 	- sadface derives heavily from his MomBot Markov bot code
@@ -72,4 +57,3 @@ to the brain file. This can have a different name, set in the `.json` file
 - hhokanson
 	- sadface's configuration methods derive from her AnonBot IRC anonymizer bot
 	- https://bitbucket.org/hhokanson/anonbot/src
-
