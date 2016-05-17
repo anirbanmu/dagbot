@@ -31,7 +31,7 @@ if not os.path.exists(config['brain']['brain_file']):
 config['irc']['unrecorded_channels'] = {k.lower(): v for k,v in config['irc']['unrecorded_channels'].iteritems()}
 config['irc']['responsive_channels'] = {k.lower(): v for k,v in config['irc']['responsive_channels'].iteritems()}
 config['irc']['responsive_channels'].update(config['irc']['unrecorded_channels']) # Unrecorded channels are also responsive.
-config['irc']['unresponsive_channels'] = map(string.lower, config['irc']['unresponsive_channels'])
+config['irc']['unresponsive_channels'] = {k.lower(): v for k,v in config['irc']['unresponsive_channels'].iteritems()}
 
 config['irc']['ignore_users'] = map(string.lower, config['irc']['ignore_users'])
 config['commands']['static_commands'] = {k.lower(): v for k,v in config['commands']['static_commands'].iteritems()}
@@ -134,8 +134,8 @@ class sadfaceBot(irc.IRCClient):
         if irc_cfg['password']:
             self.msg('nickserv', 'identify ' + irc_cfg['password'])
 
-        for c in irc_cfg['responsive_channels'].keys() + irc_cfg['unresponsive_channels']:
-            self.join(c)
+        for c,props in irc_cfg['responsive_channels'].items() + irc_cfg['unresponsive_channels'].items():
+            self.join(c, props['password'])
 
     def joined(self, channel):
         print "Joined %s as %s." % (channel, self.nickname)
@@ -234,7 +234,7 @@ class sadfaceBot(irc.IRCClient):
 
             self.add_to_brain(channel, msg)
             print "\t" + msg #prints to stdout what sadface added to brain
-            if prefix or (channel == self.nickname or random.random() <= self.irc_cfg['responsive_channels'][channel]):
+            if prefix or (channel == self.nickname or random.random() <= self.irc_cfg['responsive_channels'][channel]['p']):
                 sentence = self.factory.markov.generate_sentence(msg)
                 if sentence:
                     self.send_markov_sentence(user_nick, channel, prefix, sentence)
@@ -253,7 +253,7 @@ class sadfaceBot(irc.IRCClient):
 
             self.add_to_brain(channel, msg)
             print "\t" + msg #prints to stdout what sadface added to brain
-            if prefix or (channel == self.nickname or random.random() <= self.irc_cfg['responsive_channels'][channel]):
+            if prefix or (channel == self.nickname or random.random() <= self.irc_cfg['responsive_channels'][channel]['p']):
                 sentence = self.factory.markov.generate_sentence(msg)
                 if sentence:
                     self.send_markov_sentence(user_nick, channel, prefix, sentence)

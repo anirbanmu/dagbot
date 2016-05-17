@@ -68,9 +68,20 @@
                     "default": {},
                     "patternProperties": {
                         "^#\\S+$" : {
-                            "type": "number",
-                            "minimum": 0.0,
-                            "maximum": 1.0
+                            "type": "object",
+                            "default": {},
+                            "properties": {
+                                "p": {
+                                    "type": "number",
+                                    "minimum": 0.0,
+                                    "maximum": 1.0,
+                                    "default": 0.0
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "default": ""
+                                }
+                            }
                         }
                     },
                     "additionalProperties": false
@@ -81,21 +92,47 @@
                     "default": {},
                     "patternProperties": {
                         "^#\\S+$" : {
-                            "type": "number",
-                            "minimum": 0.0,
-                            "maximum": 1.0
+                            "type": "object",
+                            "default": {},
+                            "properties": {
+                                "p": {
+                                    "type": "number",
+                                    "minimum": 0.0,
+                                    "maximum": 1.0,
+                                    "default": 0.0
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "default": ""
+                                }
+                            }
                         }
                     },
                     "additionalProperties": false
                 },
                 "unresponsive_channels": {
                     "description": "List of channels where the bot will only listen and never respond",
-                    "type": "array",
-                    "default": [],
-                    "uniqueItems": true,
-                    "items": {
-                        "type": "string"
-                    }
+                    "type": "object",
+                    "default": {},
+                    "patternProperties": {
+                        "^#\\S+$" : {
+                            "type": "object",
+                            "default": {},
+                            "properties": {
+                                "p": {
+                                    "type": "number",
+                                    "minimum": 0.0,
+                                    "maximum": 1.0,
+                                    "default": 0.0
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "default": ""
+                                }
+                            }
+                        }
+                    },
+                    "additionalProperties": false
                 },
                 "ignore_users": {
                     "description": "List of users to always ignore",
