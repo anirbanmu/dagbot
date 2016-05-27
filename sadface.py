@@ -129,13 +129,21 @@ class sadfaceBot(irc.IRCClient):
     def ignore(self, user):
         return user.lower() in self.irc_cfg['ignore_users']
 
+    def join_chan(self, channel, password):
+        self.join(channel, password)
+
     def signedOn(self):
         irc_cfg = self.irc_cfg
         if irc_cfg['password']:
             self.msg('nickserv', 'identify ' + irc_cfg['password'])
 
         for c,props in irc_cfg['responsive_channels'].items() + irc_cfg['unresponsive_channels'].items():
-            self.join(c, props['password'])
+            self.join_chan(c, props['password'])
+
+    def kickedFrom(self, channel, kicker, message):
+        chan_props = irc_cfg['responsive_channels'].copy()
+        chan_props.update(irc_cfg['unresponsive_channels'])
+        reactor.callLater(5.0, self.join_chan, channel, chan_props[channel.lower()]['password'])
 
     def joined(self, channel):
         print "Joined %s as %s." % (channel, self.nickname)
