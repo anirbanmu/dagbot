@@ -33,10 +33,22 @@ config['brain']['brain_file'] = config['brain']['brain_file'].replace('~', os.pa
 if not os.path.exists(config['brain']['brain_file']):
     sys.exit('Error: Hoi! I need me some brains! Whaddya think I am, the Tin Man?')
 
-config['irc']['unrecorded_channels'] = {k.lower(): v for k,v in config['irc']['unrecorded_channels'].iteritems()}
-config['irc']['responsive_channels'] = {k.lower(): v for k,v in config['irc']['responsive_channels'].iteritems()}
+def initialize_chan_props(props):
+    quiet_hours = props['quiet_hours']
+    if not quiet_hours:
+        return props
+
+    p = props.copy()
+    p['quiet_hours'] = Calendar(quiet_hours) # Create real calendar object for quiet hours
+    return p
+
+config['irc']['unrecorded_channels'] = {k.lower(): initialize_chan_props(v) for k,v in config['irc']['unrecorded_channels'].iteritems()}
+config['irc']['responsive_channels'] = {k.lower(): initialize_chan_props(v) for k,v in config['irc']['responsive_channels'].iteritems()}
 config['irc']['responsive_channels'].update(config['irc']['unrecorded_channels']) # Unrecorded channels are also responsive.
 config['irc']['unresponsive_channels'] = {k.lower(): v for k,v in config['irc']['unresponsive_channels'].iteritems()}
+
+config['irc']['channels'] = config['irc']['responsive_channels'].copy()
+config['irc']['channels'].update(config['irc']['unresponsive_channels'])
 
 config['irc']['ignore_users'] = map(string.lower, config['irc']['ignore_users'])
 config['commands']['static_commands'] = {k.lower(): v for k,v in config['commands']['static_commands'].iteritems()}
@@ -143,9 +155,7 @@ class sadfaceBot(IRCClient):
             self.join(c, props['password'])
 
     def kickedFrom(self, channel, kicker, message):
-        chan_props = irc_cfg['responsive_channels'].copy()
-        chan_props.update(irc_cfg['unresponsive_channels'])
-        reactor.callLater(5.0, self.join, channel, chan_props[channel.lower()]['password'])
+        reactor.callLater(5.0, self.join, channel, self.irc_cfg['channels'][channel.lower()]['password'])
 
     def joined(self, channel):
         print "Joined %s as %s." % (channel, self.nickname)
@@ -157,8 +167,15 @@ class sadfaceBot(IRCClient):
         if channel not in self.irc_cfg['unrecorded_channels']:
             self.factory.markov.add_to_brain(msg)
 
+    def in_quiet_hours(self, channel, longest_duration):
+        if self.is_pm(channel):
+            return False
+
+        quiet_hours = self.irc_cfg['channels'][channel]['quiet_hours']
+        return quiet_hours and quiet_hours.in_event(longest_duration)
+
     def is_pm(self, channel):
-        return channel.lower() == self.nickname.lower()
+        return channel == self.nickname.lower()
 
     def receiver(self, user_nick, channel):
         return user_nick if self.is_pm(channel) else channel
@@ -228,7 +245,7 @@ class sadfaceBot(IRCClient):
         if self.handle_command(user_nick, channel, msg.lower()):
             return
 
-        if self.factory.quiet_hours_calendar.in_event(timedelta(hours=6)):
+        if self.in_quiet_hours(channel, timedelta(hours=6)):
             print "No response during quiet hours. Message: " + msg
             self.add_to_brain(channel, re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg))
             return
@@ -283,11 +300,10 @@ class sadfaceBot(IRCClient):
 class sadfaceBotFactory(Factory):
     protocol = sadfaceBot
 
-    def __init__(self, config, markov, dynamic_commands, quiet_hours_calendar):
+    def __init__(self, config, markov, dynamic_commands):
         self.markov = markov
         self.config = config
         self.dynamic_commands = dynamic_commands
-        self.quiet_hours_calendar = quiet_hours_calendar
         self.last_response = {}
 
 #
@@ -306,14 +322,11 @@ if __name__ == "__main__":
     commands_dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'commands')
     dynamic_commands = gather_commands(commands_dir_path, cmd_cfg['dynamic_aliases'], cmd_cfg['command_configs'])
 
-    # Calendar from http://www.f1fanatic.co.uk/contact/f1-fanatic-calendar/
-    formula1_calendar = Calendar('http://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics')
-
     markov = MarkovBrain(config['brain']['brain_file'], config['brain']['chain_length'], config['brain']['max_words'])
 
     client_string = "%s:%s:%u" % ('tls' if irc_cfg['ssl'] else 'tcp', irc_cfg['host'], irc_cfg['port'])
     endpoint = clientFromString(reactor, client_string)
-    bot_client_service = ClientService(endpoint, sadfaceBotFactory(config, markov, dynamic_commands, formula1_calendar))
+    bot_client_service = ClientService(endpoint, sadfaceBotFactory(config, markov, dynamic_commands))
     bot_client_service.startService()
 
     reactor.run()
