@@ -4,8 +4,13 @@ import sys, os, platform, random, re, time, string, json, jsonschema, pkgutil, i
 from time import localtime, strftime
 from datetime import timedelta
 from collections import OrderedDict, namedtuple
-from twisted.words.protocols import irc
-from twisted.internet import protocol, reactor
+
+from twisted.internet.protocol import Factory
+from twisted.internet.endpoints import clientFromString
+from twisted.words.protocols.irc import IRCClient
+from twisted.application.internet import ClientService
+from twisted.internet import reactor
+
 from markovbrain import MarkovBrain
 from utilities.calendar import Calendar
 from utilities.common import time_function
@@ -75,7 +80,7 @@ def gather_commands(path, aliases, command_configs):
 
     return OrderedDict(sorted(commands.iteritems(), reverse=True, key=lambda t: len(t[0])))
 
-class sadfaceBot(irc.IRCClient):
+class sadfaceBot(IRCClient):
     versionEnv = platform.platform()
 
     @property
@@ -275,7 +280,7 @@ class sadfaceBot(irc.IRCClient):
 #    fail
 #
 
-class sadfaceBotFactory(protocol.ClientFactory):
+class sadfaceBotFactory(Factory):
     protocol = sadfaceBot
 
     def __init__(self, config, markov, dynamic_commands, quiet_hours_calendar):
@@ -285,13 +290,6 @@ class sadfaceBotFactory(protocol.ClientFactory):
         self.quiet_hours_calendar = quiet_hours_calendar
         self.last_response = {}
 
-    def clientConnectionLost(self, connector, reason):
-        print "Lost connection (%s), reconnecting." % (reason,)
-        connector.connect()
-
-    def clientConnectionFailed(self, connector, reason):
-        print "Could not connect: %s" % (reason,)
-        quit()
 #
 #    We begin!
 #
@@ -313,7 +311,11 @@ if __name__ == "__main__":
 
     markov = MarkovBrain(config['brain']['brain_file'], config['brain']['chain_length'], config['brain']['max_words'])
 
-    reactor.connectTCP(irc_cfg['host'], irc_cfg['port'], sadfaceBotFactory(config, markov, dynamic_commands, formula1_calendar))
+    client_string = "%s:%s:%u" % ('tls' if irc_cfg['ssl'] else 'tcp', irc_cfg['host'], irc_cfg['port'])
+    endpoint = clientFromString(reactor, client_string)
+    bot_client_service = ClientService(endpoint, sadfaceBotFactory(config, markov, dynamic_commands, formula1_calendar))
+    bot_client_service.startService()
+
     reactor.run()
 
     markov.close()

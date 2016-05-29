@@ -16,6 +16,11 @@
                     "type": "integer",
                     "minimum": 0
                 },
+                "ssl": {
+                    "description": "To use SSL or not",
+                    "type": "boolean",
+                    "default": false
+                },
                 "nickname": {
                     "description": "List of nicks to use. If one is in use, next one is tried",
                     "type": "array",
