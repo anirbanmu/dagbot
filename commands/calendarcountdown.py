@@ -1,6 +1,8 @@
 import string
 from collections import OrderedDict
+
 from utilities.calendar import Calendar
+from commands.commandhandler import CommandHandler
 
 class CalendarCountdown(object):
     def __init__(self, calendar, filters):
@@ -24,7 +26,7 @@ class CalendarCountdown(object):
         response = '%s starting in %d %s %02d:%02d:%02d' % (event[0].summary, delta.days, 'days' if delta.days != 1 else 'day', hours, minutes, seconds)
         return response.encode('utf-8')
 
-class CalendarCountdownPool(object):
+class CalendarCountdownPool(CommandHandler):
     def __init__(self, json_config):
         self.calendars = {}
         self.default_id = None
@@ -47,6 +49,9 @@ class CalendarCountdownPool(object):
             return (chan[1:], param_str)
 
         return (self.default_id, param_str)
+
+    def get_help(self):
+        return ''
 
     # param_str should be lowercase
     def get_response(self, param_str, _, chan):

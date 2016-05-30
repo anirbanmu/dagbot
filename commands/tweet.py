@@ -1,11 +1,16 @@
 import tweepy
 
-class TweetHandler(object):
+from commands.commandhandler import CommandHandler
+
+class TweetHandler(CommandHandler):
     def __init__(self, config):
         auth = tweepy.OAuthHandler(config['api_key'], config['api_secret'])
         auth.set_access_token(config['access_token'], config['access_token_secret'])
 
         self.api = tweepy.API(auth)
+
+    def get_help(self):
+        return ''
 
     def get_response(self, _0, msg, _1):
         length = len(msg)

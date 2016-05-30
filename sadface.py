@@ -58,6 +58,9 @@ config['commands']['dynamic_aliases'] = {k.lower(): map(string.lower, v) for k,v
 # Begin actual code
 #
 
+def build_command_help(keyword, handler):
+    return ''
+
 # For each command in the path given, we find the command_handler and return a sorted dictionary of handlers.
 def gather_commands(path, aliases, command_configs):
     commands = {}
