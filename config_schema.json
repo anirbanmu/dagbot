@@ -222,8 +222,14 @@
                     "description": "Embedded configs for specific commands keyed by name of command module",
                     "type": "object",
                     "default": {}
+                },
+                "trigger": {
+                    "description": "Character or string that will trigger commands",
+                    "type": "string",
+                    "default": "^"
                 }
-            }
+            },
+            "required": ["trigger"]
         }
     },
     "required": ["irc", "brain"]

@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 __author__ = "Benjamin Keith (ben@benlk.com)"
 
 import sys, os, platform, random, re, time, string, json, jsonschema, pkgutil, imp
@@ -23,8 +25,8 @@ from utilities.jsonhelpers import validate_load_default_json, validate_default_j
 try:
     config = validate_load_default_json(os.path.join(os.path.dirname(__file__), 'config_schema.json'), sys.argv[1], 'utf-8')
 except jsonschema.ValidationError as e:
-    print 'Error validating config file (%s).' % sys.argv[1]
-    print e
+    print('Error validating config file (%s).' % sys.argv[1])
+    print(e)
     sys.exit()
 
 # Handle home directory
@@ -51,7 +53,7 @@ config['irc']['channels'] = config['irc']['responsive_channels'].copy()
 config['irc']['channels'].update(config['irc']['unresponsive_channels'])
 
 config['irc']['ignore_users'] = map(string.lower, config['irc']['ignore_users'])
-config['commands']['static_commands'] = {k.lower(): v for k,v in config['commands']['static_commands'].iteritems()}
+config['commands']['static_commands'] = {config['commands']['trigger'] + k.lower(): v for k,v in config['commands']['static_commands'].iteritems()}
 config['commands']['dynamic_aliases'] = {k.lower(): map(string.lower, v) for k,v in config['commands']['dynamic_aliases'].iteritems()}
 
 #
@@ -59,7 +61,7 @@ config['commands']['dynamic_aliases'] = {k.lower(): map(string.lower, v) for k,v
 #
 
 # For each command in the path given, we find the command_handler and return a sorted dictionary of handlers.
-def gather_commands(path, aliases, command_configs):
+def gather_commands(path, trigger, aliases, command_configs):
     commands = {}
 
     CommandHandlerProps = namedtuple('CommandHandlerProps', ['handler', 'use_notice'])
@@ -86,7 +88,7 @@ def gather_commands(path, aliases, command_configs):
                 for keyword in keywords:
                     aliases = [keyword] + (aliases[keyword] if keyword in aliases else [])
                     for alias in aliases:
-                        commands[alias] = command_handler_props
+                        commands[trigger + alias] = command_handler_props
         finally:
             f.close()
 
@@ -140,6 +142,10 @@ class sadfaceBot(IRCClient):
         return self.config['commands']
 
     @property
+    def trigger(self):
+        return self.cmd_cfg['trigger']
+
+    @property
     def brain_cfg(self):
         return self.config['brain']
 
@@ -158,7 +164,7 @@ class sadfaceBot(IRCClient):
         reactor.callLater(5.0, self.join, channel, self.irc_cfg['channels'][channel.lower()]['password'])
 
     def joined(self, channel):
-        print "Joined %s as %s." % (channel, self.nickname)
+        print("Joined %s as %s." % (channel, self.nickname))
 
     def unresponsive(self, channel):
         return channel.lower() in self.irc_cfg['unresponsive_channels']
@@ -181,10 +187,11 @@ class sadfaceBot(IRCClient):
         return user_nick if self.is_pm(channel) else channel
 
     def send(self, user_nick, channel, msg, use_notice = False):
-        if use_notice:
-            self.notice(user_nick, msg)
-            return
-        self.msg(self.receiver(user_nick, channel), msg)
+        for m in msg.splitlines():
+            if use_notice:
+                reactor.callLater(0.1, self.notice, user_nick, m)
+                continue
+            reactor.callLater(0.1, self.msg, self.receiver(user_nick, channel), m)
 
     def send_markov_sentence(self, user_nick, channel, prefix, msg):
         self.factory.last_response[self.receiver(user_nick, channel)] = msg
@@ -195,8 +202,27 @@ class sadfaceBot(IRCClient):
         last = self.factory.last_response.get(receiver)
         return '' if not last else last
 
+    def handle_help(self, channel, param_str):
+        if param_str != '':
+            param_str = self.trigger + param_str
+            for keyword,cmd_props in self.factory.dynamic_commands.iteritems():
+                if param_str.startswith(keyword):
+                    return cmd_props.handler.get_help(param_str[len(keyword):], channel)
+
+        return [', '.join(self.factory.dynamic_commands.keys())]
+
     def handle_command(self, user_nick, channel, msg, check_only = False):
         prefix = user_nick + ': '
+
+        # Handle help
+        help_cmd = self.trigger + 'help'
+        if msg.startswith(help_cmd):
+            if not check_only:
+                helper_strings = self.handle_help(channel, msg[len(help_cmd):].strip())
+                for i, h in enumerate(helper_strings):
+                    self.send(user_nick, channel, ('    ' * i) + h, True)
+            return True
+
         # Check if this is a simple static command
         for command,responses in self.cmd_cfg['static_commands'].iteritems():
             if msg.startswith(command):
@@ -224,20 +250,20 @@ class sadfaceBot(IRCClient):
         msg = raw_msg.lower()
 
         # Prints the message to stdout
-        print channel + " <" + user_nick + "> " + msg
+        print(channel + " <" + user_nick + "> " + msg)
         if not user:
-            print "NON-USER:" + msg
+            print("NON-USER:" + msg)
             return
 
         # Ignores the message if the person is in the ignore list
         if self.ignore(user_nick):
-            print "\t" + "Ignored message from <" + user_nick + "> at: " + strftime("%a, %d %b %Y %H:%M:%S %Z", localtime()) # Time method from http://stackoverflow.com/a/415527
+            print("\t" + "Ignored message from <" + user_nick + "> at: " + strftime("%a, %d %b %Y %H:%M:%S %Z", localtime())) # Time method from http://stackoverflow.com/a/415527
             return
 
         reply = self.brain_cfg['reply_mode']
 
         if reply == 0 or self.unresponsive(channel):
-            print msg
+            print(msg)
             if not self.handle_command(user_nick, channel, msg.lower(), True):
                 self.add_to_brain(channel, re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg))
             return
@@ -246,7 +272,7 @@ class sadfaceBot(IRCClient):
             return
 
         if self.in_quiet_hours(channel, timedelta(hours=6)):
-            print "No response during quiet hours. Message: " + msg
+            print("No response during quiet hours. Message: " + msg)
             self.add_to_brain(channel, re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg))
             return
 
@@ -260,12 +286,12 @@ class sadfaceBot(IRCClient):
                 prefix = ''
 
             self.add_to_brain(channel, msg)
-            print "\t" + msg #prints to stdout what sadface added to brain
+            print("\t" + msg) #prints to stdout what sadface added to brain
             if prefix or (channel == self.nickname or random.random() <= self.irc_cfg['responsive_channels'][channel]['p']):
                 sentence = self.factory.markov.generate_sentence(msg)
                 if sentence:
                     self.send_markov_sentence(user_nick, channel, prefix, sentence)
-                    print ">" + "\t" + sentence #prints to stdout what sadface said
+                    print(">" + "\t" + sentence) #prints to stdout what sadface said
             return
 
         # Replies to messages starting with the bot's name.
@@ -279,12 +305,12 @@ class sadfaceBot(IRCClient):
                 prefix = ''
 
             self.add_to_brain(channel, msg)
-            print "\t" + msg #prints to stdout what sadface added to brain
+            print("\t" + msg) #prints to stdout what sadface added to brain
             if prefix or (channel == self.nickname or random.random() <= self.irc_cfg['responsive_channels'][channel]['p']):
                 sentence = self.factory.markov.generate_sentence(msg)
                 if sentence:
                     self.send_markov_sentence(user_nick, channel, prefix, sentence)
-                    print ">" + "\t" + sentence #prints to stdout what sadface said
+                    print(">" + "\t" + sentence) #prints to stdout what sadface said
             return
 
 #
@@ -313,14 +339,14 @@ class sadfaceBotFactory(Factory):
 if __name__ == "__main__":
     config_file = sys.argv[1]
     if config_file == False:
-        print "Please specify a valid config file in the arguments."
-        print "Example:"
-        print "python sadface.py default.ini"
+        print("Please specify a valid config file in the arguments.")
+        print("Example:")
+        print("python sadface.py default.ini")
 
     irc_cfg = config['irc']
     cmd_cfg = config['commands']
     commands_dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'commands')
-    dynamic_commands = gather_commands(commands_dir_path, cmd_cfg['dynamic_aliases'], cmd_cfg['command_configs'])
+    dynamic_commands = gather_commands(commands_dir_path, cmd_cfg['trigger'], cmd_cfg['dynamic_aliases'], cmd_cfg['command_configs'])
 
     markov = MarkovBrain(config['brain']['brain_file'], config['brain']['chain_length'], config['brain']['max_words'])
 

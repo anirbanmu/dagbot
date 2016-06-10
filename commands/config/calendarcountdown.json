@@ -1,6 +1,7 @@
 [
     {
         "identifiers": ["f1", "formula1"],
+        "descriptor": "Formula 1",
         "calendar_url": "http://www.google.com/calendar/ical/hendnaic1pa2r3oj8b87m08afg%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "grand prix",
@@ -13,6 +14,7 @@
     },
     {
         "identifiers": ["wec"],
+        "descriptor": "FIA World Endurance Championship",
         "calendar_url": "http://calendar.google.com/calendar/ical/8ifivd9lmjh4mm72kl1bng6j94%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
@@ -21,6 +23,7 @@
     },
     {
         "identifiers": ["gp2"],
+        "descriptor": "GP2 Series",
         "calendar_url": "http://www.gpupdate.net/en/calendar/237/2016-gp2-calendar/calendar.ics",
         "filters": {
             "r": "race",
@@ -29,6 +32,7 @@
     },
     {
         "identifiers": ["gp3"],
+        "descriptor": "GP3 Series",
         "calendar_url": "http://www.gpupdate.net/en/calendar/238/2016-gp3-calendar/calendar.ics",
         "filters": {
             "r": "race",
@@ -37,6 +41,7 @@
     },
     {
         "identifiers": ["fe", "formulae", "formula-e"],
+        "descriptor": "FIA Formula-E",
         "calendar_url": "http://calendar.google.com/calendar/ical/f7jo4l0op3lfb8u5686ekt4jq4%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
@@ -46,6 +51,7 @@
     },
     {
         "identifiers": ["irl", "indy", "indycar"],
+        "descriptor": "Verizon Indycar Series",
         "calendar_url": "http://calendar.google.com/calendar/ical/4uu4mja63b94cs24b3vo5jlim8%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
@@ -57,11 +63,13 @@
     },
     {
         "identifiers": ["dtm"],
+        "descriptor": "Deutsche Tourenwagen Masters",
         "calendar_url": "http://calendar.google.com/calendar/ical/b23fcevejg80tfs7grknb2kj5k%40group.calendar.google.com/public/basic.ics",
         "filters": {}
     },
     {
         "identifiers": ["v8sc", "v8supercars", "v8straya", "v8"],
+        "descriptor": "V8 Supercars",
         "calendar_url": "http://calendar.google.com/calendar/ical/1v4rp3ut2fllh0gi0u383mvv0c%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r1": "race 1",
@@ -78,6 +86,7 @@
     },
     {
         "identifiers": ["uscr", "imsa"],
+        "descriptor": "WeatherTech SportsCar Championship",
         "calendar_url": "http://calendar.google.com/calendar/ical/n9mu3bmutgm042cf52ukap6n94%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
@@ -90,6 +99,7 @@
     },
     {
         "identifiers": ["motogp", "moto"],
+        "descriptor": "MotoGP",
         "calendar_url": "http://calendar.google.com/calendar/ical/bdkgs5okq2049tv4k9hbm2l57o%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
@@ -103,6 +113,7 @@
     },
     {
         "identifiers": ["moto2"],
+        "descriptor": "Moto2",
         "calendar_url": "http://calendar.google.com/calendar/ical/10ijdgvdtmu142pjidvu2ca2hs%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
@@ -114,6 +125,7 @@
     },
     {
         "identifiers": ["moto3"],
+        "descriptor": "Moto3",
         "calendar_url": "http://calendar.google.com/calendar/ical/rlhgjeg9dgqa0kol03icd9dgo8%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
@@ -125,16 +137,19 @@
     },
     {
         "identifiers": ["wrc", "rally"],
+        "descriptor": "World Rally Championship",
         "calendar_url": "http://calendar.google.com/calendar/ical/a2uk9e9ndiver19pg9d6dm1ecs%40group.calendar.google.com/public/basic.ics",
         "filters": {}
     },
     {
         "identifiers": ["wrx", "rallycross"],
+        "descriptor": "World Rallycross Championship",
         "calendar_url": "http://calendar.google.com/calendar/ical/s2fh7a3fnvmsishigak73ti99g%40group.calendar.google.com/public/basic.ics",
         "filters": {}
     },
     {
         "identifiers": ["nascar", "NSCS"],
+        "descriptor": "NASCAR Sprint Cup Series",
         "calendar_url": "http://calendar.google.com/calendar/ical/9cpircejjbjgmsrjv2ksbht4vo%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
@@ -146,6 +161,7 @@
     },
     {
         "identifiers": ["blancpain"],
+        "descriptor": "Blancpain GT Series",
         "calendar_url": "http://calendar.google.com/calendar/ical/0urph7hfm9r78rftk6jpvaskos%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
