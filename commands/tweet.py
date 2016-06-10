@@ -25,4 +25,4 @@ class TweetHandler(CommandHandler):
         print response.user.screen_name
         return ("Tweet @ https://twitter.com/%s/status/%i" % (response.user.screen_name, response.id)).encode('utf-8')
 
-command_handler_properties = (TweetHandler, ['@tweet'], False)
+command_handler_properties = (TweetHandler, ['tweet'], False)

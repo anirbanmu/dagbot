@@ -53,7 +53,7 @@ config['irc']['channels'] = config['irc']['responsive_channels'].copy()
 config['irc']['channels'].update(config['irc']['unresponsive_channels'])
 
 config['irc']['ignore_users'] = map(string.lower, config['irc']['ignore_users'])
-config['commands']['static_commands'] = {k.lower(): v for k,v in config['commands']['static_commands'].iteritems()}
+config['commands']['static_commands'] = {config['commands']['trigger'] + k.lower(): v for k,v in config['commands']['static_commands'].iteritems()}
 config['commands']['dynamic_aliases'] = {k.lower(): map(string.lower, v) for k,v in config['commands']['dynamic_aliases'].iteritems()}
 
 #
@@ -61,7 +61,7 @@ config['commands']['dynamic_aliases'] = {k.lower(): map(string.lower, v) for k,v
 #
 
 # For each command in the path given, we find the command_handler and return a sorted dictionary of handlers.
-def gather_commands(path, aliases, command_configs):
+def gather_commands(path, trigger, aliases, command_configs):
     commands = {}
 
     CommandHandlerProps = namedtuple('CommandHandlerProps', ['handler', 'use_notice'])
@@ -88,7 +88,7 @@ def gather_commands(path, aliases, command_configs):
                 for keyword in keywords:
                     aliases = [keyword] + (aliases[keyword] if keyword in aliases else [])
                     for alias in aliases:
-                        commands[alias] = command_handler_props
+                        commands[trigger + alias] = command_handler_props
         finally:
             f.close()
 
@@ -140,6 +140,10 @@ class sadfaceBot(IRCClient):
     @property
     def cmd_cfg(self):
         return self.config['commands']
+
+    @property
+    def trigger(self):
+        return self.cmd_cfg['trigger']
 
     @property
     def brain_cfg(self):
@@ -200,7 +204,7 @@ class sadfaceBot(IRCClient):
 
     def handle_help(self, channel, param_str):
         if param_str != '':
-            param_str = '@' + param_str
+            param_str = self.trigger + param_str
             for keyword,cmd_props in self.factory.dynamic_commands.iteritems():
                 if param_str.startswith(keyword):
                     return cmd_props.handler.get_help(param_str[len(keyword):], channel)
@@ -211,9 +215,10 @@ class sadfaceBot(IRCClient):
         prefix = user_nick + ': '
 
         # Handle help
-        if msg.startswith('@help'):
+        help_cmd = self.trigger + 'help'
+        if msg.startswith(help_cmd):
             if not check_only:
-                helper_strings = self.handle_help(channel, msg[len('@help'):].strip())
+                helper_strings = self.handle_help(channel, msg[len(help_cmd):].strip())
                 for i, h in enumerate(helper_strings):
                     self.send(user_nick, channel, ('    ' * i) + h, True)
             return True
@@ -341,7 +346,7 @@ if __name__ == "__main__":
     irc_cfg = config['irc']
     cmd_cfg = config['commands']
     commands_dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'commands')
-    dynamic_commands = gather_commands(commands_dir_path, cmd_cfg['dynamic_aliases'], cmd_cfg['command_configs'])
+    dynamic_commands = gather_commands(commands_dir_path, cmd_cfg['trigger'], cmd_cfg['dynamic_aliases'], cmd_cfg['command_configs'])
 
     markov = MarkovBrain(config['brain']['brain_file'], config['brain']['chain_length'], config['brain']['max_words'])
 

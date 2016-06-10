@@ -79,4 +79,4 @@ class CalendarCountdownPool(CommandHandler):
 
         return self.calendars[id].get_response(filter)
 
-command_handler_properties = (CalendarCountdownPool, ['@next'], False)
+command_handler_properties = (CalendarCountdownPool, ['next'], False)
