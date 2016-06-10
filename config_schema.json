@@ -223,13 +223,26 @@
                     "type": "object",
                     "default": {}
                 },
-                "trigger": {
-                    "description": "Character or string that will trigger commands",
-                    "type": "string",
-                    "default": "^"
+                "triggers": {
+                    "description": "Characters or strings that will trigger commands",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": ["^", ",", "`"]
+                },
+                "deprecated_triggers": {
+                    "description": "Deprecated trigger commands",
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": ["@"]
                 }
             },
-            "required": ["trigger"]
+            "required": ["triggers", "deprecated_triggers"]
         }
     },
     "required": ["irc", "brain"]

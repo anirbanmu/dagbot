@@ -53,7 +53,7 @@ config['irc']['channels'] = config['irc']['responsive_channels'].copy()
 config['irc']['channels'].update(config['irc']['unresponsive_channels'])
 
 config['irc']['ignore_users'] = map(string.lower, config['irc']['ignore_users'])
-config['commands']['static_commands'] = {config['commands']['trigger'] + k.lower(): v for k,v in config['commands']['static_commands'].iteritems()}
+config['commands']['static_commands'] = {k.lower(): v for k,v in config['commands']['static_commands'].iteritems()}
 config['commands']['dynamic_aliases'] = {k.lower(): map(string.lower, v) for k,v in config['commands']['dynamic_aliases'].iteritems()}
 
 #
@@ -61,7 +61,7 @@ config['commands']['dynamic_aliases'] = {k.lower(): map(string.lower, v) for k,v
 #
 
 # For each command in the path given, we find the command_handler and return a sorted dictionary of handlers.
-def gather_commands(path, trigger, aliases, command_configs):
+def gather_commands(path, aliases, command_configs):
     commands = {}
 
     CommandHandlerProps = namedtuple('CommandHandlerProps', ['handler', 'use_notice'])
@@ -88,7 +88,7 @@ def gather_commands(path, trigger, aliases, command_configs):
                 for keyword in keywords:
                     aliases = [keyword] + (aliases[keyword] if keyword in aliases else [])
                     for alias in aliases:
-                        commands[trigger + alias] = command_handler_props
+                        commands[alias] = command_handler_props
         finally:
             f.close()
 
@@ -140,10 +140,6 @@ class sadfaceBot(IRCClient):
     @property
     def cmd_cfg(self):
         return self.config['commands']
-
-    @property
-    def trigger(self):
-        return self.cmd_cfg['trigger']
 
     @property
     def brain_cfg(self):
@@ -202,9 +198,14 @@ class sadfaceBot(IRCClient):
         last = self.factory.last_response.get(receiver)
         return '' if not last else last
 
+    def execute_command(self, user_nick, channel, check_only, trigger):
+        if trigger in self.cmd_cfg['deprecated_triggers']:
+            self.send(user_nick, channel, '%s is deprecated. Use one of these instead: %s.' % (trigger, ' '.join(self.cmd_cfg['triggers'])), True)
+            return False
+        return not check_only
+
     def handle_help(self, channel, param_str):
         if param_str != '':
-            param_str = self.trigger + param_str
             for keyword,cmd_props in self.factory.dynamic_commands.iteritems():
                 if param_str.startswith(keyword):
                     return cmd_props.handler.get_help(param_str[len(keyword):], channel)
@@ -215,27 +216,28 @@ class sadfaceBot(IRCClient):
         prefix = user_nick + ': '
 
         # Handle help
-        help_cmd = self.trigger + 'help'
-        if msg.startswith(help_cmd):
-            if not check_only:
-                helper_strings = self.handle_help(channel, msg[len(help_cmd):].strip())
+        help_command_match = self.factory.help_command_regex.match(msg)
+        if help_command_match:
+            if self.execute_command(user_nick, channel, check_only, help_command_match.group(1)):
+                helper_strings = self.handle_help(channel, msg[help_command_match.span(2)[1]:].strip())
                 for i, h in enumerate(helper_strings):
                     self.send(user_nick, channel, ('    ' * i) + h, True)
             return True
 
         # Check if this is a simple static command
-        for command,responses in self.cmd_cfg['static_commands'].iteritems():
-            if msg.startswith(command):
-                if not check_only:
-                    self.send(user_nick, channel, prefix + random.choice(responses))
-                return True
+        static_command_match = self.factory.static_commands_regex.match(msg)
+        if static_command_match:
+            if self.execute_command(user_nick, channel, check_only, static_command_match.group(1)):
+                self.send(user_nick, channel, prefix + random.choice(self.cmd_cfg['static_commands'][static_command_match.group(3)]))
+            return True
 
-        for keyword,cmd_props in self.factory.dynamic_commands.iteritems():
-            if msg.startswith(keyword):
-                if not check_only:
-                    reply = prefix + cmd_props.handler.get_response(msg[len(keyword):], self.last_markov_sentence(user_nick, channel), channel)
-                    self.send(user_nick, channel, reply, cmd_props.use_notice)
-                return True
+        dynamic_command_match = self.factory.dynamic_commands_regex.match(msg)
+        if dynamic_command_match:
+            if self.execute_command(user_nick, channel, check_only, dynamic_command_match.group(1)):
+                cmd_props = self.factory.dynamic_commands[dynamic_command_match.group(3)]
+                reply = prefix + cmd_props.handler.get_response(msg[dynamic_command_match.span(2)[1]:], self.last_markov_sentence(user_nick, channel), channel)
+                self.send(user_nick, channel, reply, cmd_props.use_notice)
+            return True
 
         return False
 
@@ -326,10 +328,13 @@ class sadfaceBot(IRCClient):
 class sadfaceBotFactory(Factory):
     protocol = sadfaceBot
 
-    def __init__(self, config, markov, dynamic_commands):
+    def __init__(self, config, markov, dynamic_commands, dynamic_commands_regex, static_commands_regex, help_command_regex):
         self.markov = markov
         self.config = config
         self.dynamic_commands = dynamic_commands
+        self.dynamic_commands_regex = dynamic_commands_regex
+        self.static_commands_regex = static_commands_regex
+        self.help_command_regex = help_command_regex
         self.last_response = {}
 
 #
@@ -346,13 +351,18 @@ if __name__ == "__main__":
     irc_cfg = config['irc']
     cmd_cfg = config['commands']
     commands_dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'commands')
-    dynamic_commands = gather_commands(commands_dir_path, cmd_cfg['trigger'], cmd_cfg['dynamic_aliases'], cmd_cfg['command_configs'])
+    dynamic_commands = gather_commands(commands_dir_path, cmd_cfg['dynamic_aliases'], cmd_cfg['command_configs'])
+
+    triggers = '|'.join(re.escape(s) for s in config['commands']['triggers'] + config['commands']['deprecated_triggers'])
+    dynamic_commands_regex = re.compile('\s*(' + triggers + ')\s*((' + '|'.join(dynamic_commands.keys()) + ')\s*).*')
+    static_commands_regex = re.compile('\s*(' + triggers + ')\s*((' + '|'.join(cmd_cfg['static_commands'].keys()) + ')\s*).*')
+    help_command_regex = re.compile('\s*(' + triggers + ')\s*(help\s*).*')
 
     markov = MarkovBrain(config['brain']['brain_file'], config['brain']['chain_length'], config['brain']['max_words'])
 
     client_string = "%s:%s:%u" % ('tls' if irc_cfg['ssl'] else 'tcp', irc_cfg['host'], irc_cfg['port'])
     endpoint = clientFromString(reactor, client_string)
-    bot_client_service = ClientService(endpoint, sadfaceBotFactory(config, markov, dynamic_commands))
+    bot_client_service = ClientService(endpoint, sadfaceBotFactory(config, markov, dynamic_commands, dynamic_commands_regex, static_commands_regex, help_command_regex))
     bot_client_service.startService()
 
     reactor.run()
