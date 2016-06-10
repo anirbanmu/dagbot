@@ -200,7 +200,7 @@ class sadfaceBot(IRCClient):
 
     def execute_command(self, user_nick, channel, check_only, trigger):
         if trigger in self.cmd_cfg['deprecated_triggers']:
-            self.send(user_nick, channel, '%s is deprecated. Use one of these instead: %s.' % (trigger, ' '.join(self.cmd_cfg['triggers'])), True)
+            self.send(user_nick, channel, '%s is deprecated. Use one of these instead: %s' % (trigger, ' '.join(self.cmd_cfg['triggers'])), True)
             return False
         return not check_only
 

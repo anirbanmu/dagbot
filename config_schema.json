@@ -230,7 +230,7 @@
                     "items": {
                         "type": "string"
                     },
-                    "default": ["^", ",", "`"]
+                    "default": ["^", ",", "`", "~"]
                 },
                 "deprecated_triggers": {
                     "description": "Deprecated trigger commands",
