@@ -9,8 +9,8 @@ class TweetHandler(CommandHandler):
 
         self.api = tweepy.API(auth)
 
-    def get_help(self):
-        return ''
+    def get_help(self, _0, _1):
+        return ['Tweet last markov response in this channel']
 
     def get_response(self, _0, msg, _1):
         length = len(msg)

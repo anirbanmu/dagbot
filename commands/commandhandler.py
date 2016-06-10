@@ -8,7 +8,7 @@ class CommandHandler(object):
         raise NotImplementedError('__init__ must be defined for a command handler')
 
     @abc.abstractmethod
-    def get_help(self):
+    def get_help(self, param_str, chan):
         raise NotImplementedError('get_help must be defined for a command handler')
 
     @abc.abstractmethod
