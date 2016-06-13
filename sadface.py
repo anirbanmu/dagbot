@@ -18,7 +18,6 @@ from utilities.calendar import Calendar
 from utilities.common import time_function
 from utilities.jsonhelpers import validate_load_default_json, validate_default_json
 
-
 #
 # Setting some settings
 #
@@ -185,9 +184,9 @@ class sadfaceBot(IRCClient):
     def send(self, user_nick, channel, msg, use_notice = False):
         for m in msg.splitlines():
             if use_notice:
-                reactor.callLater(0.1, self.notice, user_nick, m)
+                self.notice(user_nick, m)
                 continue
-            reactor.callLater(0.1, self.msg, self.receiver(user_nick, channel), m)
+            self.msg(self.receiver(user_nick, channel), m)
 
     def send_markov_sentence(self, user_nick, channel, prefix, msg):
         self.factory.last_response[self.receiver(user_nick, channel)] = msg
