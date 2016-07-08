@@ -164,9 +164,11 @@ class sadfaceBot(IRCClient):
     def unresponsive(self, channel):
         return channel.lower() in self.irc_cfg['unresponsive_channels']
 
-    def add_to_brain(self, channel, msg):
-        if channel not in self.irc_cfg['unrecorded_channels']:
+    def add_to_brain(self, channel, msg, raw_msg):
+        if channel not in self.irc_cfg['unrecorded_channels'] and self.nickname not in raw_msg and not self.is_pm(channel):
             self.factory.markov.add_to_brain(msg)
+        else:
+            print("Message not added to brain.")
 
     def in_quiet_hours(self, channel, longest_duration):
         if self.is_pm(channel):
@@ -248,7 +250,7 @@ class sadfaceBot(IRCClient):
 #        check for self.
         channel = channel.lower()
         user_nick = user.split('!', 1)[0].lower()
-        msg = raw_msg.lower()
+        msg = raw_msg = raw_msg.lower()
 
         # Prints the message to stdout
         print(channel + " <" + user_nick + "> " + msg)
@@ -266,7 +268,7 @@ class sadfaceBot(IRCClient):
         if reply == 0 or self.unresponsive(channel):
             print(msg)
             if not self.handle_command(user_nick, channel, msg.lower(), True):
-                self.add_to_brain(channel, re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg))
+                self.add_to_brain(channel, re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg), raw_msg)
             return
 
         if self.handle_command(user_nick, channel, msg.lower()):
@@ -274,7 +276,7 @@ class sadfaceBot(IRCClient):
 
         if self.in_quiet_hours(channel, timedelta(hours=6)):
             print("No response during quiet hours. Message: " + msg)
-            self.add_to_brain(channel, re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg))
+            self.add_to_brain(channel, re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg), raw_msg)
             return
 
         # Replies to messages containing the bot's name
@@ -286,7 +288,7 @@ class sadfaceBot(IRCClient):
             else:
                 prefix = ''
 
-            self.add_to_brain(channel, msg)
+            self.add_to_brain(channel, msg, raw_msg)
             print("\t" + msg) #prints to stdout what sadface added to brain
             if prefix or (channel == self.nickname or random.random() <= self.irc_cfg['responsive_channels'][channel]['p']):
                 sentence = self.factory.markov.generate_sentence(msg)
@@ -305,7 +307,7 @@ class sadfaceBot(IRCClient):
                 msg = re.compile(self.nickname + "[:,]* ?", re.I).sub('', msg)
                 prefix = ''
 
-            self.add_to_brain(channel, msg)
+            self.add_to_brain(channel, msg, raw_msg)
             print("\t" + msg) #prints to stdout what sadface added to brain
             if prefix or (channel == self.nickname or random.random() <= self.irc_cfg['responsive_channels'][channel]['p']):
                 sentence = self.factory.markov.generate_sentence(msg)
