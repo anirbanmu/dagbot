@@ -2,7 +2,7 @@ from __future__ import print_function
 
 __author__ = "Benjamin Keith (ben@benlk.com)"
 
-import sys, os, platform, random, re, time, string, json, jsonschema, pkgutil, imp
+import sys, os, platform, random, re, time, string, json, jsonschema, pkgutil, imp, socket
 from time import localtime, strftime
 from datetime import timedelta
 from collections import OrderedDict, namedtuple
@@ -361,7 +361,10 @@ if __name__ == "__main__":
 
     markov = MarkovBrain(config['brain']['brain_file'], config['brain']['chain_length'], config['brain']['max_words'])
 
-    client_string = "%s:%s:%u" % ('tls' if irc_cfg['ssl'] else 'tcp', irc_cfg['host'], irc_cfg['port'])
+    # Lookup actual address for host (twisted only uses ipv6 if given an explicit ipv6 address)
+    host_info = socket.getaddrinfo(irc_cfg['host'], irc_cfg['port'], 0, 0, socket.IPPROTO_TCP, socket.AI_CANONNAME)[0][4]
+    client_string = "%s:%s:%u" % ('tls' if irc_cfg['ssl'] else 'tcp', host_info[0].replace(':', '\:'), host_info[1])
+
     endpoint = clientFromString(reactor, client_string)
     bot_client_service = ClientService(endpoint, sadfaceBotFactory(config, markov, dynamic_commands, dynamic_commands_regex, static_commands_regex, help_command_regex))
     bot_client_service.startService()
