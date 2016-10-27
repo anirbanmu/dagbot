@@ -2,7 +2,7 @@ import string
 from collections import OrderedDict
 
 from utilities.calendar import Calendar
-from commands.commandhandler import CommandHandlerimport
+from commands.commandhandler import CommandHandler
 
 def generate_current_event(event, delta):
     hours, remainder = divmod(delta.seconds, 3600)
