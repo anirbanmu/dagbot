@@ -3,6 +3,7 @@ from collections import OrderedDict
 
 from utilities.calendar import Calendar
 from commands.commandhandler import CommandHandler
+from datetime import timedelta
 
 def generate_current_event(event, delta):
     hours, remainder = divmod(delta.seconds, 3600)
