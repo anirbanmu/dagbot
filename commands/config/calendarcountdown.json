@@ -100,7 +100,7 @@
     {
         "identifiers": ["motogp", "moto"],
         "descriptor": "MotoGP",
-        "calendar_url": "http://calendar.google.com/calendar/ical/bdkgs5okq2049tv4k9hbm2l57o%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "https://calendar.google.com/calendar/ical/fsh9sdid6mkvb9bi50v5gtvofg%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q1": "qualifying 1",
