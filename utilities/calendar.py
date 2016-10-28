@@ -47,8 +47,12 @@ def closest_event(events, event_type_end):
     utc_now = sanitize_dt(datetime.utcnow())
     for event in events:
         delta = event.start - utc_now
-        if (event.summary.lower().endswith(event_type_end) and delta > timedelta(microseconds=0)):
-            deltas.append((event, delta))
+        end = event.end if event.end else event.start
+        if (event.summary.lower().endswith(event_type_end)):
+            if delta > timedelta(microseconds=0):
+                deltas.append((event, delta))
+            elif (event.start < utc_now and end > utc_now):
+                deltas.append((event, utc_now - end))
     deltas.sort(key=lambda x: x[1])
     return deltas[0] if deltas else None
 
