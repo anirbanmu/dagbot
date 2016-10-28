@@ -55,7 +55,8 @@ class CalendarCountdownPool(CommandHandler):
         self.calendars = {}
         self.default_id = None
         for config in json_config:
-            calendar = CalendarCountdown(config['calendar_url'], {k.lower(): v.lower() for k,v in config['filters'].iteritems()}, config['descriptor'], config['required_string'].lower())
+            required_string = config['required_string'] if 'required_string' in config else ''
+            calendar = CalendarCountdown(config['calendar_url'], {k.lower(): v.lower() for k,v in config['filters'].iteritems()}, config['descriptor'], required_string.lower())
             for id in config['identifiers']:
                 self.calendars[id.lower()] = calendar
 
