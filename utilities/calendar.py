@@ -42,10 +42,10 @@ def prune_past_events(ics_events, now):
             events.append(Event(start, end, component.get('summary')))
     return events
 
-def closest_event(events, event_type_end):
+def closest_event(events, event_type_end, required_string):
     deltas = []
     utc_now = sanitize_dt(datetime.utcnow())
-    for event in events:
+    for event in (e for e in events if required_string in e.summary.lower()):
         delta = event.start - utc_now
         end = event.end if event.end else event.start
         if (event.summary.lower().endswith(event_type_end)):
@@ -56,9 +56,9 @@ def closest_event(events, event_type_end):
     deltas.sort(key=lambda x: x[1])
     return deltas[0] if deltas else None
 
-def in_event(events, default_event_duration, longest_duration):
+def in_event(events, default_event_duration, longest_duration, required_string):
     utc_now = sanitize_dt(datetime.utcnow())
-    for event in events:
+    for event in (e for e in events if required_string in e.summary.lower()):
         end = event.end if event.end else event.start + default_event_duration
         if event.start < utc_now and utc_now < end and end - event.start < longest_duration:
             return True
@@ -101,8 +101,8 @@ class Calendar(object):
             self.__update_calendar()
             return list(self.events)
 
-    def closest_event(self, event_end_filter):
-        return closest_event(self.__get_events(), event_end_filter)
+    def closest_event(self, event_end_filter, required_string):
+        return closest_event(self.__get_events(), event_end_filter, required_string)
 
-    def in_event(self, longest_duration):
-        return in_event(self.__get_events(), self.default_event_duration, longest_duration)
+    def in_event(self, longest_duration, required_string):
+        return in_event(self.__get_events(), self.default_event_duration, longest_duration, required_string)

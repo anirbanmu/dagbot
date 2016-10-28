@@ -175,7 +175,7 @@ class sadfaceBot(IRCClient):
             return False
 
         quiet_hours = self.irc_cfg['channels'][channel]['quiet_hours']
-        return quiet_hours and quiet_hours.in_event(longest_duration)
+        return quiet_hours and quiet_hours.in_event(longest_duration, '')
 
     def is_pm(self, channel):
         return channel == self.nickname.lower()

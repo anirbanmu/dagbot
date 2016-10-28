@@ -17,10 +17,11 @@ def generate_future_event(event, delta):
     return '%s starting in %d %s %02d:%02d:%02d.' % (event.summary, delta.days, 'days' if delta.days != 1 else 'day', hours, minutes, seconds)
 
 class CalendarCountdown(object):
-    def __init__(self, calendar, filters, description):
+    def __init__(self, calendar, filters, description, required_string):
         self.calendar = calendar if type(calendar) is Calendar else Calendar(calendar)
         self.filters = OrderedDict(sorted(filters.iteritems(), reverse=True, key=lambda t: len(t[0])))
         self.description = description
+        self.required_string = required_string
 
     def get_filter(self, str):
         for f,v in self.filters.iteritems():
@@ -40,7 +41,7 @@ class CalendarCountdown(object):
 
 
     def get_response(self, param_str):
-        event = self.calendar.closest_event(self.get_filter(param_str)[1])
+        event = self.calendar.closest_event(self.get_filter(param_str)[1], self.required_string)
         if not event:
             return 'No event found'
 
@@ -54,7 +55,7 @@ class CalendarCountdownPool(CommandHandler):
         self.calendars = {}
         self.default_id = None
         for config in json_config:
-            calendar = CalendarCountdown(config['calendar_url'], {k.lower(): v.lower() for k,v in config['filters'].iteritems()}, config['descriptor'])
+            calendar = CalendarCountdown(config['calendar_url'], {k.lower(): v.lower() for k,v in config['filters'].iteritems()}, config['descriptor'], config['required_string'].lower())
             for id in config['identifiers']:
                 self.calendars[id.lower()] = calendar
 

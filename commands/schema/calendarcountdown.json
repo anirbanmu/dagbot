@@ -31,6 +31,11 @@
             "description": "If no identifier is found, use this one",
             "type": "boolean"
         },
+        "required_string": {
+            "description": "Ignore any events that do not have this string in their descriptions",
+            "type": "string",
+            "default": ""
+        },
         "required": ["identifiers", "descriptor", "calendar_url"]
     }
 }

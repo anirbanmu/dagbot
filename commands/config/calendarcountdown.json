@@ -100,7 +100,7 @@
     {
         "identifiers": ["motogp", "moto"],
         "descriptor": "MotoGP",
-        "calendar_url": "https://calendar.google.com/calendar/ical/fsh9sdid6mkvb9bi50v5gtvofg%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "https://calendar.google.com/calendar/ical/1hhvgqqnvj4udsaju68e3pd6r4%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q1": "qualifying 1",
@@ -109,7 +109,8 @@
             "fp2": "practice 2",
             "fp3": "practice 3",
             "fp4": "practice 4"
-        }
+        },
+        "required_string": "MotoGP"
     },
     {
         "identifiers": ["moto2"],
