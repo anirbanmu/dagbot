@@ -39,7 +39,7 @@ def prune_past_events(ics_events, now):
             end = sanitize_dt(end.dt) if end else None
             if prune_event(component, utc_now, start, end):
                 continue
-            events.append(Event(start, end, component.get('summary')))
+            events.append(Event(start, end, component.get('summary').strip()))
     return events
 
 def closest_event(events, event_type_end, required_string):

@@ -115,26 +115,28 @@
     {
         "identifiers": ["moto2"],
         "descriptor": "Moto2",
-        "calendar_url": "http://calendar.google.com/calendar/ical/10ijdgvdtmu142pjidvu2ca2hs%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "https://calendar.google.com/calendar/ical/1hhvgqqnvj4udsaju68e3pd6r4%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
             "fp1": "practice 1",
             "fp2": "practice 2",
             "fp3": "practice 3"
-        }
+        },
+        "required_string": "Moto2"
     },
     {
         "identifiers": ["moto3"],
         "descriptor": "Moto3",
-        "calendar_url": "http://calendar.google.com/calendar/ical/rlhgjeg9dgqa0kol03icd9dgo8%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "https://calendar.google.com/calendar/ical/1hhvgqqnvj4udsaju68e3pd6r4%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
             "fp1": "practice 1",
             "fp2": "practice 2",
             "fp3": "practice 3"
-        }
+        },
+        "required_string": "Moto3"
     },
     {
         "identifiers": ["wrc", "rally"],
