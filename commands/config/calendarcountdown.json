@@ -2,7 +2,7 @@
     {
         "identifiers": ["f1", "formula1"],
         "descriptor": "Formula 1",
-        "calendar_url": "http://www.google.com/calendar/render?cid=http%3A%2F%2Fsonnorcteer.com%2Fcalendar%2Fq7bfa1598b.ics",
+        "calendar_url": "http://sonnorcteer.com/calendar/wcbe00cc5b.ics",
         "filters": {
             "r": "grand prix",
             "q": "grand prix qualifying",
