@@ -100,7 +100,7 @@
     {
         "identifiers": ["motogp", "moto"],
         "descriptor": "MotoGP",
-        "calendar_url": "https://calendar.google.com/calendar/ical/1hhvgqqnvj4udsaju68e3pd6r4%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "https://calendar.google.com/calendar/ical/gothealsforu%40gmail.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q1": "qualifying 1",
@@ -115,7 +115,7 @@
     {
         "identifiers": ["moto2"],
         "descriptor": "Moto2",
-        "calendar_url": "https://calendar.google.com/calendar/ical/1hhvgqqnvj4udsaju68e3pd6r4%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "https://calendar.google.com/calendar/ical/gothealsforu%40gmail.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
@@ -128,7 +128,7 @@
     {
         "identifiers": ["moto3"],
         "descriptor": "Moto3",
-        "calendar_url": "https://calendar.google.com/calendar/ical/1hhvgqqnvj4udsaju68e3pd6r4%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "https://calendar.google.com/calendar/ical/gothealsforu%40gmail.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
