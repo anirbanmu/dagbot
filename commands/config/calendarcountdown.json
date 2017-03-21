@@ -110,7 +110,7 @@
             "fp3": "practice 3",
             "fp4": "practice 4"
         },
-        "required_string": "MotoGP"
+        "required_string": "Moto GP"
     },
     {
         "identifiers": ["moto2"],
@@ -123,7 +123,7 @@
             "fp2": "practice 2",
             "fp3": "practice 3"
         },
-        "required_string": "Moto2"
+        "required_string": "Moto 2"
     },
     {
         "identifiers": ["moto3"],
@@ -136,7 +136,7 @@
             "fp2": "practice 2",
             "fp3": "practice 3"
         },
-        "required_string": "Moto3"
+        "required_string": "Moto 3"
     },
     {
         "identifiers": ["wrc", "rally"],
