@@ -4,11 +4,11 @@
         "descriptor": "Formula 1",
         "calendar_url": "http://sonnorcteer.com/calendar/wcbe00cc5b.ics",
         "filters": {
-            "r": "grand prix",
+            "r": "grand prix race",
             "q": "grand prix qualifying",
-            "fp1": "first practice",
-            "fp2": "second practice",
-            "fp3": "third practice"
+            "fp1": "practice 1",
+            "fp2": "practice 2",
+            "fp3": "practice 3"
         },
         "default_id": "true"
     },
