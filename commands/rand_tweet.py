@@ -11,7 +11,7 @@ class RandTweetHandler(CommandHandler):
 
         self.api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=True)
         self.screen_name = self.api.me().screen_name
-        self.tweets = deque()
+        self.tweets = []
         self.__update_tweets()
 
     def __update_tweets(self):
