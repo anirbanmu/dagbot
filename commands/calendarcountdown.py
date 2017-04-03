@@ -86,7 +86,9 @@ class CalendarCountdownPool(CommandHandler):
 
     # param_str should be lowercase
     def get_response(self, param_str, _, chan):
+        param_str = param_str.strip()
         id,filter = self.choose_calendar_id(param_str, chan)
+        filter = filter.strip()
         if not id:
             return 'Bad calendar countdown config. Check your JSON.'.encode('utf-8')
 
