@@ -177,6 +177,10 @@
                     "description": "Location of a plain text file containing sentences separated by \n",
                     "type": "string"
                 },
+                "brain_db": {
+                    "description": "Location of a sqlite db of generated markov chains matching the brain_file \n",
+                    "type": "string"
+                },
                 "chain_length": {
                     "description": "How many words to use to find the next sentence",
                     "type": "integer",
@@ -187,7 +191,7 @@
                     "type": "integer"
                 }
             },
-            "required": ["reply_mode", "brain_file", "chain_length", "max_words"]
+            "required": ["reply_mode", "brain_file", "brain_db", "chain_length", "max_words"]
         },
         "commands": {
             "description": "Command related configuration",

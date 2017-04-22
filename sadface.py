@@ -30,6 +30,7 @@ except jsonschema.ValidationError as e:
 
 # Handle home directory
 config['brain']['brain_file'] = config['brain']['brain_file'].replace('~', os.path.expanduser('~'))
+config['brain']['brain_db'] = config['brain']['brain_db'].replace('~', os.path.expanduser('~'))
 
 if not os.path.exists(config['brain']['brain_file']):
     sys.exit('Error: Hoi! I need me some brains! Whaddya think I am, the Tin Man?')
@@ -359,7 +360,7 @@ if __name__ == "__main__":
     static_commands_regex = re.compile('\s*(' + triggers + ')\s*((' + '|'.join(cmd_cfg['static_commands'].keys()) + ')\s*).*')
     help_command_regex = re.compile('\s*(' + triggers + ')\s*(help\s*).*')
 
-    markov = MarkovBrain(config['brain']['brain_file'], config['brain']['chain_length'], config['brain']['max_words'])
+    markov = MarkovBrain(config['brain']['brain_file'], config['brain']['brain_db'], config['brain']['chain_length'], config['brain']['max_words'])
 
     # Lookup actual address for host (twisted only uses ipv6 if given an explicit ipv6 address)
     host_info = socket.getaddrinfo(irc_cfg['host'], irc_cfg['port'], 0, 0, socket.IPPROTO_TCP, socket.AI_CANONNAME)[0][4]
