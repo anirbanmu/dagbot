@@ -20,14 +20,12 @@ def as_process(target, args):
 class MarkovBrain():
     new_brain_lines_limit = 1024
 
-    def __init__(self, brain_file, chain_length, max_words):
+    def __init__(self, brain_file, brain_db, chain_length, max_words):
         self.brain_file = brain_file
+        self.brain_db = brain_db
         self.chain_length = chain_length
         self.max_words = max_words
 
-        temp_f, self.temp_db_file = tempfile.mkstemp()
-        os.close(temp_f)
-        print 'Using %s as temporary database dictionary file' % self.temp_db_file
         self.markov = None # Holds markov chain data. key(tuple(words[chain_length])) -> {word_choice1: count, word_choice2: count}
         self.new_brain_lines = [] # New lines seen since brain was loaded. Will be added to brain file when size reaches new_brain_lines_limit
 
@@ -35,8 +33,11 @@ class MarkovBrain():
 
     def load_brain(self):
         print 'Brain loading...'
-        as_process(markov_dictionary_from_file, (self.temp_db_file, self.brain_file, self.chain_length)) # Shields main process from intermediate memory used
-        self.markov = DatabaseDictionary(self.temp_db_file, MARKOV_VALUE_PROPS)
+
+        # Generate new db if file doesn't exist
+        if not os.path.exists(self.brain_db):
+            as_process(markov_dictionary_from_file, (self.brain_db, self.brain_file, self.chain_length)) # Shields main process from intermediate memory used
+        self.markov = DatabaseDictionary(self.brain_db, MARKOV_VALUE_PROPS)
         print 'Brain loaded.'
         print 'Markov dictionary has %i keys' % (len(self.markov),)
 
@@ -71,4 +72,3 @@ class MarkovBrain():
     def close(self):
         self.__dump_new_brain_lines()
         self.markov.close()
-        os.remove(self.temp_db_file)
