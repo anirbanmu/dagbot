@@ -29,11 +29,11 @@ def add_to_markov_dictionary(markov_dict, chain_length, line):
         value = markov_dict.get(key)
 
         if not value:
-            value = MarkovDictionaryValue({words[i]: 1}, chain_length, 1 if i == chain_length else 0)
+            value = ({words[i]: 1}, chain_length, 1 if i == chain_length else 0)
         else:
-            count = value.dict.get(words[i])
-            value.dict[words[i]] = count + 1 if count else 1
-            value = MarkovDictionaryValue(value.dict, chain_length, value.start_count + 1 if i == chain_length else value.start_count)
+            count = value[0].get(words[i])
+            value[0][words[i]] = count + 1 if count else 1
+            value = (value[0], chain_length, value[2] + 1 if i == chain_length else value[2])
 
         markov_dict[key] = value
 
@@ -97,7 +97,7 @@ def generate_sentence(markov_dict, seed_msg, chain_length, max_words):
         word_choices = markov_dict.get(tuple(message[-chain_length : length]))
         if not word_choices:
             break
-        choice = pick_weighted_random(word_choices.dict)
+        choice = pick_weighted_random(word_choices[0])
         if choice == STOP_CODE:
             break
         message.append(choice)

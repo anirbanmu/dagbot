@@ -10,24 +10,23 @@ def from_db(data):
     return unpackb(data, use_list=False, encoding='utf-8')
 
 # tuple_type should be a namedtuple if present
-def convert_tuple(data, properties, convert, tuple_type=None):
+def convert_tuple(data, properties, convert):
     assert isinstance(data, tuple)
     converted = []
-    for i,field_name in enumerate(tuple_type._fields if tuple_type else data._fields):
-        converted.append(convert(data[i]) if properties[field_name].blob else data[i])
-    return tuple_type(*converted) if tuple_type else tuple(converted)
+    for i,field_name in enumerate(data):
+        converted.append(convert(data[i]) if properties[i] else data[i])
+    return tuple(converted)
 
 # if data has the same fields as tuple_type, then no specific type is required to be passed since a regular tuple is fine when going into the db
-def tuple_to_db(data, properties, tuple_type):
-    return convert_tuple(data, properties, to_db, None if tuple_type._fields == data._fields else tuple_type)
+def tuple_to_db(data, properties):
+    return convert_tuple(data, properties, to_db)
 
-def tuple_from_db(data, properties, tuple_type):
-    return convert_tuple(data, properties, from_db, tuple_type)
+def tuple_from_db(data, properties):
+    return convert_tuple(data, properties, from_db)
 
 # tuple_type is expected to be the default namedtuple of all values (key not included) that would be used in the regular case
-def named_tuple_factory(cursor, row, properties, tuple_type):
-    field_names = tuple(f[0] for f in cursor.description)
-    return convert_tuple(row, properties, from_db, tuple_type if tuple_type._fields == field_names else namedtuple('tuple_type', ','.join(field_names)))
+def named_tuple_factory(cursor, row, properties):
+    return convert_tuple(row, properties, from_db)
 
 ColumnProperties = namedtuple('ColumnProperties', 'blob')
 
@@ -47,9 +46,9 @@ class DatabaseDictionary(object):
         self.cursor = self.connection.cursor()
 
         RowValuesTuple = namedtuple('RowValuesTuple', ','.join(v[0] for v in value_types))
-        column_props = {c[0]: ColumnProperties('blob' in c[1].lower()) for c in column_types}
-        self.cursor.row_factory = partial(named_tuple_factory, properties = column_props, tuple_type = RowValuesTuple)
-        self.tuple_to_db = partial(tuple_to_db, properties = column_props, tuple_type = RowValuesTuple)
+        column_props = ['blob' in c[1].lower() for c in value_types]
+        self.cursor.row_factory = partial(named_tuple_factory, properties = column_props)
+        self.tuple_to_db = partial(tuple_to_db, properties = column_props)
 
         self.cursor.execute('PRAGMA journal_mode=WAL')
         self.cursor.execute('PRAGMA synchronous=OFF')
