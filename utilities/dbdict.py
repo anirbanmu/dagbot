@@ -56,12 +56,16 @@ class DatabaseDictionary(object):
         self.cursor.execute('CREATE TABLE IF NOT EXISTS dictionary (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,' + ','.join(v[0] + ' ' + v[1] for v in column_types) + ')')
 
     def get_random_filtered_key(self, filter_conditions):
-        self.cursor.execute('SELECT key FROM dictionary WHERE ' + ' AND '.join(filter_conditions) + ' ORDER BY RANDOM() LIMIT 1')
-        return self.cursor.fetchone()
+        cursor = self.connection.cursor()
+        cursor.execute('SELECT key FROM dictionary WHERE ' + ' AND '.join(filter_conditions) + ' ORDER BY RANDOM() LIMIT 1')
+        row = cursor.fetchone()
+        return (from_db(row[0]),)
 
     def get_random_key(self):
-        self.cursor.execute('SELECT key FROM dictionary ORDER BY RANDOM() LIMIT 1')
-        return self.cursor.fetchone()
+        cursor = self.connection.cursor()
+        cursor.execute('SELECT key FROM dictionary ORDER BY RANDOM() LIMIT 1')
+        row = cursor.fetchone()
+        return (from_db(row[0]),)
 
     def __setitem__(self, key, value):
         self.cursor.execute(self.insert_replace_sql, (to_db(key),) + self.tuple_to_db(value))
