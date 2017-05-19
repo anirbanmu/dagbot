@@ -59,13 +59,13 @@ class DatabaseDictionary(object):
         cursor = self.connection.cursor()
         cursor.execute('SELECT key FROM dictionary WHERE ' + ' AND '.join(filter_conditions) + ' ORDER BY RANDOM() LIMIT 1')
         row = cursor.fetchone()
-        return (from_db(row[0]),)
+        return (from_db(row[0]),) if row else None
 
     def get_random_key(self):
         cursor = self.connection.cursor()
         cursor.execute('SELECT key FROM dictionary ORDER BY RANDOM() LIMIT 1')
         row = cursor.fetchone()
-        return (from_db(row[0]),)
+        return (from_db(row[0]),) if row else None
 
     def __setitem__(self, key, value):
         self.cursor.execute(self.insert_replace_sql, (to_db(key),) + self.tuple_to_db(value))
