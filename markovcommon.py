@@ -35,7 +35,6 @@ def add_to_markov_dictionary(markov_dict, chain_length, line):
             value.dict[words[i]] = count + 1 if count else 1
             value = MarkovDictionaryValue(value.dict, chain_length, value.start_count + 1 if i == chain_length else value.start_count)
 
-        print value
         markov_dict[key] = value
 
 @time_function
