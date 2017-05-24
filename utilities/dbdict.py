@@ -10,29 +10,29 @@ def from_db(data):
     return unpackb(data, use_list=False, encoding='utf-8')
 
 # tuple_type should be a namedtuple if present
-def convert_tuple(data, properties, convert):
+def convert_tuple(data, properties, convert, row_values_type):
     assert isinstance(data, tuple)
     converted = []
-    for i,field_name in enumerate(data):
-        converted.append(convert(data[i]) if properties[i] else data[i])
+    for i,field_name in enumerate(row_values_type._fields):
+        converted.append(convert(data[i]) if properties[field_name] else data[i])
     return tuple(converted)
 
 # if data has the same fields as tuple_type, then no specific type is required to be passed since a regular tuple is fine when going into the db
-def tuple_to_db(data, properties):
-    return convert_tuple(data, properties, to_db)
+def tuple_to_db(data, properties, row_values_type):
+    return convert_tuple(data, properties, to_db, row_values_type)
 
 def tuple_from_db(data, properties):
     return convert_tuple(data, properties, from_db)
 
 # tuple_type is expected to be the default namedtuple of all values (key not included) that would be used in the regular case
-def named_tuple_factory(cursor, row, properties):
-    return convert_tuple(row, properties, from_db)
+def named_tuple_factory(cursor, row, properties, row_values_type):
+    return row_values_type(*convert_tuple(row, properties, from_db, row_values_type))
 
 ColumnProperties = namedtuple('ColumnProperties', 'blob')
 
 class DatabaseDictionary(object):
     # value_types determines what columns are stored for each key
-    def __init__(self, file_name, value_types):
+    def __init__(self, file_name, value_types, row_values_type):
         assert len(value_types) != 0
 
         column_types = [('key', 'BLOB UNIQUE NOT NULL')] + value_types
@@ -45,10 +45,9 @@ class DatabaseDictionary(object):
         self.connection = sqlite3.connect(file_name, isolation_level = None)
         self.cursor = self.connection.cursor()
 
-        RowValuesTuple = namedtuple('RowValuesTuple', ','.join(v[0] for v in value_types))
-        column_props = ['blob' in c[1].lower() for c in value_types]
-        self.cursor.row_factory = partial(named_tuple_factory, properties = column_props)
-        self.tuple_to_db = partial(tuple_to_db, properties = column_props)
+        column_properties = {c[0]: 'blob' in c[1].lower() for c in value_types}
+        self.cursor.row_factory = partial(named_tuple_factory, properties = column_properties, row_values_type = row_values_type)
+        self.tuple_to_db = partial(tuple_to_db, properties = column_properties, row_values_type = row_values_type)
 
         self.cursor.execute('PRAGMA journal_mode=WAL')
         self.cursor.execute('PRAGMA synchronous=OFF')

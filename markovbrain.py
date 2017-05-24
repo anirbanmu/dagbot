@@ -1,6 +1,6 @@
 import tempfile, os
 from multiprocessing import Process
-from markovcommon import markov_dictionary_from_file, add_to_markov_dictionary, generate_sentence, MARKOV_VALUE_PROPS
+from markovcommon import markov_dictionary_from_file, add_to_markov_dictionary, generate_sentence, MARKOV_VALUE_PROPS, MarkovDictionaryValue
 from utilities.common import time_function
 from utilities.dbdict import DatabaseDictionary
 
@@ -37,7 +37,7 @@ class MarkovBrain():
         # Generate new db if file doesn't exist
         if not os.path.exists(self.brain_db):
             as_process(markov_dictionary_from_file, (self.brain_db, self.brain_file, self.chain_length)) # Shields main process from intermediate memory used
-        self.markov = DatabaseDictionary(self.brain_db, MARKOV_VALUE_PROPS)
+        self.markov = DatabaseDictionary(self.brain_db, MARKOV_VALUE_PROPS, MarkovDictionaryValue)
         print 'Brain loaded.'
         print 'Markov dictionary has %i keys' % (len(self.markov),)
 
@@ -63,7 +63,8 @@ class MarkovBrain():
 
         self.__add_new_brain_line(msg)
         self.markov.begin()
-        add_to_markov_dictionary(self.markov, self.chain_length, msg)
+        for c in xrange(1, self.chain_length + 1):
+            add_to_markov_dictionary(self.markov, c, msg)
         self.markov.commit()
 
     def generate_sentence(self, seed_msg):
