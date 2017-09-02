@@ -22,9 +22,9 @@
         }
     },
     {
-        "identifiers": ["gp2"],
+        "identifiers": ["gp2, f2, formula2"],
         "descriptor": "GP2 Series",
-        "calendar_url": "http://www.gpupdate.net/en/calendar/237/2016-gp2-calendar/calendar.ics",
+        "calendar_url": "https://calendar.google.com/calendar/ical/f89q741pbrtnunigua22k4hokk%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "qualifying"
@@ -33,7 +33,7 @@
     {
         "identifiers": ["gp3"],
         "descriptor": "GP3 Series",
-        "calendar_url": "http://www.gpupdate.net/en/calendar/238/2016-gp3-calendar/calendar.ics",
+        "calendar_url": "https://calendar.google.com/calendar/ical/8j63d89a2tmorav5m480l9kk6o%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "qualifying"
@@ -100,7 +100,7 @@
     {
         "identifiers": ["motogp", "moto"],
         "descriptor": "MotoGP",
-        "calendar_url": "https://calendar.google.com/calendar/ical/gothealsforu%40gmail.com/public/basic.ics",
+        "calendar_url": "https://calendar.google.com/calendar/ical/bdkgs5okq2049tv4k9hbm2l57o%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q1": "qualifying 1",
@@ -115,7 +115,7 @@
     {
         "identifiers": ["moto2"],
         "descriptor": "Moto2",
-        "calendar_url": "https://calendar.google.com/calendar/ical/gothealsforu%40gmail.com/public/basic.ics",
+        "calendar_url": "https://calendar.google.com/calendar/ical/10ijdgvdtmu142pjidvu2ca2hs%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
@@ -128,7 +128,7 @@
     {
         "identifiers": ["moto3"],
         "descriptor": "Moto3",
-        "calendar_url": "https://calendar.google.com/calendar/ical/gothealsforu%40gmail.com/public/basic.ics",
+        "calendar_url": "https://calendar.google.com/calendar/ical/rlhgjeg9dgqa0kol03icd9dgo8%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
@@ -174,5 +174,11 @@
             "fp1": "practice 1",
             "fp2": "practice 2"
         }
+    },
+    {
+        "identifiers": ["formulad", "fd"],
+        "descriptor": "Formula Drift",
+        "calendar_url": "https://calendar.google.com/calendar/ical/nhd2sbgmp4k391elmq5odkf1f4%40group.calendar.google.com/public/basic.ics",
+        "filters": {}
     }
 ]
