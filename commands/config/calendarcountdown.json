@@ -22,7 +22,7 @@
         }
     },
     {
-        "identifiers": ["gp2, f2, formula2"],
+        "identifiers": ["gp2", "f2", "formula2"],
         "descriptor": "GP2 Series",
         "calendar_url": "https://calendar.google.com/calendar/ical/f89q741pbrtnunigua22k4hokk%40group.calendar.google.com/public/basic.ics",
         "filters": {
@@ -109,8 +109,7 @@
             "fp2": "practice 2",
             "fp3": "practice 3",
             "fp4": "practice 4"
-        },
-        "required_string": "Moto GP"
+        }
     },
     {
         "identifiers": ["moto2"],
@@ -122,8 +121,7 @@
             "fp1": "practice 1",
             "fp2": "practice 2",
             "fp3": "practice 3"
-        },
-        "required_string": "Moto 2"
+        }
     },
     {
         "identifiers": ["moto3"],
@@ -135,8 +133,7 @@
             "fp1": "practice 1",
             "fp2": "practice 2",
             "fp3": "practice 3"
-        },
-        "required_string": "Moto 3"
+        }
     },
     {
         "identifiers": ["wrc", "rally"],
