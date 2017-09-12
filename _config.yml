@@ -1,0 +1,8 @@
+title: Dagbot
+description: An IRC Markov chain bot
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-midnight
+
+gems:
+  - jekyll-mentions
