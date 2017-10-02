@@ -160,6 +160,14 @@
                         "type": "string"
                     }
                 }
+                "unrecorded_users": {
+                    "description": "List of users to always ignore",
+                    "type": "array",
+                    "default": [],
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
             },
             "required": ["host", "port", "nickname", "realname", "username", "user_info"]
         },
