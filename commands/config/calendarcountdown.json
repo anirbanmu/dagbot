@@ -100,9 +100,10 @@
     {
         "identifiers": ["motogp", "moto"],
         "descriptor": "MotoGP",
-        "calendar_url": "https://calendar.google.com/calendar/ical/bdkgs5okq2049tv4k9hbm2l57o%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://sonnorcteer.com/calendar/m75110948c.ics",
         "filters": {
             "r": "race",
+            "q": "qualifying",
             "q1": "qualifying 1",
             "q2": "qualifying 2",
             "fp1": "practice 1",
@@ -114,7 +115,7 @@
     {
         "identifiers": ["moto2"],
         "descriptor": "Moto2",
-        "calendar_url": "https://calendar.google.com/calendar/ical/10ijdgvdtmu142pjidvu2ca2hs%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://sonnorcteer.com/calendar/pd73de8639.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
@@ -126,7 +127,7 @@
     {
         "identifiers": ["moto3"],
         "descriptor": "Moto3",
-        "calendar_url": "https://calendar.google.com/calendar/ical/rlhgjeg9dgqa0kol03icd9dgo8%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://sonnorcteer.com/calendar/a7b113dee2.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",

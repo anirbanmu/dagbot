@@ -42,13 +42,13 @@ def prune_past_events(ics_events, now):
             events.append(Event(start, end, component.get('summary').strip()))
     return events
 
-def closest_event(events, event_type_end, required_string):
+def closest_event(events, event_type, required_string):
     deltas = []
     utc_now = sanitize_dt(datetime.utcnow())
     for event in (e for e in events if required_string in e.summary.lower()):
         delta = event.start - utc_now
         end = event.end if event.end else event.start
-        if (event.summary.lower().endswith(event_type_end)):
+        if (event_type in event.summary.lower()):
             if delta > timedelta(microseconds=0):
                 deltas.append((event, delta))
             elif (event.start < utc_now and end > utc_now):
