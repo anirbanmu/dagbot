@@ -24,7 +24,7 @@
     {
         "identifiers": ["gp2", "f2", "formula2"],
         "descriptor": "GP2 Series",
-        "calendar_url": "https://calendar.google.com/calendar/ical/f89q741pbrtnunigua22k4hokk%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://sonnorcteer.com/calendar/w8a3e9a013.ics",
         "filters": {
             "r": "race",
             "q": "qualifying"
@@ -33,7 +33,7 @@
     {
         "identifiers": ["gp3"],
         "descriptor": "GP3 Series",
-        "calendar_url": "https://calendar.google.com/calendar/ical/8j63d89a2tmorav5m480l9kk6o%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://sonnorcteer.com/calendar/ye16d39716.ics",
         "filters": {
             "r": "race",
             "q": "qualifying"
@@ -42,7 +42,7 @@
     {
         "identifiers": ["fe", "formulae", "formula-e"],
         "descriptor": "FIA Formula-E",
-        "calendar_url": "http://calendar.google.com/calendar/ical/f7jo4l0op3lfb8u5686ekt4jq4%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://sonnorcteer.com/calendar/j737c0ed8a.ics",
         "filters": {
             "r": "race",
             "q": "quali",
