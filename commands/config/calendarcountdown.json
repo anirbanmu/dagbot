@@ -2,7 +2,7 @@
     {
         "identifiers": ["f1", "formula1"],
         "descriptor": "Formula 1",
-        "calendar_url": "http://sonnorcteer.com/calendar/wcbe00cc5b.ics",
+        "calendar_url": "http://www.rmotorsportscalendar.com/calendar/wcbe00cc5b.ics",
         "filters": {
             "r": "grand prix race",
             "q": "grand prix qualifying",
@@ -24,7 +24,7 @@
     {
         "identifiers": ["gp2", "f2", "formula2"],
         "descriptor": "GP2 Series",
-        "calendar_url": "http://sonnorcteer.com/calendar/w8a3e9a013.ics",
+        "calendar_url": "http://www.rmotorsportscalendar.com/calendar/w8a3e9a013.ics",
         "filters": {
             "r": "race",
             "q": "qualifying"
@@ -33,7 +33,7 @@
     {
         "identifiers": ["gp3"],
         "descriptor": "GP3 Series",
-        "calendar_url": "http://sonnorcteer.com/calendar/ye16d39716.ics",
+        "calendar_url": "http://www.rmotorsportscalendar.com/calendar/ye16d39716.ics",
         "filters": {
             "r": "race",
             "q": "qualifying"
@@ -42,7 +42,7 @@
     {
         "identifiers": ["fe", "formulae", "formula-e"],
         "descriptor": "FIA Formula-E",
-        "calendar_url": "http://sonnorcteer.com/calendar/j737c0ed8a.ics",
+        "calendar_url": "http://www.rmotorsportscalendar.com/calendar/j737c0ed8a.ics",
         "filters": {
             "r": "race",
             "q": "quali",
@@ -100,7 +100,7 @@
     {
         "identifiers": ["motogp", "moto"],
         "descriptor": "MotoGP",
-        "calendar_url": "http://sonnorcteer.com/calendar/m75110948c.ics",
+        "calendar_url": "http://www.rmotorsportscalendar.com/calendar/m75110948c.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
@@ -115,7 +115,7 @@
     {
         "identifiers": ["moto2"],
         "descriptor": "Moto2",
-        "calendar_url": "http://sonnorcteer.com/calendar/pd73de8639.ics",
+        "calendar_url": "http://www.rmotorsportscalendar.com/calendar/pd73de8639.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
@@ -127,7 +127,7 @@
     {
         "identifiers": ["moto3"],
         "descriptor": "Moto3",
-        "calendar_url": "http://sonnorcteer.com/calendar/a7b113dee2.ics",
+        "calendar_url": "http://www.rmotorsportscalendar.com/calendar/a7b113dee2.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
