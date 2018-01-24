@@ -15,7 +15,7 @@
     {
         "identifiers": ["wec"],
         "descriptor": "FIA World Endurance Championship",
-        "calendar_url": "http://calendar.google.com/calendar/ical/8ifivd9lmjh4mm72kl1bng6j94%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://rmotorsportscalendar.com/calendar/x306b9722e.ics",
         "filters": {
             "r": "race",
             "q": "qualifying"
@@ -52,7 +52,7 @@
     {
         "identifiers": ["irl", "indy", "indycar"],
         "descriptor": "Verizon Indycar Series",
-        "calendar_url": "http://calendar.google.com/calendar/ical/4uu4mja63b94cs24b3vo5jlim8%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://rmotorsportscalendar.com/calendar/b815a32e31.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
@@ -64,14 +64,15 @@
     {
         "identifiers": ["dtm"],
         "descriptor": "Deutsche Tourenwagen Masters",
-        "calendar_url": "http://calendar.google.com/calendar/ical/b23fcevejg80tfs7grknb2kj5k%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://rmotorsportscalendar.com/calendar/t116951d81.ics",
         "filters": {}
     },
     {
         "identifiers": ["v8sc", "v8supercars", "v8straya", "v8"],
         "descriptor": "V8 Supercars",
-        "calendar_url": "http://calendar.google.com/calendar/ical/1v4rp3ut2fllh0gi0u383mvv0c%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://rmotorsportscalendar.com/calendar/e0995e2100.ics",
         "filters": {
+            "r": "race",
             "r1": "race 1",
             "r2": "race 2",
             "r3": "race 3",
@@ -87,7 +88,7 @@
     {
         "identifiers": ["uscr", "imsa"],
         "descriptor": "WeatherTech SportsCar Championship",
-        "calendar_url": "http://calendar.google.com/calendar/ical/n9mu3bmutgm042cf52ukap6n94%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://rmotorsportscalendar.com/calendar/l15142020e.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
@@ -139,19 +140,19 @@
     {
         "identifiers": ["wrc", "rally"],
         "descriptor": "World Rally Championship",
-        "calendar_url": "http://calendar.google.com/calendar/ical/a2uk9e9ndiver19pg9d6dm1ecs%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://rmotorsportscalendar.com/calendar/c3f63e0d4c.ics",
         "filters": {}
     },
     {
         "identifiers": ["wrx", "rallycross"],
         "descriptor": "World Rallycross Championship",
-        "calendar_url": "http://calendar.google.com/calendar/ical/s2fh7a3fnvmsishigak73ti99g%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://rmotorsportscalendar.com/calendar/y64c4a1b7e.ics",
         "filters": {}
     },
     {
-        "identifiers": ["nascar", "NSCS"],
-        "descriptor": "NASCAR Sprint Cup Series",
-        "calendar_url": "http://calendar.google.com/calendar/ical/9cpircejjbjgmsrjv2ksbht4vo%40group.calendar.google.com/public/basic.ics",
+        "identifiers": ["nascar", "MENCS"],
+        "descriptor": "Monster Energy NASCAR Cup Series",
+        "calendar_url": "http://rmotorsportscalendar.com/calendar/gcd09c08ae.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
@@ -161,9 +162,9 @@
         }
     },
     {
-        "identifiers": ["blancpain"],
+        "identifiers": ["blancpain", "blanc"],
         "descriptor": "Blancpain GT Series",
-        "calendar_url": "http://calendar.google.com/calendar/ical/0urph7hfm9r78rftk6jpvaskos%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://rmotorsportscalendar.com/calendar/accf915a1f.ics",
         "filters": {
             "r": "race",
             "q": "qualifying",
@@ -176,7 +177,7 @@
     {
         "identifiers": ["formulad", "fd"],
         "descriptor": "Formula Drift",
-        "calendar_url": "https://calendar.google.com/calendar/ical/nhd2sbgmp4k391elmq5odkf1f4%40group.calendar.google.com/public/basic.ics",
+        "calendar_url": "http://rmotorsportscalendar.com/calendar/t019b6c053.ics",
         "filters": {}
     }
 ]
