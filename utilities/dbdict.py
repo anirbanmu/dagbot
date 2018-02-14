@@ -49,8 +49,8 @@ class DatabaseDictionary(object):
         self.cursor.row_factory = partial(named_tuple_factory, properties = column_properties, row_values_type = row_values_type)
         self.tuple_to_db = partial(tuple_to_db, properties = column_properties, row_values_type = row_values_type)
 
-        self.cursor.execute('PRAGMA journal_mode=WAL')
-        self.cursor.execute('PRAGMA synchronous=OFF')
+        #self.cursor.execute('PRAGMA journal_mode=WAL')
+        #self.cursor.execute('PRAGMA synchronous=OFF')
 
         self.cursor.execute('CREATE TABLE IF NOT EXISTS dictionary (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,' + ','.join(v[0] + ' ' + v[1] for v in column_types) + ')')
 
