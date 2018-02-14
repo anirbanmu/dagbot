@@ -56,19 +56,23 @@ config['irc']['ignore_users'] = map(string.lower, config['irc']['ignore_users'])
 config['irc']['unrecorded_users'] = map(string.lower, config['irc']['unrecorded_users'])
 config['commands']['static_commands'] = {k.lower(): v for k,v in config['commands']['static_commands'].iteritems()}
 config['commands']['dynamic_aliases'] = {k.lower(): map(string.lower, v) for k,v in config['commands']['dynamic_aliases'].iteritems()}
+config['commands']['disabled_commands'] = map(string.lower, config['commands']['disabled_commands'])
 
 #
 # Begin actual code
 #
 
 # For each command in the path given, we find the command_handler and return a sorted dictionary of handlers.
-def gather_commands(path, aliases, command_configs):
+def gather_commands(path, aliases, command_configs, disabled):
     commands = {}
 
     CommandHandlerProps = namedtuple('CommandHandlerProps', ['handler', 'use_notice'])
 
     for importer, name, _ in pkgutil.iter_modules([path]):
         f, filename, description = imp.find_module(name, [path])
+
+        if os.path.splitext(os.path.basename(filename))[0].lower() in disabled:
+            continue
 
         try:
             module = imp.load_module(name, f, filename, description)
@@ -357,7 +361,7 @@ if __name__ == "__main__":
     irc_cfg = config['irc']
     cmd_cfg = config['commands']
     commands_dir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'commands')
-    dynamic_commands = gather_commands(commands_dir_path, cmd_cfg['dynamic_aliases'], cmd_cfg['command_configs'])
+    dynamic_commands = gather_commands(commands_dir_path, cmd_cfg['dynamic_aliases'], cmd_cfg['command_configs'], cmd_cfg['disabled_commands'])
 
     triggers = '|'.join(re.escape(s) for s in config['commands']['triggers'] + config['commands']['deprecated_triggers'])
     dynamic_commands_regex = re.compile('\s*(' + triggers + ')\s*((' + '|'.join(dynamic_commands.keys()) + ')\s*).*')

@@ -253,9 +253,16 @@
                         "type": "string"
                     },
                     "default": ["@"]
+                },
+                "disabled_commands": {
+                    "description": "Disabled plugin commands",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "default": []
                 }
-            },
-            "required": ["triggers", "deprecated_triggers"]
+            }
         }
     },
     "required": ["irc", "brain"]

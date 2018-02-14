@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from collections import namedtuple
 from utilities.common import ProgressBar, time_function
 from utilities.dbdict import DatabaseDictionary

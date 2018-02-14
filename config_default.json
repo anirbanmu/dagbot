@@ -16,6 +16,7 @@
     "brain": {
         "reply_mode": 1,
         "brain_file": "brain_file.txt",
+        "brain_db": "brain.db",
         "chain_length": 2,
         "max_words": 70
     },
@@ -26,6 +27,21 @@
         "dynamic_aliases": {
             "@cmd1": ["@cmdalias1", "@cmdalias2"],
             "@cmd2": ["@cmdalias3"]
-        }
+        },
+        "command_configs": {
+            "tweet": {
+                "api_key": "TWITTER_API_KEY",
+                "api_secret": "TWITTER_API_SECRET",
+                "access_token": "TWITTER_ACCESS_TOKEN",
+                "access_token_secret": "TWITTER_TOKEN_SECRET"
+            },
+            "rand_tweet": {
+                "api_key": "TWITTER_API_KEY",
+                "api_secret": "TWITTER_API_SECRET",
+                "access_token": "TWITTER_ACCESS_TOKEN",
+                "access_token_secret": "TWITTER_TOKEN_SECRET"
+            }
+        },
+        "disabled_commands": ["rand_tweet", "tweet"]
     }
 }
