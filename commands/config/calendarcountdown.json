@@ -114,6 +114,22 @@
         }
     },
     {
+        "identifiers": ["wsbk", "sbk", "worldsbk"],
+        "descriptor": "WorldSBK",
+        "calendar_url": "http://rmotorsportscalendar.com/calendar/y85d7d2182.ics",
+        "filters": {
+            "r": "race",
+            "q": "qualifying",
+            "q1": "qualifying 1",
+            "q2": "qualifying 2",
+            "p": "practice",
+            "p1": "practice 1",
+            "p2": "practice 2",
+            "p3": "practice 3",
+            "p4": "practice 4"
+        }
+    },
+    {
         "identifiers": ["moto2"],
         "descriptor": "Moto2",
         "calendar_url": "http://www.rmotorsportscalendar.com/calendar/pd73de8639.ics",
