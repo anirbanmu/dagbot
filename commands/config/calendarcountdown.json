@@ -195,5 +195,14 @@
         "descriptor": "Formula Drift",
         "calendar_url": "http://rmotorsportscalendar.com/calendar/t019b6c053.ics",
         "filters": {}
+    },
+    {
+        "identifiers": ["supergt", "sgt"],
+        "descriptor": "Super GT",
+        "calendar_url": "http://rmotorsportscalendar.com/calendar/cb81f3a27f.ics",
+        "filters": {
+            "r": "race",
+            "q": "qualifying"
+        }
     }
 ]
