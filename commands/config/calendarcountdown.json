@@ -202,7 +202,8 @@
         "calendar_url": "http://rmotorsportscalendar.com/calendar/cb81f3a27f.ics",
         "filters": {
             "r": "race",
-            "q": "qualifying"
+            "q": "qualifying",
+            "p": "practice"
         }
     }
 ]
