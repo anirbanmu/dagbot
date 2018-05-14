@@ -30,7 +30,7 @@ Dagbot depends on the following libraries:
 
 Running the following should install all the dependencies:
 
-    pip install twisted icalendar pattern urllib3 msgpack-python jsonschema tweepy
+    pip install -r requirements.txt
 
 More info on pip is [here](https://pypi.python.org/pypi/pip) if something breaks.
 

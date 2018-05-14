@@ -205,5 +205,22 @@
             "q": "qualifying",
             "p": "practice"
         }
+    },
+    {
+        "identifiers": ["wtcr", "touring"],
+        "descriptor": "World Touring Car Cup",
+        "calendar_url": "http://rmotorsportscalendar.com/calendar/r2384e438a.ics",
+        "filters": {
+            "p": "practice",
+            "p1": "practice 1",
+            "p2": "practice 2",
+            "q": "qualifying",
+            "q1": "qualifying 1",
+            "q2": "qualifying 2",
+            "r": "race",
+            "r1": "race 1",
+            "r2": "race 2",
+            "r3": "race 3"
+        }
     }
 ]
