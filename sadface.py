@@ -368,7 +368,9 @@ if __name__ == "__main__":
     static_commands_regex = re.compile('\s*(' + triggers + ')\s*((' + '|'.join(cmd_cfg['static_commands'].keys()) + ')\s*).*')
     help_command_regex = re.compile('\s*(' + triggers + ')\s*(help\s*).*')
 
-    markov = MarkovBrain(config['brain']['brain_file'], config['brain']['brain_db'], config['brain']['chain_length'], config['brain']['max_words'])
+    brain_config = config['brain']
+    markov = MarkovBrain(brain_config['brain_file'], brain_config['brain_db'], brain_config['chain_length'], brain_config['max_words'],
+                         brain_config['censored_words'])
 
     # Lookup actual address for host (twisted only uses ipv6 if given an explicit ipv6 address)
     host_info = socket.getaddrinfo(irc_cfg['host'], irc_cfg['port'], 0, 0, socket.IPPROTO_TCP, socket.AI_CANONNAME)[0][4]

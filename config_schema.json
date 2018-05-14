@@ -198,6 +198,15 @@
                 "max_words": {
                     "description": "Maximum sentence length in words, can be very large. Keep it small to prevent flooding.",
                     "type": "integer"
+                },
+                "censored_words": {
+                    "description": "Words to not include in generated sentences",
+                    "type": "array",
+                    "default": [],
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string"
+                    }
                 }
             },
             "required": ["reply_mode", "brain_file", "brain_db", "chain_length", "max_words"]
