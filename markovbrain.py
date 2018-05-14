@@ -1,4 +1,6 @@
-import tempfile, os
+from __future__ import print_function
+
+import tempfile, os, time
 from multiprocessing import Process
 from markovcommon import markov_dictionary_from_file, add_to_markov_dictionary, generate_sentence, MARKOV_VALUE_PROPS, MarkovDictionaryValue
 from utilities.common import time_function
@@ -20,11 +22,12 @@ def as_process(target, args):
 class MarkovBrain():
     new_brain_lines_limit = 1024
 
-    def __init__(self, brain_file, brain_db, chain_length, max_words):
+    def __init__(self, brain_file, brain_db, chain_length, max_words, censored_words = []):
         self.brain_file = brain_file
         self.brain_db = brain_db
         self.chain_length = chain_length
         self.max_words = max_words
+        self.censored_words = censored_words
 
         self.markov = None # Holds markov chain data. key(tuple(words[chain_length])) -> {word_choice1: count, word_choice2: count}
         self.new_brain_lines = [] # New lines seen since brain was loaded. Will be added to brain file when size reaches new_brain_lines_limit
@@ -32,14 +35,14 @@ class MarkovBrain():
         self.load_brain()
 
     def load_brain(self):
-        print 'Brain loading...'
+        print('Brain loading...')
 
         # Generate new db if file doesn't exist
         if not os.path.exists(self.brain_db):
             as_process(markov_dictionary_from_file, (self.brain_db, self.brain_file, self.chain_length)) # Shields main process from intermediate memory used
         self.markov = DatabaseDictionary(self.brain_db, MARKOV_VALUE_PROPS, MarkovDictionaryValue)
-        print 'Brain loaded.'
-        print 'Markov dictionary has %i keys' % (len(self.markov),)
+        print('Brain loaded.')
+        print('Markov dictionary has %i keys' % (len(self.markov),))
 
     def __add_new_brain_line(self, msg):
         self.new_brain_lines.append(msg + '\n')
@@ -50,7 +53,7 @@ class MarkovBrain():
         with open(self.brain_file, 'a') as f:
             for line in self.new_brain_lines:
                 f.write(line.encode('utf-8'))
-        print '%i new brain lines dumped.' % (len(self.new_brain_lines))
+        print('%i new brain lines dumped.' % (len(self.new_brain_lines)))
         self.new_brain_lines = []
 
     @time_function
@@ -68,7 +71,14 @@ class MarkovBrain():
         self.markov.commit()
 
     def generate_sentence(self, seed_msg):
-        return generate_sentence(self.markov, seed_msg, self.chain_length, self.max_words)
+        sentence = generate_sentence(self.markov, seed_msg, self.chain_length, self.max_words)
+
+        end_time = time.time() + 4
+        while any(w in sentence for w in self.censored_words):
+            if time.time() > end_time:
+                return ''
+            sentence = generate_sentence(self.markov, '', self.chain_length, self.max_words)
+        return sentence
 
     def close(self):
         self.__dump_new_brain_lines()
