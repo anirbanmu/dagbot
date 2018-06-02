@@ -1,10 +1,8 @@
 from __future__ import print_function
 
 import tempfile, os, time
-from multiprocessing import Process
-from markovcommon import markov_dictionary_from_file, add_to_markov_dictionary, generate_sentence, MARKOV_VALUE_PROPS, MarkovDictionaryValue
+from markov_core_sqlite import MarkovCoreSqlite
 from utilities.common import time_function
-from utilities.dbdict import DatabaseDictionary
 
 # Get total number of entries for a dictionary which has the value type list
 def total_entries(d):
@@ -24,25 +22,13 @@ class MarkovBrain():
 
     def __init__(self, brain_file, brain_db, chain_length, max_words, censored_words = []):
         self.brain_file = brain_file
-        self.brain_db = brain_db
-        self.chain_length = chain_length
         self.max_words = max_words
         self.censored_words = censored_words
 
-        self.markov = None # Holds markov chain data. key(tuple(words[chain_length])) -> {word_choice1: count, word_choice2: count}
+        self.markov = MarkovCoreSqlite(brain_db, chain_length)
+        self.markov.sync_with_file(brain_file)
+
         self.new_brain_lines = [] # New lines seen since brain was loaded. Will be added to brain file when size reaches new_brain_lines_limit
-
-        self.load_brain()
-
-    def load_brain(self):
-        print('Brain loading...')
-
-        # Generate new db if file doesn't exist
-        if not os.path.exists(self.brain_db):
-            as_process(markov_dictionary_from_file, (self.brain_db, self.brain_file, self.chain_length)) # Shields main process from intermediate memory used
-        self.markov = DatabaseDictionary(self.brain_db, MARKOV_VALUE_PROPS, MarkovDictionaryValue)
-        print('Brain loaded.')
-        print('Markov dictionary has %i keys' % (len(self.markov),))
 
     def __add_new_brain_line(self, msg):
         self.new_brain_lines.append(msg + '\n')
@@ -65,19 +51,16 @@ class MarkovBrain():
             return
 
         self.__add_new_brain_line(msg)
-        self.markov.begin()
-        for c in xrange(1, self.chain_length + 1):
-            add_to_markov_dictionary(self.markov, c, msg)
-        self.markov.commit()
+        self.markov.add_to_markov_dictionary(msg)
 
     def generate_sentence(self, seed_msg):
-        sentence = generate_sentence(self.markov, seed_msg, self.chain_length, self.max_words)
+        sentence = self.markov.generate_sentence(seed_msg, self.max_words)
 
         end_time = time.time() + 4
         while any(w in sentence for w in self.censored_words):
             if time.time() > end_time:
                 return ''
-            sentence = generate_sentence(self.markov, '', self.chain_length, self.max_words)
+            sentence = self.markov.generate_sentence('', self.max_words)
         return sentence
 
     def close(self):
