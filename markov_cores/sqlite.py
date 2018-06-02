@@ -3,7 +3,7 @@ from __future__ import print_function
 
 from multiprocessing import Process
 
-from markovcommon import add_to_markov_dictionary, markov_dictionary_from_file, generate_sentence, MARKOV_VALUE_PROPS, MarkovDictionaryValue
+from markov_cores.helpers_sqlite import add_to_markov_dictionary, markov_dictionary_from_file, generate_sentence, MARKOV_VALUE_PROPS, MarkovDictionaryValue
 from utilities.dbdict import DatabaseDictionary
 
 def as_process(target, args):

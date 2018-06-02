@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 import tempfile, os, time
-from markov_core_sqlite import MarkovCoreSqlite
+from markov_cores.sqlite import MarkovCoreSqlite
 from utilities.common import time_function
 
 # Get total number of entries for a dictionary which has the value type list
