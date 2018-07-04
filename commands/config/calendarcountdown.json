@@ -222,23 +222,5 @@
             "r2": "race 2",
             "r3": "race 3"
         }
-    },
-    {
-        "identifiers": ["fifa", "foot", "soccer"],
-        "descriptor": "FIFA World Cup 2018",
-        "calendar_url": "http://ics.fixtur.es/v2/league/fifa-2018-russia.ics",
-        "filters": {
-            "a": "[a]",
-            "b": "[b]",
-            "c": "[c]",
-            "d": "[d]",
-            "e": "[e]",
-            "f": "[f]",
-            "g": "[g]",
-            "h": "[h]",
-            "semi": "[½ final]",
-            "quarter": "[¼ final]",
-            "final": "[final]"
-        }
     }
 ]
