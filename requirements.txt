@@ -5,3 +5,5 @@ urllib3
 msgpack-python
 jsonschema
 tweepy
+redis
+hiredis
