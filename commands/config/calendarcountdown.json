@@ -42,7 +42,7 @@
     {
         "identifiers": ["fe", "formulae", "formula-e"],
         "descriptor": "FIA Formula-E",
-        "calendar_url": "http://www.rmotorsportscalendar.com/calendar/j737c0ed8a.ics",
+        "calendar_url": "http://calendar.google.com/calendar/ical/vnfvu78fj9365bs5oiuga7sa90%40group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": "race",
             "q": "quali",
