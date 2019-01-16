@@ -1,6 +1,6 @@
 twisted
 icalendar
-pattern
+pattern~=2.6
 urllib3
 msgpack-python
 jsonschema
