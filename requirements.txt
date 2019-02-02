@@ -1,7 +1,7 @@
 twisted
-icalendar
 pattern~=2.6
 urllib3
 msgpack-python
 jsonschema
 tweepy
+ics

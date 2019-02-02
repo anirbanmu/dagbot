@@ -9,12 +9,12 @@ def generate_current_event(event, delta):
     delta = -delta
     hours, remainder = divmod(delta.seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
-    return '%s is in session and will end in %d %s %02d:%02d:%02d.' % (event.summary, delta.days, 'days' if delta.days != 1 else 'day', hours, minutes, seconds)
+    return '%s is in session and will end in %d %s %02d:%02d:%02d.' % (event.name, delta.days, 'days' if delta.days != 1 else 'day', hours, minutes, seconds)
 
 def generate_future_event(event, delta):
     hours, remainder = divmod(delta.seconds, 3600)
     minutes, seconds = divmod(remainder, 60)
-    return '%s starting in %d %s %02d:%02d:%02d.' % (event.summary, delta.days, 'days' if delta.days != 1 else 'day', hours, minutes, seconds)
+    return '%s starting in %d %s %02d:%02d:%02d.' % (event.name, delta.days, 'days' if delta.days != 1 else 'day', hours, minutes, seconds)
 
 class CalendarCountdown(object):
     def __init__(self, calendar, filters, description, required_string):
