@@ -24,23 +24,23 @@ def prune_event(event, utc_now, start, end):
 def prune_past_events(calendar, utc_now):
     return [e for e in calendar.events if not prune_event(e, utc_now, e.begin, e.end if e.has_end() else None)]
 
-def event_allowed(event, filter_options, required_string):
+def event_allowed(event, event_filter, required_string):
     event_name = event.name.lower()
     if required_string not in event_name:
         return False
 
-    field_value = getattr(event, filter_options['event_field_name'], u'')
+    field_value = getattr(event, event_filter.event_field_name, u'')
 
     # Only handles string & list-like
     if not isinstance(field_value, basestring):
-        return any((filter_options['filter_string'] in v.lower()) for v in field_value)
+        return any((event_filter.filter_string in v.lower()) for v in field_value)
 
-    return filter_options['filter_string'] in field_value.lower()
+    return event_filter.filter_string in field_value.lower()
 
-def closest_event(events, filter_options, required_string):
+def closest_event(events, event_filter, required_string):
     deltas = []
     utc_now = arrow.utcnow()
-    for event in (e for e in events if event_allowed(e, filter_options, required_string)):
+    for event in (e for e in events if event_allowed(e, event_filter, required_string)):
         delta = event.begin - utc_now
         end = event.end if event.has_end() else event.begin
         if delta > timedelta(microseconds=0):
@@ -95,9 +95,9 @@ class Calendar(object):
             self.__update_calendar()
             return list(self.events)
 
-    # filter_options = { 'event_field_name': 'field_name', 'filter_string': 'string to check for' }
-    def closest_event(self, filter_options, required_string):
-        return closest_event(self.__get_events(), filter_options, required_string)
+    # event_filter = EventFilter(event_field_name='field_name', filter_string='string to check for')
+    def closest_event(self, event_filter, required_string):
+        return closest_event(self.__get_events(), event_filter, required_string)
 
     def in_event(self, longest_duration, required_string):
         return in_event(self.__get_events(), self.default_event_duration, longest_duration, required_string)
