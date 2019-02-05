@@ -1,5 +1,5 @@
 import string
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 
 from utilities.calendar import Calendar
 from commands.commandhandler import CommandHandler
@@ -16,10 +16,12 @@ def generate_future_event(event, delta):
     minutes, seconds = divmod(remainder, 60)
     return '%s starting in %d %s %02d:%02d:%02d.' % (event.name, delta.days, 'days' if delta.days != 1 else 'day', hours, minutes, seconds)
 
+EventFilter = namedtuple('EventFilter', ['event_field_name', 'filter_string'])
+
 class CalendarCountdown(object):
     def __init__(self, calendar, filters, description, required_string):
         self.calendar = calendar if type(calendar) is Calendar else Calendar(calendar)
-        self.filters = OrderedDict(sorted(filters.iteritems(), reverse=True, key=lambda t: len(t[0])))
+        self.filters = OrderedDict({ k: EventFilter(**v) for k,v in sorted(filters.iteritems(), reverse=True, key=lambda t: len(t[0])) })
         self.description = description
         self.required_string = required_string
 
@@ -27,7 +29,7 @@ class CalendarCountdown(object):
         for f,v in self.filters.iteritems():
             if str.startswith(f):
                 return (f, v)
-        return (u'', { u'event_field_name': u'name', u'filter_string': u'' })
+        return (u'', EventFilter(event_field_name=u'name', filter_string=u''))
 
     def get_help(self, param_str):
         if len(self.filters.keys()) == 0:
