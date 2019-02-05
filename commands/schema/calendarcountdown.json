@@ -4,37 +4,50 @@
     "type": "array",
     "default": [],
     "items": {
-        "identifiers": {
-            "description": "Identifiers to identify this countdown",
-            "type": "array",
-            "minItems": 1,
-            "items": {
+        "type": "object",
+        "properties": {
+            "identifiers": {
+                "description": "Identifiers to identify this countdown",
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                    "type": "string"
+                }
+            },
+            "descriptor": {
+                "description": "A string to describe the events in this calendar",
                 "type": "string"
-            }
-        },
-        "descriptor": {
-            "description": "A string to describe the events in this calendar",
-            "type": "string"
-        },
-        "calendar_url": {
-            "type": "string"
-        },
-        "filters": {
-            "description": "Mapping of filter shortcuts to a searchable string to use in filtering calendar events",
-            "type": "object",
-            "default": {},
-            "additionalProperties": {
+            },
+            "calendar_url": {
                 "type": "string"
+            },
+            "filters": {
+                "description": "Mapping of filter shortcuts to a searchable string to use in filtering calendar events",
+                "type": "object",
+                "default": {},
+                "additionalProperties": {
+                    "type": "object",
+                    "properties": {
+                        "event_field_name": {
+                            "type": "string",
+                            "default": "name"
+                        },
+                        "filter_string": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["filter_string"]
+                }
+            },
+            "default_id": {
+                "description": "If no identifier is found, use this one",
+                "type": "boolean"
+            },
+            "required_string": {
+                "description": "Ignore any events that do not have this string in their descriptions",
+                "type": "string",
+                "default": ""
             }
-        },
-        "default_id": {
-            "description": "If no identifier is found, use this one",
-            "type": "boolean"
-        },
-        "required_string": {
-            "description": "Ignore any events that do not have this string in their descriptions",
-            "type": "string",
-            "default": ""
         },
         "required": ["identifiers", "descriptor", "calendar_url"]
     }
