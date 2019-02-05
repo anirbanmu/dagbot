@@ -21,7 +21,7 @@ The brain file is just a flat text file of sentences that have been seen before 
 Dagbot depends on the following libraries:
 
 - [twisted](https://pypi.python.org/pypi/Twisted)
-- [icalendar](https://pypi.python.org/pypi/icalendar)
+- [ics](https://pypi.python.org/pypi/ics)
 - [pattern](https://pypi.python.org/pypi/Pattern)
 - [urllib3](https://pypi.python.org/pypi/urllib3)
 - [msgpack-python](https://pypi.python.org/pypi/msgpack-python)
