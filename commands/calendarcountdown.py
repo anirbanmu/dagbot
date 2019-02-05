@@ -27,7 +27,7 @@ class CalendarCountdown(object):
         for f,v in self.filters.iteritems():
             if str.startswith(f):
                 return (f, v)
-        return ('', '')
+        return (u'', { u'event_field_name': u'name', u'filter_string': u'' })
 
     def get_help(self, param_str):
         if len(self.filters.keys()) == 0:
@@ -50,13 +50,17 @@ class CalendarCountdown(object):
         response = generate_current_event(event[0], delta) if delta < timedelta(microseconds=0) else generate_future_event(event[0], delta)
         return response.encode('utf-8')
 
+# Keys are assumed to be strings & values are assumed to be strings if not another dict
+def lower_and_decode_dict(dictionary):
+    return { k.lower().decode('utf-8'): (lower_and_decode_dict(v) if isinstance(v, dict) else v.lower().decode()) for k,v in dictionary.iteritems() }
+
 class CalendarCountdownPool(CommandHandler):
     def __init__(self, json_config):
         self.calendars = {}
         self.default_id = None
         for config in json_config:
             required_string = config['required_string'].decode('utf-8') if 'required_string' in config else ''
-            filters = {k.lower().decode('utf-8'): v.lower().decode('utf-8') for k,v in config['filters'].iteritems()}
+            filters = lower_and_decode_dict(config['filters'])
             calendar = CalendarCountdown(config['calendar_url'], filters, config['descriptor'], required_string.lower())
             for id in config['identifiers']:
                 self.calendars[id.lower()] = calendar

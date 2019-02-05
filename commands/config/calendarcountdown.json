@@ -2,23 +2,23 @@
     {
         "identifiers": ["f1", "formula1"],
         "descriptor": "Formula 1",
-        "calendar_url": "http://www.rmotorsportscalendar.com/calendar/wcbe00cc5b.ics",
+        "calendar_url": "https://www.f1calendar.com/download/f1-calendar_p1_p2_p3_q_gp.ics",
         "filters": {
-            "r": "race",
-            "q": "qualifying",
-            "fp1": "practice 1",
-            "fp2": "practice 2",
-            "fp3": "practice 3"
+            "r": { "filter_string": "grand prix", "event_field_name": "categories" },
+            "q": { "filter_string": "qualifying", "event_field_name": "categories" },
+            "fp1": { "filter_string": "first practice", "event_field_name": "categories"  },
+            "fp2": { "filter_string": "second practice", "event_field_name": "categories" },
+            "fp3": { "filter_string": "third practice", "event_field_name": "categories" }
         },
-        "default_id": "true"
+        "default_id": true
     },
     {
         "identifiers": ["wec"],
         "descriptor": "FIA World Endurance Championship",
         "calendar_url": "http://rmotorsportscalendar.com/calendar/x306b9722e.ics",
         "filters": {
-            "r": "race",
-            "q": "qualifying"
+            "r": { "filter_string": "race" },
+            "q": { "filter_string": "qualifying" }
         }
     },
     {
@@ -26,8 +26,8 @@
         "descriptor": "GP2 Series",
         "calendar_url": "http://www.rmotorsportscalendar.com/calendar/w8a3e9a013.ics",
         "filters": {
-            "r": "race",
-            "q": "qualifying"
+            "r": { "filter_string": "race" },
+            "q": { "filter_string": "qualifying" }
         }
     },
     {
@@ -35,8 +35,8 @@
         "descriptor": "GP3 Series",
         "calendar_url": "http://www.rmotorsportscalendar.com/calendar/ye16d39716.ics",
         "filters": {
-            "r": "race",
-            "q": "qualifying"
+            "r": { "filter_string": "race" },
+            "q": { "filter_string": "qualifying" }
         }
     },
     {
@@ -44,9 +44,9 @@
         "descriptor": "FIA Formula-E",
         "calendar_url": "http://calendar.google.com/calendar/ical/vnfvu78fj9365bs5oiuga7sa90%40group.calendar.google.com/public/basic.ics",
         "filters": {
-            "r": "race",
-            "q": "quali",
-            "p": "practice"
+            "r": { "filter_string": "race" },
+            "q": { "filter_string": "quali" },
+            "p": { "filter_string": "practice" }
         }
     },
     {
@@ -54,11 +54,11 @@
         "descriptor": "Verizon Indycar Series",
         "calendar_url": "http://rmotorsportscalendar.com/calendar/b815a32e31.ics",
         "filters": {
-            "r": "race",
-            "q": "qualifying",
-            "p1": "practice 1",
-            "p2": "practice 2",
-            "p3": "practice 3"
+            "r": { "filter_string": "race" },
+            "q": { "filter_string": "qualifying" },
+            "p1": { "filter_string": "practice 1" },
+            "p2": { "filter_string": "practice 2" },
+            "p3": { "filter_string": "practice 3" }
         }
     },
     {
@@ -72,17 +72,17 @@
         "descriptor": "V8 Supercars",
         "calendar_url": "http://rmotorsportscalendar.com/calendar/e0995e2100.ics",
         "filters": {
-            "r": "race",
-            "r1": "race 1",
-            "r2": "race 2",
-            "r3": "race 3",
-            "q1": "qualifying 1",
-            "q2": "qualifying 2",
-            "q3": "qualifying 3",
-            "p1": "practice 1",
-            "p2": "practice 2",
-            "p3": "practice 3",
-            "s": "shootout"
+            "r": { "filter_string": "race" },
+            "r1": { "filter_string": "race 1" },
+            "r2": { "filter_string": "race 2" },
+            "r3": { "filter_string": "race 3" },
+            "q1": { "filter_string": "qualifying 1" },
+            "q2": { "filter_string": "qualifying 2" },
+            "q3": { "filter_string": "qualifying 3" },
+            "p1": { "filter_string": "practice 1" },
+            "p2": { "filter_string": "practice 2" },
+            "p3": { "filter_string": "practice 3" },
+            "s": { "filter_string": "shootout" }
         }
     },
     {
@@ -90,12 +90,12 @@
         "descriptor": "WeatherTech SportsCar Championship",
         "calendar_url": "http://rmotorsportscalendar.com/calendar/l15142020e.ics",
         "filters": {
-            "r": "race",
-            "q": "qualifying",
-            "p1": "practice 1",
-            "p2": "practice 2",
-            "p3": "practice 3",
-            "p4": "practice 4"
+            "r": { "filter_string": "race" },
+            "q": { "filter_string": "qualifying" },
+            "p1": { "filter_string": "practice 1" },
+            "p2": { "filter_string": "practice 2" },
+            "p3": { "filter_string": "practice 3" },
+            "p4": { "filter_string": "practice 4" }
         }
     },
     {
@@ -103,14 +103,14 @@
         "descriptor": "MotoGP",
         "calendar_url": "http://www.rmotorsportscalendar.com/calendar/m75110948c.ics",
         "filters": {
-            "r": "race",
-            "q": "qualifying",
-            "q1": "qualifying 1",
-            "q2": "qualifying 2",
-            "fp1": "practice 1",
-            "fp2": "practice 2",
-            "fp3": "practice 3",
-            "fp4": "practice 4"
+            "r": { "filter_string": "race" },
+            "q": { "filter_string": "qualifying" },
+            "q1": { "filter_string": "qualifying 1" },
+            "q2": { "filter_string": "qualifying 2" },
+            "fp1": { "filter_string": "practice 1" },
+            "fp2": { "filter_string": "practice 2" },
+            "fp3": { "filter_string": "practice 3" },
+            "fp4": { "filter_string": "practice 4" }
         }
     },
     {
@@ -118,15 +118,15 @@
         "descriptor": "WorldSBK",
         "calendar_url": "http://rmotorsportscalendar.com/calendar/y85d7d2182.ics",
         "filters": {
-            "r": "race",
-            "q": "qualifying",
-            "q1": "qualifying 1",
-            "q2": "qualifying 2",
-            "p": "practice",
-            "p1": "practice 1",
-            "p2": "practice 2",
-            "p3": "practice 3",
-            "p4": "practice 4"
+            "r": { "filter_string": "race" },
+            "q": { "filter_string": "qualifying" },
+            "q1": { "filter_string": "qualifying 1" },
+            "q2": { "filter_string": "qualifying 2" },
+            "p": { "filter_string": "practice" },
+            "p1": { "filter_string": "practice 1" },
+            "p2": { "filter_string": "practice 2" },
+            "p3": { "filter_string": "practice 3" },
+            "p4": { "filter_string": "practice 4" }
         }
     },
     {
@@ -134,11 +134,11 @@
         "descriptor": "Moto2",
         "calendar_url": "http://www.rmotorsportscalendar.com/calendar/pd73de8639.ics",
         "filters": {
-            "r": "race",
-            "q": "qualifying",
-            "fp1": "practice 1",
-            "fp2": "practice 2",
-            "fp3": "practice 3"
+            "r": { "filter_string": "race" },
+            "q": { "filter_string": "qualifying" },
+            "fp1": { "filter_string": "practice 1" },
+            "fp2": { "filter_string": "practice 2" },
+            "fp3": { "filter_string": "practice 3" }
         }
     },
     {
@@ -146,11 +146,11 @@
         "descriptor": "Moto3",
         "calendar_url": "http://www.rmotorsportscalendar.com/calendar/a7b113dee2.ics",
         "filters": {
-            "r": "race",
-            "q": "qualifying",
-            "fp1": "practice 1",
-            "fp2": "practice 2",
-            "fp3": "practice 3"
+            "r": { "filter_string": "race" },
+            "q": { "filter_string": "qualifying" },
+            "fp1": { "filter_string": "practice 1" },
+            "fp2": { "filter_string": "practice 2" },
+            "fp3": { "filter_string": "practice 3" }
         }
     },
     {
@@ -170,11 +170,11 @@
         "descriptor": "Monster Energy NASCAR Cup Series",
         "calendar_url": "http://rmotorsportscalendar.com/calendar/gcd09c08ae.ics",
         "filters": {
-            "r": "race",
-            "q": "qualifying",
-            "p1": "practice 1",
-            "p2": "practice 2",
-            "p3": "practice 3"
+            "r": { "filter_string": "race" },
+            "q": { "filter_string": "qualifying" },
+            "p1": { "filter_string": "practice 1" },
+            "p2": { "filter_string": "practice 2" },
+            "p3": { "filter_string": "practice 3" }
         }
     },
     {
@@ -182,12 +182,12 @@
         "descriptor": "Blancpain GT Series",
         "calendar_url": "http://rmotorsportscalendar.com/calendar/accf915a1f.ics",
         "filters": {
-            "r": "race",
-            "q": "qualifying",
-            "qr": "qualifying race",
-            "mr": "main race",
-            "fp1": "practice 1",
-            "fp2": "practice 2"
+            "r": { "filter_string": "race" },
+            "q": { "filter_string": "qualifying" },
+            "qr": { "filter_string": "qualifying race" },
+            "mr": { "filter_string": "main race" },
+            "fp1": { "filter_string": "practice 1" },
+            "fp2": { "filter_string": "practice 2" }
         }
     },
     {
@@ -201,9 +201,9 @@
         "descriptor": "Super GT",
         "calendar_url": "http://rmotorsportscalendar.com/calendar/cb81f3a27f.ics",
         "filters": {
-            "r": "race",
-            "q": "qualifying",
-            "p": "practice"
+            "r": { "filter_string": "race" },
+            "q": { "filter_string": "qualifying" },
+            "p": { "filter_string": "practice" }
         }
     },
     {
@@ -211,16 +211,16 @@
         "descriptor": "World Touring Car Cup",
         "calendar_url": "http://rmotorsportscalendar.com/calendar/r2384e438a.ics",
         "filters": {
-            "p": "practice",
-            "p1": "practice 1",
-            "p2": "practice 2",
-            "q": "qualifying",
-            "q1": "qualifying 1",
-            "q2": "qualifying 2",
-            "r": "race",
-            "r1": "race 1",
-            "r2": "race 2",
-            "r3": "race 3"
+            "p": { "filter_string": "practice" },
+            "p1": { "filter_string": "practice 1" },
+            "p2": { "filter_string": "practice 2" },
+            "q": { "filter_string": "qualifying" },
+            "q1": { "filter_string": "qualifying 1" },
+            "q2": { "filter_string": "qualifying 2" },
+            "r": { "filter_string": "race" },
+            "r1": { "filter_string": "race 1" },
+            "r2": { "filter_string": "race 2" },
+            "r3": { "filter_string": "race 3" }
         }
     }
 ]
