@@ -101,7 +101,7 @@
     {
         "identifiers": ["motogp", "moto"],
         "descriptor": "MotoGP",
-        "calendar_url": "http://www.rmotorsportscalendar.com/calendar/m75110948c.ics",
+        "calendar_url": "https://www.google.com/calendar/ical/832vbii8pmrvma356b4vn3v42c@group.calendar.google.com/public/basic.ics",
         "filters": {
             "r": { "filter_string": "race" },
             "q": { "filter_string": "qualifying" },
