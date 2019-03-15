@@ -1,4 +1,4 @@
-import warnings, threading, arrow, ics
+import warnings, threading, arrow, ics, re
 from urllib3 import PoolManager
 from datetime import datetime, timedelta
 from collections import namedtuple
@@ -9,6 +9,13 @@ def get_raw_events(pool_manager, url):
         print 'Loading calendar from ' + url
         r = pool_manager.request('GET', url).data
         return r
+
+def fix_calendar_data(data):
+    # Remove semicolon from RRULE to make dateutil happy
+    fixed = re.sub(r'(\bRRULE:.+);', r'\1', data)
+
+    # Correct TZID specified incorrectly as TZID="Australia/Adelaide" (don't need quotes)
+    return re.sub(r';TZID="(.+)"', r';TZID=\1', fixed)
 
 # Conservative delta used. No event should be longer than 5 days.
 def prune_event_start(start_time, utc_now):
@@ -88,7 +95,9 @@ class Calendar(object):
 
     def __get_new_calendar(self):
         self.last_updated = arrow.utcnow()
-        self.events = prune_past_events(ics.Calendar(get_raw_events(self.pool_manager, self.calendar_url).decode('utf-8')), self.last_updated)
+
+        calendar_data = fix_calendar_data(get_raw_events(self.pool_manager, self.calendar_url).decode('utf-8'))
+        self.events = prune_past_events(ics.Calendar(calendar_data), self.last_updated)
 
     def __get_events(self):
         with self.lock:
