@@ -70,18 +70,26 @@
     {
         "identifiers": ["v8sc", "v8supercars", "v8straya", "v8"],
         "descriptor": "V8 Supercars",
-        "calendar_url": "http://rmotorsportscalendar.com/calendar/e0995e2100.ics",
+        "calendar_url": "https://api.calreply.net/webcal/71701cb3-b43e-499b-8393-2bebde854371",
         "filters": {
             "r": { "filter_string": "race" },
             "r1": { "filter_string": "race 1" },
             "r2": { "filter_string": "race 2" },
             "r3": { "filter_string": "race 3" },
+            "r4": { "filter_string": "race 4" },
+            "r5": { "filter_string": "race 5" },
+            "r6": { "filter_string": "race 6" },
+            "r7": { "filter_string": "race 7" },
+            "r8": { "filter_string": "race 8" },
+            "q": { "filter_string": "qualifying" },
             "q1": { "filter_string": "qualifying 1" },
             "q2": { "filter_string": "qualifying 2" },
             "q3": { "filter_string": "qualifying 3" },
+            "p": { "filter_string": "practice" },
             "p1": { "filter_string": "practice 1" },
             "p2": { "filter_string": "practice 2" },
             "p3": { "filter_string": "practice 3" },
+            "p4": { "filter_string": "practice 4" },
             "s": { "filter_string": "shootout" }
         }
     },
