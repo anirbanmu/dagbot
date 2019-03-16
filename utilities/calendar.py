@@ -12,10 +12,17 @@ def get_raw_events(pool_manager, url):
 
 def fix_calendar_data(data):
     # Remove semicolon from RRULE to make dateutil happy
-    fixed = re.sub(r'(\bRRULE:.+);', r'\1', data)
+    fixed = re.sub(r'^(RRULE:\S+);\s*$', r'\1', data, 0, re.MULTILINE)
 
     # Correct TZID specified incorrectly as TZID="Australia/Adelaide" (don't need quotes)
-    return re.sub(r';TZID="(.+)"', r';TZID=\1', fixed)
+    timezones = frozenset(re.findall(r'^TZID:(\S+)\s*$', data, re.MULTILINE))
+    def replacement_timezone(matched):
+        if matched.group('original') not in timezones and matched.group('inner') in timezones:
+            return u';TZID={}'.format(matched.group('inner'))
+
+        return matched.group(0)
+
+    return re.sub(r';TZID=(?P<original>(?<!\\)"(?P<inner>\S+?)(?<!\\)")', replacement_timezone, fixed)
 
 # Conservative delta used. No event should be longer than 5 days.
 def prune_event_start(start_time, utc_now):
