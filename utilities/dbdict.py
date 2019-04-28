@@ -32,7 +32,7 @@ ColumnProperties = namedtuple('ColumnProperties', 'blob')
 
 class DatabaseDictionary(object):
     # value_types determines what columns are stored for each key
-    def __init__(self, file_name, value_types, row_values_type):
+    def __init__(self, file_name, value_types, row_values_type, auto_vacuum='FULL'):
         assert len(value_types) != 0
 
         column_types = [('key', 'BLOB UNIQUE NOT NULL')] + value_types
@@ -51,6 +51,7 @@ class DatabaseDictionary(object):
 
         #self.cursor.execute('PRAGMA journal_mode=WAL')
         #self.cursor.execute('PRAGMA synchronous=OFF')
+        self.cursor.execute('PRAGMA auto_vacuum=%s' % (auto_vacuum,))
 
         self.cursor.execute('CREATE TABLE IF NOT EXISTS dictionary (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,' + ','.join(v[0] + ' ' + v[1] for v in column_types) + ')')
 
