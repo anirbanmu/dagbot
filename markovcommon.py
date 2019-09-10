@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+from builtins import range
 from collections import namedtuple
 from utilities.common import ProgressBar, time_function
 from utilities.dbdict import DatabaseDictionary
@@ -16,8 +18,8 @@ MARKOV_VALUE_PROPS = [('dict', 'BLOB'), ('chain_length', 'INTEGER'), ('start_cou
 MarkovDictionaryValue = namedtuple("MarkovDictValue", ','.join(v[0] for v in MARKOV_VALUE_PROPS))
 
 def pick_weighted_random(choices):
-    r = random() * sum(choices.itervalues())
-    for c,p in choices.iteritems():
+    r = random() * sum(choices.values())
+    for c,p in choices.items():
         r -= p
         if r <= 0:
             return c
@@ -26,7 +28,7 @@ def pick_weighted_random(choices):
 def add_to_markov_dictionary(markov_dict, chain_length, line):
     words = line.split() + [STOP_CODE]
 
-    for i in xrange(chain_length, len(words)):
+    for i in range(chain_length, len(words)):
         key = tuple(words[i - chain_length : i])
         value = markov_dict.get(key)
 
@@ -48,20 +50,20 @@ def count_lines(file):
 
 @time_function
 def markov_dictionary_from_file(temp_db_file, brain_file, chain_length):
-    print 'Creating markov chains from %s' % brain_file
+    print('Creating markov chains from %s' % brain_file)
 
     line_count = count_lines(brain_file)
 
     temp_dict = {}
-    for c in xrange(1, chain_length + 1):
-        print 'Creating markov chains of length %i' % c
+    for c in range(1, chain_length + 1):
+        print('Creating markov chains of length %i' % c)
         with open(brain_file, 'r') as f:
             progress_bar = ProgressBar(line_count)
             for line in f:
-                add_to_markov_dictionary(temp_dict, c, line.strip().decode('utf-8').lower())
+                add_to_markov_dictionary(temp_dict, c, line.strip().lower())
                 progress_bar.update()
 
-    print 'Populating database dictionary with markov chains'
+    print('Populating database dictionary with markov chains')
     db_dict = DatabaseDictionary(temp_db_file, MARKOV_VALUE_PROPS, MarkovDictionaryValue)
     db_dict.begin()
     db_dict.replace(temp_dict)
@@ -87,7 +89,7 @@ def pick_seed(markov_dict, msg, chain_length):
 
 @time_function
 def generate_sentence(markov_dict, seed_msg, chain_length, max_words):
-    msg = seed_msg.strip().decode('utf-8')
+    msg = seed_msg.strip()
     if len(msg) > 0 and msg[-1] in string.punctuation:
         # drop punctuation
         msg = msg[:len(msg) - 1]
@@ -105,4 +107,4 @@ def generate_sentence(markov_dict, seed_msg, chain_length, max_words):
         message.append(choice)
         length += 1
 
-    return ' '.join(message).encode('utf-8')
+    return ' '.join(message)

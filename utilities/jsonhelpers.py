@@ -4,7 +4,7 @@ import json, jsonschema
 def _json_list_change_encode(l, encoding):
     encoded_list = []
     for v in l:
-        if isinstance(v, unicode):
+        if isinstance(v, str):
             v = v.encode(encoding)
         elif isinstance(v, list):
             v = _json_list_change_encode(v, encoding)
@@ -15,10 +15,10 @@ def _json_list_change_encode(l, encoding):
 
 def _json_dict_change_encode(d, encoding='utf-8'):
     encoded_dict = {}
-    for k,v in d.iteritems():
-        if isinstance(k, unicode):
+    for k,v in d.items():
+        if isinstance(k, str):
             k = k.encode(encoding)
-        if isinstance(v, unicode):
+        if isinstance(v, str):
             v = v.encode(encoding)
         elif isinstance(v, list):
             v = _json_list_change_encode(v, encoding)
@@ -34,7 +34,7 @@ def default_setting_jsonschema_validator(validator_class):
     validate_properties = validator_class.VALIDATORS['properties']
 
     def set_defaults(validator, properties, instance, schema):
-        for property, subschema in properties.iteritems():
+        for property, subschema in properties.items():
             if 'default' in subschema:
                 instance.setdefault(property, subschema['default'])
 
@@ -53,7 +53,7 @@ def validate_default_json(schema_path, json_data, encoding):
     schema = validate_load_schema(schema_path)
     validator = default_setting_jsonschema_validator(jsonschema.Draft4Validator)
     validator(schema).validate(json_data) # Throws on error
-    return json_encode(json_data, encoding)
+    return json_data
 
 def validate_load_default_json(schema_path, json_path, encoding):
     with open(json_path, 'r') as config_file:

@@ -1,5 +1,8 @@
 from __future__ import print_function
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import map
 __author__ = "Benjamin Keith (ben@benlk.com)"
 
 import sys, os, platform, random, re, time, string, json, jsonschema, pkgutil, imp, socket
@@ -44,19 +47,19 @@ def initialize_chan_props(props):
     p['quiet_hours'] = Calendar(quiet_hours) # Create real calendar object for quiet hours
     return p
 
-config['irc']['unrecorded_channels'] = {k.lower(): initialize_chan_props(v) for k,v in config['irc']['unrecorded_channels'].iteritems()}
-config['irc']['responsive_channels'] = {k.lower(): initialize_chan_props(v) for k,v in config['irc']['responsive_channels'].iteritems()}
+config['irc']['unrecorded_channels'] = {k.lower(): initialize_chan_props(v) for k,v in config['irc']['unrecorded_channels'].items()}
+config['irc']['responsive_channels'] = {k.lower(): initialize_chan_props(v) for k,v in config['irc']['responsive_channels'].items()}
 config['irc']['responsive_channels'].update(config['irc']['unrecorded_channels']) # Unrecorded channels are also responsive.
-config['irc']['unresponsive_channels'] = {k.lower(): v for k,v in config['irc']['unresponsive_channels'].iteritems()}
+config['irc']['unresponsive_channels'] = {k.lower(): v for k,v in config['irc']['unresponsive_channels'].items()}
 
 config['irc']['channels'] = config['irc']['responsive_channels'].copy()
 config['irc']['channels'].update(config['irc']['unresponsive_channels'])
 
-config['irc']['ignore_users'] = map(string.lower, config['irc']['ignore_users'])
-config['irc']['unrecorded_users'] = map(string.lower, config['irc']['unrecorded_users'])
-config['commands']['static_commands'] = {k.lower(): v for k,v in config['commands']['static_commands'].iteritems()}
-config['commands']['dynamic_aliases'] = {k.lower(): map(string.lower, v) for k,v in config['commands']['dynamic_aliases'].iteritems()}
-config['commands']['disabled_commands'] = map(string.lower, config['commands']['disabled_commands'])
+config['irc']['ignore_users'] = list(map(lambda s: s.lower(), config['irc']['ignore_users']))
+config['irc']['unrecorded_users'] = list(map(lambda s: s.lower(), config['irc']['unrecorded_users']))
+config['commands']['static_commands'] = {k.lower(): v for k,v in config['commands']['static_commands'].items()}
+config['commands']['dynamic_aliases'] = {k.lower(): list(map(lambda s: s.lower(), v)) for k,v in config['commands']['dynamic_aliases'].items()}
+config['commands']['disabled_commands'] = list(map(lambda s: s.lower(), config['commands']['disabled_commands']))
 
 #
 # Begin actual code
@@ -97,14 +100,10 @@ def gather_commands(path, aliases, command_configs, disabled):
         finally:
             f.close()
 
-    return OrderedDict(sorted(commands.iteritems(), reverse=True, key=lambda t: len(t[0])))
+    return OrderedDict(sorted(commands.items(), reverse=True, key=lambda t: len(t[0])))
 
 class sadfaceBot(IRCClient):
     versionEnv = platform.platform()
-
-    @property
-    def nickname(self):
-        return self.irc_cfg['nickname'][0]
 
     @property
     def erroneousNickFallback(self):
@@ -150,6 +149,10 @@ class sadfaceBot(IRCClient):
     def brain_cfg(self):
         return self.config['brain']
 
+    def connectionMade(self):
+        self.nickname = self.irc_cfg['nickname'][0]
+        IRCClient.connectionMade(self)
+
     def ignore(self, user):
         return user.lower() in self.irc_cfg['ignore_users']
 
@@ -161,7 +164,7 @@ class sadfaceBot(IRCClient):
         if irc_cfg['password']:
             self.msg('nickserv', 'identify ' + irc_cfg['password'])
 
-        for c,props in irc_cfg['responsive_channels'].items() + irc_cfg['unresponsive_channels'].items():
+        for c,props in list(irc_cfg['responsive_channels'].items()) + list(irc_cfg['unresponsive_channels'].items()):
             self.join(c, props['password'])
 
     def kickedFrom(self, channel, kicker, message):
@@ -216,7 +219,7 @@ class sadfaceBot(IRCClient):
 
     def handle_help(self, channel, param_str):
         if param_str != '':
-            for keyword,cmd_props in self.factory.dynamic_commands.iteritems():
+            for keyword,cmd_props in self.factory.dynamic_commands.items():
                 if param_str.startswith(keyword):
                     return cmd_props.handler.get_help(param_str[len(keyword):], channel)
 
@@ -252,11 +255,11 @@ class sadfaceBot(IRCClient):
         return False
 
     def privmsg(self, user, channel, raw_msg):
-# TODO
-# make the privmsg class run:
-#    check for user
-#    check for reply
-#        check for self.
+        # TODO
+        # make the privmsg class run:
+        #    check for user
+        #    check for reply
+        #    check for self.
         channel = channel.lower()
         user_nick = user.split('!', 1)[0].lower()
         msg = raw_msg = raw_msg.lower()
@@ -372,12 +375,10 @@ if __name__ == "__main__":
     markov = MarkovBrain(brain_config['brain_file'], brain_config['brain_db'], brain_config['chain_length'], brain_config['max_words'],
                          brain_config['censored_words'])
 
-    # Lookup actual address for host (twisted only uses ipv6 if given an explicit ipv6 address)
-    host_info = socket.getaddrinfo(irc_cfg['host'], irc_cfg['port'], 0, 0, socket.IPPROTO_TCP, socket.AI_CANONNAME)[0][4]
-    client_string = "%s:%s:%u" % ('tls' if irc_cfg['ssl'] else 'tcp', host_info[0].replace(':', '\:'), host_info[1])
-
+    client_string = "%s:%s:%u" % ('ssl' if irc_cfg['ssl'] else 'tcp', irc_cfg['host'], irc_cfg['port'])
     endpoint = clientFromString(reactor, client_string)
     bot_client_service = ClientService(endpoint, sadfaceBotFactory(config, markov, dynamic_commands, dynamic_commands_regex, static_commands_regex, help_command_regex))
+
     bot_client_service.startService()
 
     reactor.run()

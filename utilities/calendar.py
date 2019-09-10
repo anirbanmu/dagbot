@@ -1,3 +1,6 @@
+from __future__ import print_function
+from past.builtins import basestring
+from builtins import object
 import warnings, threading, arrow, ics, re
 from urllib3 import PoolManager
 from datetime import datetime, timedelta
@@ -6,7 +9,7 @@ from collections import namedtuple
 def get_raw_events(pool_manager, url):
     with warnings.catch_warnings():
         warnings.simplefilter('ignore')
-        print 'Loading calendar from ' + url
+        print('Loading calendar from ' + url)
         r = pool_manager.request('GET', url).data
         return r
 

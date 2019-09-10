@@ -1,7 +1,9 @@
 twisted
-pattern~=2.6
-urllib3<=1.24
+pattern
+urllib3
 msgpack-python
 jsonschema
 tweepy
 ics
+pyopenssl
+service_identity

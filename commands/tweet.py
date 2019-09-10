@@ -1,3 +1,4 @@
+from __future__ import print_function
 import tweepy
 
 from commands.commandhandler import CommandHandler
@@ -22,7 +23,7 @@ class TweetHandler(CommandHandler):
 
         response = self.api.update_status(status = msg)
 
-        print response.user.screen_name
-        return ("Tweet @ https://twitter.com/%s/status/%i" % (response.user.screen_name, response.id)).encode('utf-8')
+        print(response.user.screen_name)
+        return ("Tweet @ https://twitter.com/%s/status/%i" % (response.user.screen_name, response.id))
 
 command_handler_properties = (TweetHandler, ['tweet'], False)

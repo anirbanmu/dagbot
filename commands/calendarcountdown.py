@@ -1,3 +1,4 @@
+from builtins import object
 import string
 from collections import OrderedDict, namedtuple
 
@@ -21,12 +22,12 @@ EventFilter = namedtuple('EventFilter', ['event_field_name', 'filter_string'])
 class CalendarCountdown(object):
     def __init__(self, calendar, filters, description, required_string):
         self.calendar = calendar if type(calendar) is Calendar else Calendar(calendar)
-        self.filters = OrderedDict({ k: EventFilter(**v) for k,v in sorted(filters.iteritems(), reverse=True, key=lambda t: len(t[0])) })
+        self.filters = OrderedDict({ k: EventFilter(**v) for k,v in sorted(filters.items(), reverse=True, key=lambda t: len(t[0])) })
         self.description = description
         self.required_string = required_string
 
     def get_filter(self, str):
-        for f,v in self.filters.iteritems():
+        for f,v in self.filters.items():
             if str.startswith(f):
                 return (f, v)
         return (u'', EventFilter(event_field_name=u'name', filter_string=u''))
@@ -49,19 +50,18 @@ class CalendarCountdown(object):
 
         # Delta will be negative if event in session
         delta = event[1]
-        response = generate_current_event(event[0], delta) if delta < timedelta(microseconds=0) else generate_future_event(event[0], delta)
-        return response.encode('utf-8')
+        return generate_current_event(event[0], delta) if delta < timedelta(microseconds=0) else generate_future_event(event[0], delta)
 
 # Keys are assumed to be strings & values are assumed to be strings if not another dict
 def lower_and_decode_dict(dictionary):
-    return { k.lower().decode('utf-8'): (lower_and_decode_dict(v) if isinstance(v, dict) else v.lower().decode()) for k,v in dictionary.iteritems() }
+    return { k.lower(): (lower_and_decode_dict(v) if isinstance(v, dict) else v.lower()) for k,v in dictionary.items() }
 
 class CalendarCountdownPool(CommandHandler):
     def __init__(self, json_config):
         self.calendars = {}
         self.default_id = None
         for config in json_config:
-            required_string = config['required_string'].decode('utf-8') if 'required_string' in config else ''
+            required_string = config['required_string'] if 'required_string' in config else ''
             filters = lower_and_decode_dict(config['filters'])
             calendar = CalendarCountdown(config['calendar_url'], filters, config['descriptor'], required_string.lower())
             for id in config['identifiers']:
@@ -70,7 +70,7 @@ class CalendarCountdownPool(CommandHandler):
             if 'default_id' in config and config['default_id']:
                 self.default_id = config['identifiers'][0].lower()
 
-        self.calendars = OrderedDict(sorted(self.calendars.iteritems(), reverse=True, key=lambda t: len(t[0])))
+        self.calendars = OrderedDict(sorted(self.calendars.items(), reverse=True, key=lambda t: len(t[0])))
 
     def choose_calendar_id(self, param_str, chan):
         for id in self.calendars:
@@ -97,7 +97,7 @@ class CalendarCountdownPool(CommandHandler):
         id,filter = self.choose_calendar_id(param_str, chan)
         filter = filter.strip()
         if not id:
-            return 'Bad calendar countdown config. Check your JSON.'.encode('utf-8')
+            return 'Bad calendar countdown config. Check your JSON.'
 
         return self.calendars[id].get_response(filter)
 
