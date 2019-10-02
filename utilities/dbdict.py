@@ -1,3 +1,4 @@
+from builtins import object
 import sqlite3
 from msgpack import packb, unpackb
 from collections import namedtuple
@@ -86,11 +87,11 @@ class DatabaseDictionary(object):
         return cursor.fetchone()[0]
 
     def update(self, other):
-        self.cursor.executemany(self.insert_replace_sql, ((to_db(k),) + self.tuple_to_db(v) for k,v in other.iteritems()))
+        self.cursor.executemany(self.insert_replace_sql, ((to_db(k),) + self.tuple_to_db(v) for k,v in other.items()))
 
     def replace(self, other):
         self.cursor.execute('DELETE FROM dictionary')
-        self.cursor.executemany(self.insert_sql, ((to_db(k),) + self.tuple_to_db(v) for k,v in other.iteritems()))
+        self.cursor.executemany(self.insert_sql, ((to_db(k),) + self.tuple_to_db(v) for k,v in other.items()))
 
     def get(self, key):
         self.cursor.execute(self.select_sql, (to_db(key),))

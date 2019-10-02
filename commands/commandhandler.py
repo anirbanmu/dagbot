@@ -1,8 +1,8 @@
+from builtins import object
 import abc
+from future.utils import with_metaclass
 
-class CommandHandler(object):
-    __metaclass__ = abc.ABCMeta
-
+class CommandHandler(with_metaclass(abc.ABCMeta, object)):
     @abc.abstractmethod
     def __init__(self, json_config):
         raise NotImplementedError('__init__ must be defined for a command handler')

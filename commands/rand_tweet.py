@@ -34,7 +34,7 @@ class RandTweetHandler(CommandHandler):
         self.__update_tweets()
         if len(self.tweets) > 0:
             status = choice(self.tweets)
-            return ("%s ( https://twitter.com/%s/status/%i )" % (status[1], self.screen_name, status[0])).encode('utf-8')
-        return "No previous tweets found.".encode('utf-8')
+            return ("%s ( https://twitter.com/%s/status/%i )" % (status[1], self.screen_name, status[0]))
+        return "No previous tweets found."
 
 command_handler_properties = (RandTweetHandler, ['randtweet'], False)

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 
+from builtins import range
+from builtins import object
 from multiprocessing import Process
 
 from markovcommon import add_to_markov_dictionary, markov_dictionary_from_file, generate_sentence, MARKOV_VALUE_PROPS, MarkovDictionaryValue
@@ -12,7 +14,7 @@ def as_process(target, args):
     p.join()
     p.terminate()
 
-class MarkovCoreSqlite():
+class MarkovCoreSqlite(object):
     def __init__(self, brain_db, chain_length):
         self.brain_db = brain_db
         self.chain_length = chain_length
@@ -29,7 +31,7 @@ class MarkovCoreSqlite():
 
     def add_to_markov_dictionary(self, line):
         self.sqlite_dict.begin()
-        for c in xrange(1, self.chain_length + 1):
+        for c in range(1, self.chain_length + 1):
             add_to_markov_dictionary(self.sqlite_dict, c, line)
         self.sqlite_dict.commit()
 

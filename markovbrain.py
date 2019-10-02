@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+from builtins import object
 import tempfile, os, time
 from markov_core_sqlite import MarkovCoreSqlite
 from utilities.common import time_function
@@ -17,7 +18,7 @@ def as_process(target, args):
     p.join()
     p.terminate()
 
-class MarkovBrain():
+class MarkovBrain(object):
     new_brain_lines_limit = 1024
 
     def __init__(self, brain_file, brain_db, chain_length, max_words, censored_words = []):
@@ -38,13 +39,13 @@ class MarkovBrain():
     def __dump_new_brain_lines(self):
         with open(self.brain_file, 'a') as f:
             for line in self.new_brain_lines:
-                f.write(line.encode('utf-8'))
+                f.write(line)
         print('%i new brain lines dumped.' % (len(self.new_brain_lines)))
         self.new_brain_lines = []
 
     @time_function
     def add_to_brain(self, original_msg):
-        msg = original_msg.replace('\x00', '').strip().decode('utf-8')
+        msg = original_msg.replace('\x00', '').strip()
 
         # Don't bother with empty lines.
         if len(msg) == 0:
