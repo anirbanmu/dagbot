@@ -1,6 +1,6 @@
 # dagbot
 
-An IRC Markov Chain chatbot with a simple pluggable command system using Python 3.6.
+An IRC Markov Chain chatbot with a simple pluggable command system using Python 3.6. Legacy Python 2 version remains on it's own [branch](https://github.com/anirbanmu/dagbot/tree/legacy-python-2-unmaintained) but is and will be unmaintained.
 
 ## Intro
 
