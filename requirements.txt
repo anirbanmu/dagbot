@@ -4,6 +4,6 @@ urllib3
 msgpack-python
 jsonschema
 tweepy
-ics
+ics~=0.5.0
 pyopenssl
 service_identity
