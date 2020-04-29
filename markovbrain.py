@@ -1,9 +1,11 @@
 from __future__ import print_function
 
+import time
 from builtins import object
-import tempfile, os, time
-from markov_core_sqlite import MarkovCoreSqlite
+
+from markov.markov_core_sqlite import MarkovCoreSqlite
 from utilities.common import time_function
+
 
 # Get total number of entries for a dictionary which has the value type list
 def total_entries(d):
@@ -12,16 +14,14 @@ def total_entries(d):
         entries += len(d[k])
     return entries
 
-def as_process(target, args):
-    p = Process(target = target, args = args)
-    p.start()
-    p.join()
-    p.terminate()
 
 class MarkovBrain(object):
     new_brain_lines_limit = 1024
 
-    def __init__(self, brain_file, brain_db, chain_length, max_words, censored_words = []):
+    def __init__(self, brain_file, brain_db, chain_length, max_words, censored_words=None):
+        if censored_words is None:
+            censored_words = []
+
         self.brain_file = brain_file
         self.max_words = max_words
         self.censored_words = censored_words
@@ -29,7 +29,8 @@ class MarkovBrain(object):
         self.markov = MarkovCoreSqlite(brain_db, chain_length)
         self.markov.sync_with_file(brain_file)
 
-        self.new_brain_lines = [] # New lines seen since brain was loaded. Will be added to brain file when size reaches new_brain_lines_limit
+        # New lines seen since brain was loaded. Will be added to brain file when size reaches new_brain_lines_limit
+        self.new_brain_lines = []
 
     def __add_new_brain_line(self, msg):
         self.new_brain_lines.append(msg + '\n')
