@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-
-from __future__ import print_function
-from builtins import range
+import string
+from builtins import object, range
+from multiprocessing import Process
 from collections import namedtuple
+from random import random, choice
+
 from utilities.common import ProgressBar, time_function
 from utilities.dbdict import DatabaseDictionary
-from random import random,choice
 import pattern.en
-import string
 
 START_CODE = u'␂␀␃'
 STOP_CODE = u'␃␀␂'
@@ -17,19 +17,21 @@ STOP_CODE = u'␃␀␂'
 MARKOV_VALUE_PROPS = [('dict', 'BLOB'), ('chain_length', 'INTEGER'), ('start_count', 'INTEGER')]
 MarkovDictionaryValue = namedtuple("MarkovDictValue", ','.join(v[0] for v in MARKOV_VALUE_PROPS))
 
+
 def pick_weighted_random(choices):
     r = random() * sum(choices.values())
-    for c,p in choices.items():
+    for c, p in choices.items():
         r -= p
         if r <= 0:
             return c
     assert False
 
+
 def add_to_markov_dictionary(markov_dict, chain_length, line):
     words = line.split() + [STOP_CODE]
 
     for i in range(chain_length, len(words)):
-        key = tuple(words[i - chain_length : i])
+        key = tuple(words[i - chain_length: i])
         value = markov_dict.get(key)
 
         if not value:
@@ -37,9 +39,11 @@ def add_to_markov_dictionary(markov_dict, chain_length, line):
         else:
             count = value.dict.get(words[i])
             value.dict[words[i]] = count + 1 if count else 1
-            value = MarkovDictionaryValue(value.dict, chain_length, value.start_count + 1 if i == chain_length else value.start_count)
+            value = MarkovDictionaryValue(value.dict, chain_length,
+                                          value.start_count + 1 if i == chain_length else value.start_count)
 
         markov_dict[key] = value
+
 
 @time_function
 def count_lines(file):
@@ -47,6 +51,7 @@ def count_lines(file):
     with open(file, 'r') as f:
         c = sum(1 for l in f)
     return c
+
 
 @time_function
 def markov_dictionary_from_file(temp_db_file, brain_file, chain_length):
@@ -70,6 +75,7 @@ def markov_dictionary_from_file(temp_db_file, brain_file, chain_length):
     db_dict.commit()
     db_dict.close()
 
+
 def pick_seed(markov_dict, msg, chain_length):
     if len(msg) == 0:
         # Get a random seed from one word key
@@ -87,6 +93,7 @@ def pick_seed(markov_dict, msg, chain_length):
 
     return msg.split()[:chain_length]
 
+
 @time_function
 def generate_sentence(markov_dict, seed_msg, chain_length, max_words):
     msg = seed_msg.strip()
@@ -98,7 +105,7 @@ def generate_sentence(markov_dict, seed_msg, chain_length, max_words):
 
     length = len(message)
     while length < max_words:
-        word_choices = markov_dict.get(tuple(message[-chain_length : length]))
+        word_choices = markov_dict.get(tuple(message[-chain_length: length]))
         if not word_choices:
             break
         choice = pick_weighted_random(word_choices.dict)
@@ -108,3 +115,38 @@ def generate_sentence(markov_dict, seed_msg, chain_length, max_words):
         length += 1
 
     return ' '.join(message)
+
+
+def as_process(target, args):
+    p = Process(target=target, args=args)
+    p.start()
+    p.join()
+    p.terminate()
+
+
+class MarkovCoreSqlite(object):
+    def __init__(self, brain_db, chain_length):
+        self.brain_db = brain_db
+        self.chain_length = chain_length
+
+        # Holds markov chain data. key(tuple(words[chain_length])) -> {word_choice1: count, word_choice2: count}
+        self.sqlite_dict = DatabaseDictionary(self.brain_db, MARKOV_VALUE_PROPS, MarkovDictionaryValue)
+
+    def sync_with_file(self, brain_file):
+        if len(self.sqlite_dict) > 0:
+            return
+        self.sqlite_dict.close()
+        as_process(markov_dictionary_from_file, (self.brain_db, brain_file, self.chain_length))
+        self.sqlite_dict = DatabaseDictionary(self.brain_db, MARKOV_VALUE_PROPS, MarkovDictionaryValue)
+
+    def add_to_markov_dictionary(self, line):
+        self.sqlite_dict.begin()
+        for c in range(1, self.chain_length + 1):
+            add_to_markov_dictionary(self.sqlite_dict, c, line)
+        self.sqlite_dict.commit()
+
+    def generate_sentence(self, seed_msg, max_words):
+        return generate_sentence(self.sqlite_dict, seed_msg, self.chain_length, max_words)
+
+    def close(self):
+        self.sqlite_dict.close()
