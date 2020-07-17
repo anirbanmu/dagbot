@@ -6,9 +6,9 @@
         "filters": {
             "r": { "filter_string": "grand prix", "event_field_name": "categories" },
             "q": { "filter_string": "qualifying", "event_field_name": "categories" },
-            "fp1": { "filter_string": "first practice", "event_field_name": "categories"  },
-            "fp2": { "filter_string": "second practice", "event_field_name": "categories" },
-            "fp3": { "filter_string": "third practice", "event_field_name": "categories" }
+            "fp1": { "filter_string": "practice 1", "event_field_name": "categories"  },
+            "fp2": { "filter_string": "practice 2", "event_field_name": "categories" },
+            "fp3": { "filter_string": "practice 3", "event_field_name": "categories" }
         },
         "default_id": true
     },
