@@ -1,6 +1,7 @@
 from builtins import object
 import string
 from collections import OrderedDict, namedtuple
+from urllib3.exceptions import HTTPError
 
 from utilities.calendar import Calendar
 from commands.commandhandler import CommandHandler
@@ -63,7 +64,14 @@ class CalendarCountdownPool(CommandHandler):
         for config in json_config:
             required_string = config['required_string'] if 'required_string' in config else ''
             filters = lower_and_decode_dict(config['filters'])
-            calendar = CalendarCountdown(config['calendar_url'], filters, config['descriptor'], required_string.lower())
+
+            try:
+                calendar = CalendarCountdown(config['calendar_url'], filters, config['descriptor'], required_string.lower())
+            except HTTPError as err:
+                id_string = ''.join(config['identifiers'])
+                print(f'Hit error initializing calendar for {id_string}: {err}')
+                continue
+
             for id in config['identifiers']:
                 self.calendars[id.lower()] = calendar
 
